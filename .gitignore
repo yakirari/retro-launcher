@@ -1,0 +1,15 @@
+.gradle/
+.gradle-local/
+.idea/
+.kotlin/
+.cxx/
+**/build/
+local.properties
+keystore/
+release-keystore.properties
+
+# Local/generated assets
+.tmp_*
+*:Zone.Identifier
+*~RF*.TMP
+ps3/PS3UPDAT.PUP

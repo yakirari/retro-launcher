@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="100%" height="100%">
+  <g transform="translate(0, 30)">
+    <path d="M 290,180
+             A 120,120 0 1,1 510,180
+             A 130,100 0 0,0 290,180 Z"
+          fill="#0000ff" />
+
+    <path d="M 536,210
+             A 120,120 0 1,1 620,388
+             A 110,120 0 0,0 536,210 Z"
+          fill="#ff0000" />
+
+    <ellipse cx="160" cy="270" rx="110" ry="60" fill="#32cd32" />
+
+    <ellipse cx="400" cy="350" rx="110" ry="60" fill="#ffff00" />
+  </g>
+
+  <g transform="translate(0, 10)">
+    <g transform="scale(1, 1.8)">
+      <text x="390" y="300"
+            textLength="710" lengthAdjust="spacingAndGlyphs"
+            font-family="'Arial Black', Impact, sans-serif"
+            font-style="italic" font-weight="900" font-size="75"
+            fill="#ff0000" text-anchor="middle">SUPER NINTENDO</text>
+    </g>
+
+    <text x="765" y="540"
+          font-family="Arial, sans-serif" font-weight="bold"
+          font-size="20" fill="#ff0000">®</text>
+
+    <rect x="35" y="555" width="720" height="45" fill="#ff0000" />
+    <text x="395" y="587"
+          textLength="680" lengthAdjust="spacing"
+          font-family="'Arial Black', Impact, sans-serif"
+          font-style="italic" font-weight="bold" font-size="26"
+          fill="#ffffff" text-anchor="middle">ENTERTAINMENT SYSTEM</text>
+  </g>
+</svg>
