@@ -50,14 +50,14 @@ class InstalledTargets(private val app: Application) {
         return resolveInfo.activityInfo?.packageName == app.packageName
     }
 
-    fun loadShortcuts(): List<InstalledShortcutOption> {
+    fun loadShortcuts(filterPackage: String? = null): List<InstalledShortcutOption> {
         if (!isDefaultLauncher()) {
             return emptyList()
         }
 
         val results = mutableListOf<InstalledShortcutOption>()
         for (user in launcherApps.profiles) {
-            val packages = launcherApps
+            val packages = filterPackage?.let(::listOf) ?: launcherApps
                 .getActivityList(null, user)
                 .map { it.applicationInfo.packageName }
                 .distinct()
@@ -77,7 +77,10 @@ class InstalledTargets(private val app: Application) {
                 shortcuts
                     .filter { it.isEnabled }
                     .forEach { info ->
-                        results += info.toOption(userSerial(user))
+                        val label = runCatching {
+                            app.packageManager.getApplicationLabel(app.packageManager.getApplicationInfo(packageName, 0)).toString()
+                        }.getOrDefault(packageName.substringAfterLast('.'))
+                        results += info.toOption(userSerial(user), label)
                     }
             }
         }
@@ -144,6 +147,21 @@ class InstalledTargets(private val app: Application) {
         return importedIconStore.saveShortcutIcon(targetId, drawable)
     }
 
+    fun isImportedShortcutIcon(entry: com.ariy.retrolauncher.model.GameEntry): Boolean {
+        val packageName = entry.packageName ?: return false
+        val id = entry.shortcutId ?: return false
+        val user = userHandle(entry.userSerial ?: 0L) ?: return false
+        val info = runCatching { launcherApps.getShortcuts(LauncherApps.ShortcutQuery().apply {
+            setPackage(packageName)
+            setShortcutIds(listOf(id))
+            setQueryFlags(LauncherApps.ShortcutQuery.FLAG_MATCH_DYNAMIC or LauncherApps.ShortcutQuery.FLAG_MATCH_MANIFEST or
+                LauncherApps.ShortcutQuery.FLAG_MATCH_PINNED or LauncherApps.ShortcutQuery.FLAG_MATCH_CACHED)
+        }, user)?.firstOrNull() }.getOrNull() ?: return false
+        val drawable = runCatching { launcherApps.getShortcutIconDrawable(info, app.resources.displayMetrics.densityDpi) }
+            .getOrNull() ?: return false
+        return importedIconStore.matchesShortcutIcon(entry.id, entry.imageUri, drawable)
+    }
+
     fun startActivity(componentName: ComponentName, userSerial: Long): Boolean {
         val user = userHandle(userSerial) ?: Process.myUserHandle()
         return runCatching {
@@ -152,13 +170,20 @@ class InstalledTargets(private val app: Application) {
         }.getOrDefault(false)
     }
 
+    fun importActivityIcon(entry: com.ariy.retrolauncher.model.GameEntry): String? {
+        val user = userHandle(entry.userSerial ?: 0L) ?: return null
+        val info = launcherApps.getActivityList(entry.packageName, user)
+            .firstOrNull { it.componentName.className == entry.activityName } ?: return null
+        return runCatching { importedIconStore.saveShortcutIcon(entry.id, info.getIcon(app.resources.displayMetrics.densityDpi)) }.getOrNull()
+    }
+
     fun userSerial(user: UserHandle): Long = userManager.getSerialNumberForUser(user)
 
     private fun userHandle(serial: Long): UserHandle? =
         launcherApps.profiles.firstOrNull { userSerial(it) == serial }
 }
 
-private fun ShortcutInfo.toOption(userSerial: Long): InstalledShortcutOption {
+private fun ShortcutInfo.toOption(userSerial: Long, sourceLabel: String): InstalledShortcutOption {
     val title = longLabel?.toString().orEmpty()
         .ifBlank { shortLabel?.toString().orEmpty() }
         .ifBlank { id }
@@ -166,7 +191,7 @@ private fun ShortcutInfo.toOption(userSerial: Long): InstalledShortcutOption {
     return InstalledShortcutOption(
         title = title,
         subtitle = `package`,
-        sourceLabel = `package`.substringAfterLast('.'),
+        sourceLabel = sourceLabel,
         packageName = `package`,
         shortcutId = id,
         userSerial = userSerial,

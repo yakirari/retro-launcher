@@ -4,10 +4,12 @@ import android.net.Uri
 
 object GamePlatforms {
     const val ANDROID = "Android"
+    const val EMULATORS = "Emulators & Launchers"
 
     val values = listOf(
         "MAME Arcade",
         ANDROID,
+        EMULATORS,
         "DOS Games",
         "Nintendo Entertainment System",
         "Sega Master System",
@@ -32,15 +34,18 @@ object GamePlatforms {
         "Nintendo GameCube",
         "Nintendo DS",
         "Sony PlayStation Portable",
-        "Sony PlayStation 3",
         "Nintendo Wii",
         "Nintendo 3DS",
         "Sony PlayStation Vita",
         "Nintendo Switch",
-        "PC (Windows)"
+        "PC (Windows)",
+        "Steam", "GOG", "Epic Games", "Amazon Games", "GameNative", "GameHub", "GameHub Lite"
     )
 
     private val aliasToPlatform = mapOf(
+        "androidgames" to ANDROID,
+        "emulators" to EMULATORS,
+        "launchers" to EMULATORS,
         "nes" to "Nintendo Entertainment System",
         "snes" to "Super Nintendo",
         "n64" to "Nintendo 64",
@@ -72,7 +77,6 @@ object GamePlatforms {
         "playstation" to "Sony PlayStation",
         "playstation1" to "Sony PlayStation",
         "ps2" to "Sony PlayStation 2",
-        "ps3" to "Sony PlayStation 3",
         "psp" to "Sony PlayStation Portable",
         "vita" to "Sony PlayStation Vita",
         "neogeo" to "Neo Geo",
@@ -86,13 +90,14 @@ object GamePlatforms {
         "tg16" to "PC Engine / TurboGrafx-16",
         "pc" to "PC (Windows)",
         "windows" to "PC (Windows)",
-        "gamenative" to "PC (Windows)"
+        "gamenative" to "GameNative",
+        "steam" to "Steam", "gog" to "GOG", "epic" to "Epic Games",
+        "gamehub" to "GameHub", "gamehublite" to "GameHub Lite"
     )
 
     private val packageToPlatform = mapOf(
         "com.github.stenzek.duckstation" to "Sony PlayStation",
         "xyz.aethersx2.android" to "Sony PlayStation 2",
-        "net.rpcsx" to "Sony PlayStation 3",
         "org.ppsspp.ppsspp" to "Sony PlayStation Portable",
         "com.explusalpha.NesEmu" to "Nintendo Entertainment System",
         "com.explusalpha.MdEmu" to "Sega Genesis / Mega Drive",
@@ -108,6 +113,7 @@ object GamePlatforms {
         "org.azahar_emu.azahar" to "Nintendo 3DS",
         "org.dolphinemu.mmjr" to "Nintendo GameCube",
         "org.dolphinemu.dolphinemu" to "Nintendo GameCube",
+        "org.vita3k.emulator" to "Sony PlayStation Vita",
         "dev.eden.eden_emulator" to "Nintendo Switch",
         "org.scummvm.scummvm" to "ScummVM",
         "org.devmiyax.yabasanshioro2.pro" to "Sega Saturn",
@@ -116,6 +122,7 @@ object GamePlatforms {
     )
 
     private val platformToFilterLabel = mapOf(
+        ANDROID to "Android Games",
         "DOS Games" to "ScummVM",
         "MAME Arcade" to "Arcade",
         "Final Burn Neo" to "Arcade",

@@ -1,0 +1,63 @@
+Retro Launcher — cabinet artwork credits
+
+Original launcher code and author-created artwork (SVGs, backgrounds and templates)
+are covered by the project's MIT license. Third-party cabinet images are not relicensed under MIT.
+
+External cabinet references
+--------------------------
+Collection: progetto-SNAPS Cabinets, maintained by AntoPISA.
+Retrieved through: Arcade Italia Arcade Data-Base.
+
+Collection: https://www.progettosnaps.net/cabinets/
+Collection readme: https://www.progettosnaps.net/cabinets/docs/ReadMe_Cabinets.txt
+Database: https://adb.arcadeitalia.net/
+Image source pattern:
+https://adb.arcadeitalia.net/media/mame.current/cabinets/{rom}.png
+
+The collection readme credits contributors including Mr. Do, Ricky74,
+NandoNET, Dany69 and f205v, along with further contributors and source sites.
+See the upstream readme for the complete collection-level credits. These are
+not claims that a particular contributor owns every image in this application.
+
+Upstream terms checked on 2026-10-11
+-----------------------------------
+The collection page states:
+"The images available here are free to use under fair use."
+It also states that copyright remains with the game developers/publishers.
+
+That is the collection's published use statement, not an MIT/Creative Commons
+license or a determination that every redistribution qualifies as fair use.
+Rights in photographs, depicted artwork and trademarks remain with their
+respective owners. No endorsement by those owners or the source sites is implied.
+
+Modifications and generated artwork
+----------------------------------
+Retro Launcher processes some reference images into transparent, resized and
+aligned cabinet illustrations; some conversion illustrations use donor images.
+The project author also identifies their cabinet artwork as AI-generated.
+Per-file source/processing manifests in the source repository distinguish
+documented external inputs from original/generated contributions. Attribution
+to an external source does not imply that every cabinet came from that source.
+Generated/conversion illustrations are not certified photographs of authentic
+factory cabinets. Processing or AI generation does not relicense external inputs.
+
+Source-repository provenance:
+artwork/ARCADE-CABINETS.md
+artwork/cabinet-references/SOURCES.md
+artwork/cabinet-references/EXPANDED-COVERAGE.md
+artwork/cabinet-references/cabinet-manifest.json
+THIRD_PARTY_NOTICES.md
+
+Support the source collection
+----------------------------
+The collection page links to its voluntary support page:
+http://paypal.me/progettoSNAPS
+Donations are optional and do not purchase image rights or redistribution permission.
+
+Corrections and contributions
+----------------------------
+Report incorrect source credits at https://github.com/yakirari/retro-launcher/issues;
+provide the filename and supporting source/permission information. For
+private rights concerns, request the project's private reporting channel without
+posting personal information. Maintainer: https://github.com/yakirari .
+Replacement art contributions should document creator, source and sharing terms.

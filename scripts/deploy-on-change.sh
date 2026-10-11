@@ -56,7 +56,11 @@ DEFAULT_GRADLE_USER_HOME="${HOME:-/home/ariy}/.gradle"
 GRADLE_USER_HOME="${GRADLE_USER_HOME:-$DEFAULT_GRADLE_USER_HOME}"
 SERIAL="${ADB_SERIAL:-}"
 POLL_SECONDS="${POLL_SECONDS:-2}"
-DEFAULT_VARIANT="release"
+if [[ -f "$ROOT_DIR/release-keystore.properties" ]]; then
+    DEFAULT_VARIANT="release"
+else
+    DEFAULT_VARIANT="debug"
+fi
 VARIANT="${BUILD_VARIANT:-$DEFAULT_VARIANT}"
 FASTDEPLOY_MODE="${ADB_INSTALL_FASTDEPLOY:-auto}"
 STREAMING_MODE="${ADB_INSTALL_STREAMING:-auto}"
@@ -190,8 +194,6 @@ WATCH_CANDIDATES=(
     "$ROOT_DIR/overlay_mame"
     "$ROOT_DIR/app/build.gradle.kts"
     "$ROOT_DIR/app/proguard-rules.pro"
-    "$ROOT_DIR/embedded-rpcsx/build.gradle.kts"
-    "$ROOT_DIR/vendor/rpcsx-ui-android/app/src/main"
     "$ROOT_DIR/build.gradle.kts"
     "$ROOT_DIR/settings.gradle.kts"
     "$ROOT_DIR/gradle.properties"
@@ -303,7 +305,12 @@ deploy() {
         return "$BUILD_FAILED_EXIT"
     fi
 
-    [[ -f "$APK_PATH" ]] || die "APK not found after build: $APK_PATH"
+    if [[ ! -f "$APK_PATH" ]]; then
+        if [[ "$VARIANT_LOWER" == "release" && -f "$ROOT_DIR/app/build/outputs/apk/release/app-release-unsigned.apk" ]]; then
+            die "Release APK is unsigned. Configure release-keystore.properties or deploy with --variant debug."
+        fi
+        die "APK not found after build: $APK_PATH"
+    fi
 
     build_install_command
     log "Installing $(basename "$APK_PATH") to $SERIAL"

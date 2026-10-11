@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100">
+	<title>GameHub — simple white computer</title>
+	<rect x="25" y="12" width="110" height="64" rx="3" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+	<path d="M80 76V88M57 88H103" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="square"/>
+	<g fill="#FFFFFF">
+		<rect x="63" y="27" width="14" height="14"/>
+		<rect x="83" y="27" width="14" height="14"/>
+		<rect x="63" y="47" width="14" height="14"/>
+		<rect x="83" y="47" width="14" height="14"/>
+	</g>
+</svg>

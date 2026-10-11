@@ -11,7 +11,6 @@ import java.nio.channels.FileChannel
 private const val PFS0_ENTRY_SIZE = 0x18
 private const val HFS0_ENTRY_SIZE = 0x40
 private const val ROOT_XCI_HFS0_OFFSET = 0xF000L
-private const val TICKET_RIGHTS_ID_OFFSET = 0x160L
 private const val TICKET_RIGHTS_ID_SIZE = 0x10
 private const val NCA_MAGIC_OFFSET = 0x200L
 private const val NCA_TITLE_ID_OFFSET = 0x210L
@@ -25,20 +24,21 @@ private data class SwitchContainerEntry(
 )
 
 fun inferSwitchTitleIdFromPackageUri(context: Context, uri: Uri): String? {
-    return withSwitchReadableChannel(context, uri) { channel ->
-        inferSwitchTitleIdFromChannel(channel, uri)
+    val detected = withSwitchReadableChannel(context, uri) { channel ->
+        inferSwitchTitleIdFromChannel(channel, uri.toString())
     }
+    return detected ?: switchTitleIdFromFilename(uri.lastPathSegment?.substringAfterLast('/'))
 }
 
-private fun inferSwitchTitleIdFromChannel(
+internal fun inferSwitchTitleIdFromChannel(
     channel: FileChannel,
-    uri: Uri
+    filename: String = ""
 ): String? {
     inferTitleIdFromNcaHeader(channel, 0L)?.let { return it }
     parsePartitionFs(channel, 0L)?.let { entries ->
         inferTitleIdFromEntries(channel, 0L, entries)?.let { return it }
     }
-    if (looksLikeXci(uri, channel.size())) {
+    if (looksLikeXci(filename, channel.size())) {
         parsePartitionFs(channel, ROOT_XCI_HFS0_OFFSET)?.let { rootEntries ->
             inferTitleIdFromEntries(channel, ROOT_XCI_HFS0_OFFSET, rootEntries)?.let { return it }
         }
@@ -51,25 +51,29 @@ private fun inferTitleIdFromEntries(
     containerBaseOffset: Long,
     entries: List<SwitchContainerEntry>
 ): String? {
-    entries.firstNotNullOfOrNull { entry ->
+    val ticketTitleIds = entries.mapNotNull { entry ->
         inferTitleIdFromTicket(channel, containerBaseOffset + entry.offset, entry)
-    }?.let { return it }
+    }
+    preferSwitchBaseTitleId(ticketTitleIds)?.let { return it }
 
-    entries.firstNotNullOfOrNull { entry ->
+    val ncaTitleIds = entries.mapNotNull { entry ->
         inferTitleIdFromNcaEntry(channel, containerBaseOffset + entry.offset, entry)
-    }?.let { return it }
+    }
+    preferSwitchBaseTitleId(ncaTitleIds)?.let { return it }
 
+    val nestedTitleIds = mutableListOf<String>()
     entries.filter { entry ->
         entry.name.equals("secure", ignoreCase = true) ||
             entry.name.equals("update", ignoreCase = true) ||
             entry.name.endsWith(".hfs0", ignoreCase = true)
     }.forEach { nested ->
         parsePartitionFs(channel, containerBaseOffset + nested.offset)?.let { nestedEntries ->
-            inferTitleIdFromEntries(channel, containerBaseOffset + nested.offset, nestedEntries)?.let { return it }
+            inferTitleIdFromEntries(channel, containerBaseOffset + nested.offset, nestedEntries)
+                ?.let(nestedTitleIds::add)
         }
     }
 
-    return null
+    return preferSwitchBaseTitleId(nestedTitleIds)
 }
 
 private fun inferTitleIdFromTicket(
@@ -78,13 +82,17 @@ private fun inferTitleIdFromTicket(
     entry: SwitchContainerEntry
 ): String? {
     if (!entry.name.endsWith(".tik", ignoreCase = true)) return null
-    if (entry.size < TICKET_RIGHTS_ID_OFFSET + TICKET_RIGHTS_ID_SIZE) return null
+    val signature = readBytes(channel, entryAbsoluteOffset, 4) ?: return null
+    val signatureType = ByteBuffer.wrap(signature).order(ByteOrder.BIG_ENDIAN).int
+    val rightsOffset = switchTicketRightsIdOffset(signatureType) ?: return null
+    if (entry.size < rightsOffset + TICKET_RIGHTS_ID_SIZE) return null
     val rightsId = readBytes(
         channel = channel,
-        offset = entryAbsoluteOffset + TICKET_RIGHTS_ID_OFFSET,
+        offset = entryAbsoluteOffset + rightsOffset,
         size = TICKET_RIGHTS_ID_SIZE
     ) ?: return null
     return decodeTitleIdCandidates(rightsId.copyOfRange(0, 8)).firstOrNull(::looksLikeSwitchTitleId)
+        ?: switchTitleIdFromFilename(entry.name)
 }
 
 private fun inferTitleIdFromNcaEntry(
@@ -118,7 +126,7 @@ private fun parsePartitionFs(
     byteBuffer.position(4)
     val fileCount = byteBuffer.int
     val stringTableSize = byteBuffer.int
-    if (fileCount <= 0 || stringTableSize < 0) return null
+    if (fileCount !in 1..65536 || stringTableSize !in 0..(4 * 1024 * 1024)) return null
     return when (magic) {
         "PFS0" -> parsePfs0Entries(channel, baseOffset, fileCount, stringTableSize)
         "HFS0" -> parseHfs0Entries(channel, baseOffset, fileCount, stringTableSize)
@@ -229,10 +237,10 @@ private fun looksLikeSwitchTitleId(value: String): Boolean =
     normalizeSwitchTitleId(value) != null
 
 private fun looksLikeXci(
-    uri: Uri,
+    filename: String,
     size: Long
 ): Boolean {
-    val lower = uri.toString().lowercase()
+    val lower = filename.lowercase()
     return lower.endsWith(".xci") || lower.endsWith(".xcz") || size > ROOT_XCI_HFS0_OFFSET + CONTAINER_HEADER_SIZE
 }
 

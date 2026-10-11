@@ -8,6 +8,9 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.SystemClock
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
@@ -23,10 +26,15 @@ import com.ariy.retrolauncher.launch.CustomIntentTemplates
 import com.ariy.retrolauncher.launch.ArtworkCandidate
 import com.ariy.retrolauncher.launch.ArtworkSuggestionService
 import com.ariy.retrolauncher.launch.GameRecommendation
+import com.ariy.retrolauncher.launch.GameRecommendations
+import com.ariy.retrolauncher.launch.TimedCache
+import com.ariy.retrolauncher.launch.firstSuccessfulArtworkBatch
 import com.ariy.retrolauncher.launch.ImportedIconStore
 import com.ariy.retrolauncher.launch.InstalledActivityOption
 import com.ariy.retrolauncher.launch.InstalledShortcutOption
 import com.ariy.retrolauncher.launch.InstalledTargets
+import com.ariy.retrolauncher.launch.ScummVmGames
+import com.ariy.retrolauncher.launch.detectScummVmFolder
 import com.ariy.retrolauncher.launch.arcadeOverlayAssetBaseNames
 import com.ariy.retrolauncher.launch.defaultSubtitle
 import com.ariy.retrolauncher.launch.arcadeRomShortNameForArtworkSearch
@@ -34,6 +42,7 @@ import com.ariy.retrolauncher.launch.findMatchingArcadeOverlayAssetName
 import com.ariy.retrolauncher.launch.isGenericArcadeFallbackAssetName
 import com.ariy.retrolauncher.launch.artworkSearchQueries
 import com.ariy.retrolauncher.launch.artworkSearchQuery
+import com.ariy.retrolauncher.launch.preferredArtworkAspectRatio
 import com.ariy.retrolauncher.model.GameEntry
 import com.ariy.retrolauncher.model.GameFilters
 import com.ariy.retrolauncher.model.GamePlatforms
@@ -44,8 +53,18 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.zip.ZipInputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asContextElement
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,12 +73,105 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GameRepository(application)
     private val installedTargets = InstalledTargets(application)
     private val importedIconStore = ImportedIconStore(application)
+    private val resetGeneration = ResetGeneration()
+    private val workerGeneration = ThreadLocal<Long?>()
+    private var workerJob = SupervisorJob(viewModelScope.coroutineContext[Job])
+    private var workerScope = CoroutineScope(viewModelScope.coroutineContext + workerJob)
+    private val _resetting = MutableStateFlow(false)
+    val resetting: StateFlow<Boolean> = _resetting.asStateFlow()
+    private val _resetNonce = MutableStateFlow(0L)
+    val resetNonce: StateFlow<Long> = _resetNonce.asStateFlow()
+    private val _resetFailures = MutableStateFlow<List<String>>(emptyList())
+    val resetFailures: StateFlow<List<String>> = _resetFailures.asStateFlow()
+    fun dismissResetFailures() { _resetFailures.value = emptyList() }
+
+    fun acceptsSession(nonce: Long): Boolean = resetGeneration.accepts(nonce)
+
+    private fun canWrite(): Boolean = resetGeneration.accepts(workerGeneration.get() ?: resetGeneration.current)
+
+    private fun launchWorker(
+        context: CoroutineContext = EmptyCoroutineContext,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job {
+        val generation = workerGeneration.get() ?: resetGeneration.current
+        return workerScope.launch(context + workerGeneration.asContextElement(generation)) {
+            if (resetGeneration.accepts(generation)) block()
+        }
+    }
+
+    /** Called only by the explicit confirmation button. No ROM/shared-file deletion. */
+    fun resetLauncher() {
+        if (!resetGeneration.begin()) return
+        _resetFailures.value = emptyList()
+        _resetting.value = true
+        val retiringWorkers = workerJob
+        retiringWorkers.cancel()
+        viewModelScope.launch {
+            withContext(kotlinx.coroutines.NonCancellable) {
+                // Wait for synchronous downloads/icon writes and NonCancellable finally blocks.
+                // Deletion happens AFTER draining, so no old private files can be recreated late.
+                retiringWorkers.join()
+                val failures = withContext(Dispatchers.IO) {
+                    com.ariy.retrolauncher.data.LauncherResetStorage(getApplication()).clear()
+                }
+                _games.value = emptyList()
+                _setupCompleted.value = false
+                _authorizedRomTreeUri.value = null
+                _gridColumns.value = 2
+                _genreFilter.value = GameFilters.ALL
+                _libraryScan.value = LibraryScanProgress()
+                _shortcutOptions.value = emptyList()
+                _activityOptions.value = emptyList()
+                _artworkSuggestions.value = emptyMap()
+                _artworkLoading.value = emptySet()
+                _artworkPending.value = emptySet()
+                _activeArtworkBackfillPlatforms.value = emptySet()
+                synchronized(pendingArtworkAutofillIds) { pendingArtworkAutofillIds.clear() }
+                synchronized(activeArtworkBackfillPlatformIds) { activeArtworkBackfillPlatformIds.clear() }
+                artworkRetryAfterMillis.clear()
+                artworkSuggestionCache.clear()
+                GameRecommendations.invalidateRomInventory()
+                pendingRetroArchCleanupPackage = null
+                installedRefreshRequested = false
+                importSharedGamesRequested = false
+                installedRefreshJob = null
+                hubArtworkJob = null
+                libraryScanJob = null
+                artworkResumeJob = null
+                switchDuplicateReconciliationJob = null
+                workerJob = SupervisorJob(viewModelScope.coroutineContext[Job])
+                workerScope = CoroutineScope(viewModelScope.coroutineContext + workerJob)
+                _resetNonce.value = resetGeneration.current
+                _resetFailures.value = failures
+                _statusMessage.value = if (failures.isEmpty()) {
+                    "Launcher reset. ROMs and installed apps were not deleted. Choose your ROM folder again to import games."
+                } else {
+                    "Reset incomplete: ${failures.joinToString("; ")}. Some saved data/access may remain; retry Reset launcher. ROMs and installed apps were not deleted."
+                }
+                resetGeneration.finish()
+                _resetting.value = false
+                // Discovery is allowed, but welcome must not silently restore old hub games.
+                refreshInstalledTargets(importSharedGames = false)
+            }
+        }
+    }
+
+    private val _setupCompleted = MutableStateFlow(repository.loadSetupCompleted())
+    val setupCompleted: StateFlow<Boolean> = _setupCompleted.asStateFlow()
+    private val _libraryScan = MutableStateFlow(LibraryScanProgress())
+    internal val libraryScan: StateFlow<LibraryScanProgress> = _libraryScan.asStateFlow()
+    private var libraryScanJob: Job? = null
+    private var installedRefreshJob: Job? = null
+    @Volatile private var installedRefreshRequested = false
+    @Volatile private var importSharedGamesRequested = false
+    private var hubArtworkJob: Job? = null
 
     private val _games = MutableStateFlow(cleanupLoadedGames(repository.loadGames()))
     val games: StateFlow<List<GameEntry>> = _games.asStateFlow()
@@ -87,6 +199,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val _artworkSuggestions = MutableStateFlow<Map<String, List<ArtworkCandidate>>>(emptyMap())
     val artworkSuggestions: StateFlow<Map<String, List<ArtworkCandidate>>> = _artworkSuggestions.asStateFlow()
+    private val artworkSuggestionCache = TimedCache<String, Pair<String, List<ArtworkCandidate>>>(128, 15 * 60_000L)
 
     private val _artworkLoading = MutableStateFlow<Set<String>>(emptySet())
     val artworkLoading: StateFlow<Set<String>> = _artworkLoading.asStateFlow()
@@ -102,23 +215,192 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     val launcherResumeNonce: StateFlow<Int> = _launcherResumeNonce.asStateFlow()
 
     private var pendingRetroArchCleanupPackage: String? = null
+    private var switchDuplicateReconciliationJob: Job? = null
+    private var artworkResumeJob: Job? = null
+    private val artworkRetryAfterMillis = ConcurrentHashMap<String, Long>()
 
     init {
         restoreAuthorizedRomTreeUriIfNeeded()
         persistCleanedGamesIfNeeded()
-        refreshInstalledTargets()
+        val arcadeDeduped = dedupeArcadeGameEntries(_games.value).map(ScummVmGames::repairTitle)
+            .map(com.ariy.retrolauncher.model.PcGameStores::classify)
+            .map { com.ariy.retrolauncher.launch.classifyStandaloneActivity(it) }
+        if (arcadeDeduped != _games.value) persistGames(arcadeDeduped)
+        scheduleSwitchDuplicateReconciliation()
+        refreshInstalledTargets(importSharedGames = _setupCompleted.value)
         prefetchMameFallbackArtworkIfNeeded()
     }
 
-    fun refreshInstalledTargets() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun refreshInstalledTargets(importSharedGames: Boolean = true) {
+        if (!canWrite()) return
+        importSharedGamesRequested = importSharedGamesRequested || importSharedGames
+        if (installedRefreshJob?.isActive == true) {
+            installedRefreshRequested = true
+            return
+        }
+        installedRefreshJob = launchWorker(Dispatchers.IO) {
+            do {
+            installedRefreshRequested = false
+            val shouldImportSharedGames = importSharedGamesRequested
+            importSharedGamesRequested = false
+            try {
             _isDefaultLauncher.value = installedTargets.isDefaultLauncher()
-            _shortcutOptions.value = installedTargets.loadShortcuts()
-            _activityOptions.value = installedTargets.loadActivities()
+            val activities = installedTargets.loadActivities()
+            _activityOptions.value = activities
+            val additions = com.ariy.retrolauncher.launch.installedEmulatorLaunchers(activities, _games.value)
+            updateGamesFromBackground { current ->
+                val stillMissing = com.ariy.retrolauncher.launch.installedEmulatorLaunchers(activities, current)
+                    .map { it.packageName to it.userSerial }.toSet()
+                current + additions.filter { (it.packageName to it.userSerial) in stillMissing }
+            }
+            // Publish launchable tiles before slower icon and shortcut discovery work.
+            additions.forEach { entry ->
+                currentCoroutineContext().ensureActive()
+                val icon = runCatching { installedTargets.importActivityIcon(entry) }.getOrNull()
+                if (icon != null) updateGamesFromBackground { current -> current.map {
+                    if (it.id == entry.id && it.imageUri.isNullOrBlank()) it.copy(imageUri = icon) else it
+                } }
+            }
+            val shortcuts = installedTargets.loadShortcuts()
+            _shortcutOptions.value = shortcuts
+            (if (shouldImportSharedGames) LibrarySetupPolicy.missingHubShortcuts(shortcuts, _games.value)
+                else emptyList()).forEach { option ->
+                currentCoroutineContext().ensureActive()
+                try { importShortcut(option, autofill = false) }
+                catch (error: CancellationException) { throw error }
+                catch (error: Exception) {
+                    setStatus("Could not import shared shortcut ${option.title}. Return to Home to retry: ${error.message ?: error.javaClass.simpleName}")
+                }
+            }
+            // Optional portrait upgrades begin only after all accessible shared games appear.
+            if (hubArtworkJob?.isActive != true) hubArtworkJob = launchWorker(Dispatchers.IO) {
+                _games.value.filter { it.platform in com.ariy.retrolauncher.model.PcGameStores.platforms }
+                    .forEach { game ->
+                        if (game.imageUri.isNullOrBlank()) autoFillArtworkIfMissing(game.id, game.title)
+                        else upgradeDigitalPortrait(game)
+                    }
+            }
+            } catch (error: CancellationException) { throw error
+            } catch (error: Exception) {
+                setStatus("Installed target refresh failed. Return to Home to retry: ${error.message ?: error.javaClass.simpleName}")
+            }
+            } while (installedRefreshRequested)
+        }
+    }
+
+    fun completeSetup() {
+        if (!canWrite()) return
+        repository.saveSetupCompleted()
+        _setupCompleted.value = true
+        refreshInstalledTargets()
+    }
+
+    fun cancelLibraryScan() { libraryScanJob?.cancel() }
+
+    fun hasSelectedRomRoot(): Boolean = !repository.loadSelectedRomRoot().isNullOrBlank()
+
+    /** Must be called with the picker result, never a normalized permission ancestor. */
+    fun authorizeAndScanLibrary(uri: String) {
+        if (!canWrite()) return
+        if (libraryScanJob?.isActive == true) {
+            setStatus("Cancel the current library scan before choosing another root.")
+            return
+        }
+        repository.saveSelectedRomRoot(uri)
+        setAuthorizedRomTreeUri(uri)
+        completeSetup()
+        scanLibrary()
+    }
+
+    fun scanLibrary() {
+        if (!canWrite()) return
+        if (libraryScanJob?.isActive == true) return
+        val root = repository.loadSelectedRomRoot()
+        if (root.isNullOrBlank()) {
+            setStatus("Choose your ROM root once before scanning. Existing authorization is not used as a broader scan root.")
+            return
+        }
+        _libraryScan.value = LibraryScanProgress(running = true, totalPlatforms = LibraryScanner.platforms.size)
+        libraryScanJob = launchWorker(Dispatchers.IO) {
+            val artworkIds = linkedSetOf<String>()
+            try {
+                val app = getApplication<Application>()
+                val directory = DocumentFile.fromTreeUri(app, Uri.parse(root))
+                    ?: error("The selected ROM root is no longer accessible. Choose it again.")
+                // Fail explicitly on revoked grants/provider failure instead of claiming
+                // a successful empty scan when platform discovery cannot read the root.
+                val scanContext = currentCoroutineContext()
+                listRomDocuments(app, directory, RomScanCancellationCheck(scanContext))
+                // Only current-profile packages can safely be used for custom emulator intents.
+                val packages = CustomIntentTemplates.all.map { it.packageName }.filter { packageName ->
+                    runCatching { app.packageManager.getApplicationInfo(packageName, 0) }.isSuccess
+                }.toSet()
+                for (platform in LibraryScanner.platforms) {
+                    currentCoroutineContext().ensureActive()
+                    _libraryScan.update { it.copy(platform = platform) }
+                    try {
+                        val batch = LibraryScanner.scan(app, root, platform, packages, _games.value)
+                        currentCoroutineContext().ensureActive()
+                        _libraryScan.update { it.copy(discovered = it.discovered + batch.skipped,
+                            skipped = it.skipped + batch.skipped,
+                            messages = (it.messages + listOfNotNull(batch.notice)).takeLast(64)) }
+                        for (chunk in batch.entries.chunked(64)) {
+                            currentCoroutineContext().ensureActive()
+                            withContext(Dispatchers.Main.immediate) {
+                                val current = _games.value.toMutableList()
+                                var imported = 0
+                                var duplicates = 0
+                                var unconfigured = 0
+                                chunk.forEach { entry ->
+                                    val result = upsertOrMergeInPlace(current, entry, entry.primaryTarget(), ::resolvePlatform)
+                                    if (result.outcome == UpsertOutcome.DUPLICATE) duplicates++ else {
+                                        imported++
+                                        artworkIds += result.gameId
+                                    }
+                                    if (current.firstOrNull { it.id == result.gameId }?.needsLaunchSetup == true) unconfigured++
+                                }
+                                if (current != _games.value) persistGames(current)
+                                _libraryScan.update { it.copy(
+                                    discovered = it.discovered + chunk.size,
+                                    imported = it.imported + imported, skipped = it.skipped + duplicates,
+                                    unconfigured = it.unconfigured + unconfigured
+                                ) }
+                            }
+                            kotlinx.coroutines.yield()
+                        }
+                    } catch (error: CancellationException) { throw error
+                    } catch (error: Exception) {
+                        _libraryScan.update { it.copy(errors = it.errors + 1,
+                            messages = (it.messages + "$platform: ${error.message ?: error.javaClass.simpleName}. Retry Scan library or reselect the folder if access was revoked.").takeLast(64)) }
+                    }
+                    _libraryScan.update { it.copy(completedPlatforms = it.completedPlatforms + 1) }
+                }
+                _libraryScan.update { it.finished().copy(messages = it.messages +
+                    "Local import complete. Only recognized platform folders and supported formats are detected; unrecognized layouts need Add games or a supported folder name. Artwork is optional and runs afterward; offline games remain imported. Retry missing artwork from Options → Artwork.") }
+            } catch (error: CancellationException) {
+                _libraryScan.update { it.finished(cancelled = true).copy(messages = it.messages +
+                    "Cancelled. Already committed games are kept; Scan library safely retries the rest.") }
+                throw error
+            } catch (error: Exception) {
+                _libraryScan.update { it.finished().copy(errors = it.errors + 1, messages = it.messages +
+                    "Library scan failed: ${error.message ?: error.javaClass.simpleName}. Choose the ROM root again or retry.") }
+            } finally {
+                // Imports remain durable on cancellation. Existing bounded autofill queues
+                // preserve custom artwork and never gate completion on network availability.
+                withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main.immediate) {
+                    if (!canWrite()) return@withContext
+                    artworkIds.forEach { id -> _games.value.firstOrNull { it.id == id }?.let {
+                        autoFillArtworkIfMissing(it.id, it.title)
+                    } }
+                    scheduleSwitchDuplicateReconciliation()
+                }
+            }
         }
     }
 
     fun setAuthorizedRomTreeUri(uri: String?, statusOverride: String? = null) {
+        if (!canWrite()) return
+        GameRecommendations.invalidateRomInventory()
         val normalized = normalizeAuthorizedRomTreeUri(uri?.ifBlank { null })
         _authorizedRomTreeUri.value = normalized
         repository.saveAuthorizedRomTreeUri(normalized)
@@ -132,31 +414,38 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setGridColumns(columns: Int) {
+        if (!canWrite()) return
         if (columns !in setOf(1, 2, 3, 4, 8)) return
         _gridColumns.value = columns
         repository.saveGridColumns(columns)
     }
 
     fun setGenreFilter(genre: String) {
+        if (!canWrite()) return
         val normalized = GameFilters.normalizeFilter(genre)
         _genreFilter.value = normalized
         repository.saveGenreFilter(normalized)
     }
 
     fun addShortcut(option: InstalledShortcutOption) {
+        launchWorker(Dispatchers.IO) { importShortcut(option) }
+    }
+
+    private suspend fun importShortcut(option: InstalledShortcutOption, autofill: Boolean = true) {
         val entryId = UUID.randomUUID().toString()
         val inferredIntentDataUri = option.resolvedIntentDataUri()
         val entry = GameEntry(
             id = entryId,
             title = option.title,
             subtitle = option.sourceLabel,
-            platform = inferPlatformFromIntentDataUri(inferredIntentDataUri),
-            imageUri = installedTargets.importShortcutIcon(
+            platform = com.ariy.retrolauncher.model.PcGameStores.forShortcut(option)
+                ?: inferPlatformFromIntentDataUri(inferredIntentDataUri),
+            imageUri = runCatching { installedTargets.importShortcutIcon(
                 packageName = option.packageName,
                 shortcutId = option.shortcutId,
                 userSerial = option.userSerial,
                 targetId = entryId
-            ),
+            ) }.getOrNull(),
             sourceType = GameSourceType.SHORTCUT,
             packageName = option.packageName,
             shortcutId = option.shortcutId,
@@ -167,7 +456,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             categoriesCsv = option.categoriesCsv,
             extrasJson = option.extrasJson
         )
-        upsertOrMerge(
+        withContext(Dispatchers.Main.immediate) { upsertOrMerge(
             entry = entry,
             target = LaunchTarget(
                 sourceType = GameSourceType.SHORTCUT,
@@ -180,15 +469,50 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 mimeType = option.mimeType,
                 categoriesCsv = option.categoriesCsv,
                 extrasJson = option.extrasJson
-            )
-        )
+            ),
+            autofill = autofill
+        ) }
+        if (autofill) launchWorker(Dispatchers.IO) {
+            _games.value.firstOrNull { it.packageName == option.packageName && it.shortcutId == option.shortcutId &&
+                it.userSerial == option.userSerial }?.let { upgradeDigitalPortrait(it) }
+        }
+    }
+
+    private suspend fun upgradeDigitalPortrait(game: GameEntry) {
+        if (game.platform !in com.ariy.retrolauncher.model.PcGameStores.platforms || game.imageUri.isNullOrBlank()) return
+        val generated = resolveArtworkSourceUri(game.imageUri).lastPathSegment == "${game.id}-autofill.png"
+        if (!generated && !installedTargets.isImportedShortcutIcon(game)) return
+        if (SystemClock.elapsedRealtime() < (artworkRetryAfterMillis[game.id] ?: 0L)) return
+        if (!queueArtworkAutofill(game.id)) return
+        try {
+            artworkRetryAfterMillis[game.id] = SystemClock.elapsedRealtime() + 5 * 60_000L
+            val portrait = com.ariy.retrolauncher.launch.SteamStoreArtworkCatalog.fetchCandidates(game.title)
+                .firstOrNull { it.source.endsWith("portrait") } ?: return
+            val saved = importedIconStore.downloadImage("${game.id}-digital-portrait", portrait.imageUrl) ?: return
+            updateGamesFromBackground { current -> current.map { it.withAutofilledArtwork(game, saved) } }
+            artworkRetryAfterMillis.remove(game.id)
+        } finally {
+            finishArtworkAutofill(game.id, false)
+        }
+    }
+
+    fun importPublishedShortcut(packageName: String, shortcutId: String, userSerial: Long) {
+        launchWorker {
+            val option = withContext(Dispatchers.IO) {
+                installedTargets.loadShortcuts(packageName).firstOrNull {
+                    it.shortcutId == shortcutId && it.userSerial == userSerial
+                }
+            }
+            if (option != null) addShortcut(option)
+            else _statusMessage.value = "Shortcut not available yet. Open Add games → Shortcuts after returning from the game app."
+        }
     }
 
     fun addActivity(option: InstalledActivityOption) {
         val entry = GameEntry(
             title = option.title,
             subtitle = option.sourceLabel,
-            platform = GamePlatforms.ANDROID,
+            platform = com.ariy.retrolauncher.launch.standaloneActivityPlatform(option.packageName),
             sourceType = GameSourceType.ACTIVITY,
             packageName = option.packageName,
             activityName = option.activityName,
@@ -227,9 +551,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         )
     }
 
-    fun addCustomEntries(entries: List<GameEntry>) {
+    fun addCustomEntries(entries: List<GameEntry>, refreshPlatform: String? = null) {
         if (entries.isEmpty()) {
-            setStatus("No new MAME titles with matching overlay art were found.")
+            val platformLabel = refreshPlatform?.takeIf { it.isNotBlank() } ?: "titles"
+            setStatus("No new $platformLabel were found in the ROM folder.")
             return
         }
 
@@ -244,16 +569,19 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                     current = current,
                     entry = normalizedEntry,
                     target = LaunchTarget(
-                        sourceType = GameSourceType.CUSTOM_INTENT,
+                        sourceType = normalizedEntry.sourceType,
                         label = normalizedEntry.subtitle,
                         packageName = normalizedEntry.packageName,
                         activityName = normalizedEntry.activityName,
+                        shortcutId = normalizedEntry.shortcutId,
+                        userSerial = normalizedEntry.userSerial,
                         intentAction = normalizedEntry.intentAction,
                         intentDataUri = normalizedEntry.intentDataUri,
                         mimeType = normalizedEntry.mimeType,
                         categoriesCsv = normalizedEntry.categoriesCsv,
                         extrasJson = normalizedEntry.extrasJson
-                    )
+                    ),
+                    resolveEntryPlatform = ::resolvePlatform
                 )
                 if (result.outcome != UpsertOutcome.DUPLICATE) {
                     add(result)
@@ -262,11 +590,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
 
         if (results.isEmpty()) {
-            setStatus("No new MAME titles with matching overlay art were found.")
+            val platformLabel = refreshPlatform?.takeIf { it.isNotBlank() } ?: "titles"
+            setStatus("No new $platformLabel were found in the ROM folder.")
             return
         }
 
         persistGames(current)
+        scheduleSwitchDuplicateReconciliation()
         results
             .distinctBy { it.gameId }
             .forEach { result -> autoFillArtworkIfMissing(result.gameId, result.title) }
@@ -287,7 +617,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         )
     }
 
-    fun fillMissingArtworkForPlatform(platform: String?) {
+    fun fillMissingArtworkForPlatform(platform: String?, refreshAll: Boolean = false) {
+        if (!canWrite()) return
         val normalizedPlatform = GamePlatforms.normalizeOrNull(platform) ?: return
         val started = synchronized(activeArtworkBackfillPlatformIds) {
             if (normalizedPlatform in activeArtworkBackfillPlatformIds) {
@@ -299,20 +630,28 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             }
         }
         if (!started) return
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             try {
+                val platformGames = _games.value.filter { game ->
+                    GamePlatforms.normalizeOrNull(game.platform) == normalizedPlatform
+                }
+                val refreshableIds = platformGames.map { it.id }.toSet()
+                if (refreshableIds.isEmpty()) return@launchWorker
+
                 _games.value
                     .asSequence()
                     .filter { game -> GamePlatforms.normalizeOrNull(game.platform) == normalizedPlatform }
-                    .filter { game -> game.imageUri.isNullOrBlank() }
-                    .filter { game -> queueArtworkAutofill(game.id) }
+                    .filter { game -> if (refreshAll) true else game.imageUri.isNullOrBlank() }
                     .forEach { game ->
+                        // Queue only the item being processed; cancellation must not strand later IDs.
+                        if (!queueArtworkAutofill(game.id)) return@forEach
                         autoFillArtworkIfMissingInternal(
                             id = game.id,
                             title = game.title,
                             publishLoadingState = true,
                             cacheSuggestions = false,
-                            alreadyQueued = true
+                            alreadyQueued = true,
+                            replaceExistingArtwork = refreshAll
                         )
                     }
             } finally {
@@ -327,7 +666,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun updateGame(entry: GameEntry) {
         val normalizedEntry = entry.copy(
             genre = normalizeCollection(entry.genre),
-            platform = resolvePlatform(entry)
+            platform = resolvePlatform(entry),
+            needsLaunchSetup = entry.needsLaunchSetup && entry.packageName.isNullOrBlank()
         )
         val updated = _games.value.map { if (it.id == normalizedEntry.id) normalizedEntry else it }
         persistGames(updated)
@@ -356,14 +696,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun importImageFromUrl(id: String, imageUrl: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             val savedUri = importedIconStore.downloadImage(id, imageUrl.trim())
             if (savedUri != null) {
-                val updated = _games.value.map { game ->
-                    if (game.id == id) game.copy(imageUri = stampArtworkUri(resolveArtworkSourceUri(savedUri).toString())) else game
+                updateGamesFromBackground { games ->
+                    games.map { game ->
+                        if (game.id == id) game.copy(imageUri = stampArtworkUri(resolveArtworkSourceUri(savedUri).toString())) else game
+                    }
                 }
-                _games.value = updated
-                repository.saveGames(updated)
                 setStatus("Artwork updated.")
             } else {
                 setStatus("Could not download image from URL.")
@@ -372,42 +712,48 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun loadArtworkSuggestions(id: String, title: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             _artworkLoading.update { it + id }
-            val suggestions = fetchArtworkSuggestionsFor(id, title)
-            _artworkSuggestions.value = _artworkSuggestions.value + (id to suggestions)
-            _artworkLoading.update { it - id }
-            if (suggestions.isEmpty()) {
-                setStatus("No artwork suggestions found.")
+            try {
+                val queryKey = artworkSuggestionQueryKey(id, title)
+                val suggestions = fetchArtworkSuggestionsFor(id, title)
+                cacheArtworkSuggestions(id, queryKey, suggestions)
+                _artworkSuggestions.update { it + (id to suggestions) }
+                if (suggestions.isEmpty()) setStatus("No artwork suggestions found.")
+            } catch (error: Throwable) {
+                if (error is CancellationException) throw error
+                Log.w("RetroLauncher", "Artwork lookup failed for id='$id'", error)
+                setStatus("Artwork lookup failed.")
+            } finally {
+                _artworkLoading.update { it - id }
             }
         }
     }
 
     fun importTopArtworkSuggestion(id: String, title: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             _artworkLoading.update { it + id }
             try {
-                val suggestions = fetchArtworkSuggestionsFor(id, title)
-                _artworkSuggestions.value = _artworkSuggestions.value + (id to suggestions)
-                if (suggestions.isEmpty()) {
-                    setStatus("No artwork suggestions found.")
-                    return@launch
-                }
-                val savedUri = importedIconStore.downloadFirstAvailableImage(
-                    fileName = id,
-                    imageUrls = suggestions.map(ArtworkCandidate::imageUrl)
-                )
-                if (savedUri != null) {
-                    val updated = _games.value.map { game ->
-                        if (game.id == id) game.copy(imageUri = stampArtworkUri(resolveArtworkSourceUri(savedUri).toString())) else game
+                val queryKey = artworkSuggestionQueryKey(id, title)
+                val suggestions = cachedArtworkSuggestions(id, queryKey)
+                    ?: fetchArtworkSuggestionsFor(id, title).also { fetched ->
+                        cacheArtworkSuggestions(id, queryKey, fetched)
                     }
-                    _games.value = updated
-                    repository.saveGames(updated)
+                _artworkSuggestions.update { it + (id to suggestions) }
+                val game = _games.value.firstOrNull { it.id == id } ?: return@launchWorker
+                val savedUri = downloadArtworkWithFallback(game, title, suggestions, fileName = id)
+                if (savedUri != null) {
+                    updateGamesFromBackground { games ->
+                        games.map { game ->
+                            if (game.id == id) game.copy(imageUri = stampArtworkUri(resolveArtworkSourceUri(savedUri).toString())) else game
+                        }
+                    }
                     setStatus("Artwork updated from suggestions.")
                 } else {
                     setStatus("Could not download any suggested image.")
                 }
             } catch (error: Throwable) {
+                if (error is CancellationException) throw error
                 Log.w("RetroLauncher", "Top artwork import failed for id='$id'", error)
                 setStatus("Artwork lookup failed.")
             } finally {
@@ -417,28 +763,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun launchTarget(game: GameEntry, target: LaunchTarget): Boolean {
+        if (game.needsLaunchSetup && target.packageName.isNullOrBlank()) {
+            setStatus("Needs emulator setup. Open this tile's menu → Edit / Launch targets, select an installed emulator preset and system/core, then save. Or install a supported standalone emulator and retry Options → Scan library.")
+            return false
+        }
         val app = getApplication<Application>()
         val normalizedGame = normalizeRetroArchPlatformIfNeeded(game)
         var launchedPackageName: String? = null
-        if (target.packageName.isRpcsxPackage() && app.rpcsxLaunchMode() == "embedded") {
-            return runCatching {
-                val embeddedTarget = target.copy(
-                    sourceType = GameSourceType.CUSTOM_INTENT,
-                    intentAction = target.intentAction ?: normalizedGame.intentAction,
-                    intentDataUri = target.intentDataUri ?: normalizedGame.intentDataUri,
-                    mimeType = target.mimeType ?: normalizedGame.mimeType,
-                    categoriesCsv = target.categoriesCsv ?: normalizedGame.categoriesCsv,
-                    extrasJson = target.extrasJson ?: normalizedGame.extrasJson
-                )
-                val baseIntent = normalizedGame.buildIntent(app, embeddedTarget)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startEmbeddedRpcsxIntentWithFallbacks(app, baseIntent)
-                pendingRetroArchCleanupPackage = null
-                true
-            }.onFailure { error ->
-                setStatus("Launch failed for ${normalizedGame.title}: ${error.message ?: error.javaClass.simpleName}")
-            }.getOrDefault(false)
-        }
         val launched = when (target.sourceType) {
             GameSourceType.SHORTCUT -> {
                 val packageName = target.packageName ?: return false.also { setStatus("Shortcut package missing.") }
@@ -466,8 +797,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val baseIntent = normalizedGame.buildIntent(app, effectiveTarget).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 if (effectiveTarget.packageName.isRetroArchPackage()) {
                     startRetroArchIntentWithFallbacks(app, effectiveTarget, baseIntent)
-                } else if (effectiveTarget.packageName.isRpcsxPackage()) {
-                    startRpcsxIntentWithFallbacks(app, effectiveTarget, baseIntent)
                 } else {
                     runCatching {
                         startIntentWithFileUriSupport(app, effectiveTarget.packageName, baseIntent)
@@ -498,10 +827,20 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onLauncherResumed() {
+        if (!canWrite()) return
+        refreshInstalledTargets(importSharedGames = _setupCompleted.value)
         _launcherResumeNonce.value = _launcherResumeNonce.value + 1
+        if (artworkResumeJob?.isActive != true) {
+            artworkResumeJob = launchWorker {
+                while (true) {
+                    resumeMissingArtworkIfOnline()
+                    delay(30_000)
+                }
+            }
+        }
         val packageName = pendingRetroArchCleanupPackage ?: return
         pendingRetroArchCleanupPackage = null
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             delay(250)
             runCatching {
                 getApplication<Application>()
@@ -514,12 +853,31 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun onLauncherPaused() {
+        artworkResumeJob?.cancel()
+        artworkResumeJob = null
+    }
+
+    private fun resumeMissingArtworkIfOnline() {
+        if (_libraryScan.value.running) return
+        val connectivity = getApplication<Application>().getSystemService(ConnectivityManager::class.java)
+            ?: return
+        val capabilities = connectivity.getNetworkCapabilities(connectivity.activeNetwork) ?: return
+        if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return
+        val inFlight = synchronized(pendingArtworkAutofillIds) { pendingArtworkAutofillIds.toSet() }
+        missingArtworkToResume(_games.value, inFlight, artworkRetryAfterMillis, SystemClock.elapsedRealtime())
+            .forEach { game -> autoFillArtworkIfMissing(game.id, game.title) }
+    }
+
     fun preferredLaunchTarget(game: GameEntry): LaunchTarget =
         game.preferredTarget() ?: game.primaryTarget()
 
     fun setPreferredTarget(gameId: String, target: LaunchTarget) {
         val updated = _games.value.map { game ->
-            if (game.id == gameId) game.promoteTarget(target) else game
+            if (
+                game.id == gameId &&
+                (GamePlatforms.normalizeOrNull(game.platform) != "Nintendo Switch" || game.allTargets().size <= 1)
+            ) game.promoteTarget(target) else game
         }
         persistGames(updated)
     }
@@ -565,7 +923,40 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         persistGames(updated)
     }
 
-    fun launch(game: GameEntry): Boolean = launchTarget(game, preferredLaunchTarget(game))
+    fun launch(game: GameEntry): Boolean {
+        val preferred = preferredLaunchTarget(game)
+        return launchGroupedTarget(game, preferred)
+    }
+
+    fun launchGroupedTarget(game: GameEntry, requestedTarget: LaunchTarget): Boolean {
+        val targets = game.allTargets()
+        if (GamePlatforms.normalizeOrNull(game.platform) != "Nintendo Switch" || targets.size <= 1) {
+            setPreferredTarget(game.id, requestedTarget)
+            return launchTarget(game, requestedTarget)
+        }
+
+        val basePreferred = preferredLaunchTarget(game)
+        val orderedTargets = listOf(requestedTarget, basePreferred) + targets
+        val distinctTargets = orderedTargets.distinctBy(LaunchTarget::stableKey)
+        var baseTargetFailed = false
+        for ((index, target) in distinctTargets.withIndex()) {
+            _statusMessage.value = null
+            if (launchTarget(game, target)) {
+                if (target.stableKey() == basePreferred.stableKey() || baseTargetFailed) {
+                    setPreferredTarget(game.id, target)
+                    if (baseTargetFailed && target.stableKey() != basePreferred.stableKey()) {
+                        setStatus("Default Switch game file failed; switched the default to another grouped file.")
+                    }
+                } else {
+                    setStatus("Launched another grouped Switch file; the preferred default remains unchanged.")
+                }
+                return true
+            }
+            if (target.stableKey() == basePreferred.stableKey()) baseTargetFailed = true
+            if (index < distinctTargets.lastIndex) _statusMessage.value = null
+        }
+        return false
+    }
 
     fun addRecommendation(recommendation: GameRecommendation) {
         val wasAlreadyAdded = _games.value.any { it.id == recommendation.launchEntry.id }
@@ -629,7 +1020,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun templates() = CustomIntentTemplates.all
 
-    private fun upsertOrMerge(entry: GameEntry, target: LaunchTarget) {
+    private fun upsertOrMerge(entry: GameEntry, target: LaunchTarget, autofill: Boolean = true) {
         val normalizedTitle = entry.title.trim().lowercase()
         val normalizedPlatform = resolvePlatform(entry)
         val current = _games.value.toMutableList()
@@ -640,26 +1031,45 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         val result = upsertOrMergeInPlace(
             current = current,
             entry = entry.copy(platform = normalizedPlatform),
-            target = target
+            target = target,
+            resolveEntryPlatform = ::resolvePlatform
         )
         if (result.outcome == UpsertOutcome.DUPLICATE) return
         persistGames(current)
-        autoFillArtworkIfMissing(result.gameId, result.title)
+        if (autofill) autoFillArtworkIfMissing(result.gameId, result.title)
+        scheduleSwitchDuplicateReconciliation()
     }
 
     private fun persistGames(games: List<GameEntry>, synchronously: Boolean = false) {
-        _games.value = games
+        if (!canWrite()) return
+        val uniqueGames = dedupeArcadeGameEntries(games).map(ScummVmGames::repairTitle)
+            .map(com.ariy.retrolauncher.model.PcGameStores::classify)
+        _games.value = uniqueGames
         if (synchronously) {
-            repository.saveGamesSync(games)
+            repository.saveGamesSync(uniqueGames)
         } else {
-            repository.saveGames(games)
+            repository.saveGames(uniqueGames)
+        }
+    }
+
+    // All background read/modify/write commits share the main thread with user edits.
+    private suspend fun updateGamesFromBackground(transform: (List<GameEntry>) -> List<GameEntry>) {
+        withContext(Dispatchers.Main.immediate) {
+            currentCoroutineContext().ensureActive()
+            if (!canWrite()) return@withContext
+            val current = _games.value
+            val updated = transform(current)
+            if (updated != current) persistGames(updated)
         }
     }
 
     private fun markGamePlayed(gameId: String) {
         val playedAt = System.currentTimeMillis()
         val updated = _games.value.map { game ->
-            if (game.id == gameId) game.copy(lastPlayedAtEpochMillis = playedAt) else game
+            if (game.id == gameId) game.copy(
+                lastPlayedAtEpochMillis = playedAt,
+                playCount = game.playCount.coerceIn(0, Long.MAX_VALUE - 1) + 1
+            ) else game
         }
         if (updated == _games.value) return
         persistGames(updated, synchronously = true)
@@ -677,13 +1087,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         return normalized
     }
 
-    private fun setStatus(message: String) {
+    fun setStatus(message: String) {
+        if (!canWrite()) return
         _statusMessage.value = message
     }
 
     private fun autoFillArtworkIfMissing(id: String, title: String) {
         if (!queueArtworkAutofill(id)) return
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             autoFillArtworkIfMissingInternal(
                 id = id,
                 title = title,
@@ -699,13 +1110,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         title: String,
         publishLoadingState: Boolean,
         cacheSuggestions: Boolean,
-        alreadyQueued: Boolean = false
+        alreadyQueued: Boolean = false,
+        replaceExistingArtwork: Boolean = false
     ) {
         if (!alreadyQueued && !queueArtworkAutofill(id)) return
         try {
             if (title.isBlank()) return
             val current = _games.value.firstOrNull { it.id == id } ?: return
-            if (!current.imageUri.isNullOrBlank()) return
+            if (!replaceExistingArtwork && !current.imageUri.isNullOrBlank()) return
             if (current.platform.supportsMameFallbackArtwork()) {
                 val availableAssets = runCatching {
                     getApplication<Application>().assets.list("overlay_mame")
@@ -720,28 +1132,33 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             artworkAutofillSemaphore.withPermit {
                 markArtworkAutofillStarted(id, publishLoadingState)
                 val latest = _games.value.firstOrNull { it.id == id } ?: return@withPermit
-                if (!latest.imageUri.isNullOrBlank()) return@withPermit
-                val suggestions = fetchArtworkSuggestionsFor(id, title)
-                if (cacheSuggestions) {
-                    _artworkSuggestions.value = _artworkSuggestions.value + (id to suggestions)
-                }
-                val savedUri = importedIconStore.downloadFirstAvailableImage(
-                    fileName = id,
-                    imageUrls = suggestions.map(ArtworkCandidate::imageUrl)
-                )
-                if (!savedUri.isNullOrBlank()) {
-                    val updated = _games.value.map { game ->
-                        if (game.id == id && game.imageUri.isNullOrBlank()) {
-                            game.copy(imageUri = stampArtworkUri(resolveArtworkSourceUri(savedUri).toString()))
-                        } else {
-                            game
+                if (!replaceExistingArtwork && !latest.imageUri.isNullOrBlank()) return@withPermit
+                artworkRetryAfterMillis[id] = SystemClock.elapsedRealtime() + 5 * 60_000L
+                val queryKey = artworkSuggestionQueryKey(id, title)
+                val suggestions = (if (cacheSuggestions) cachedArtworkSuggestions(id, queryKey) else null)
+                    ?: fetchArtworkSuggestionsFor(id, title).also { fetched ->
+                        if (cacheSuggestions) {
+                            cacheArtworkSuggestions(id, queryKey, fetched)
                         }
                     }
-                    _games.value = updated
-                    repository.saveGames(updated)
+                if (cacheSuggestions) {
+                    _artworkSuggestions.update { it + (id to suggestions) }
+                }
+                val savedUri = downloadArtworkWithFallback(latest, title, suggestions, fileName = "$id-autofill")
+                if (!savedUri.isNullOrBlank()) {
+                    updateGamesFromBackground { games ->
+                        games.map { game ->
+                            game.withAutofilledArtwork(latest, stampArtworkUri(resolveArtworkSourceUri(savedUri).toString()))
+                        }
+                    }
+                    artworkRetryAfterMillis.remove(id)
                 }
             }
         } catch (error: Throwable) {
+            if (error is CancellationException) {
+                artworkRetryAfterMillis.remove(id)
+                throw error
+            }
             Log.w("RetroLauncher", "Artwork autofill failed for id='$id'", error)
         } finally {
             finishArtworkAutofill(id, publishLoadingState)
@@ -749,6 +1166,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun queueArtworkAutofill(id: String): Boolean {
+        if (!canWrite()) return false
         val queued = synchronized(pendingArtworkAutofillIds) {
             if (id in pendingArtworkAutofillIds) {
                 false
@@ -781,14 +1199,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun prefetchMameFallbackArtworkIfNeeded() {
-        viewModelScope.launch(Dispatchers.IO) {
+        launchWorker(Dispatchers.IO) {
             val availableAssets = runCatching {
                 getApplication<Application>().assets.list("overlay_mame")
                     ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
                     ?.associateBy { it.lowercase() }
                     .orEmpty()
             }.getOrDefault(emptyMap())
-            if (!hasGenericMameFallbackAsset(availableAssets)) return@launch
+            if (!hasGenericMameFallbackAsset(availableAssets)) return@launchWorker
             _games.value
                 .filter { it.needsMameFallbackArtwork(availableAssets) }
                 .forEach { game ->
@@ -808,19 +1226,88 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun fetchArtworkSuggestionsFor(id: String, fallbackTitle: String): List<ArtworkCandidate> {
-        artworkSearchQueriesFor(id, fallbackTitle).forEach { query ->
-            val suggestions = ArtworkSuggestionService.fetchCandidates(query)
-            if (suggestions.isNotEmpty()) {
-                return suggestions
+        val game = _games.value.firstOrNull { it.id == id } ?: return emptyList()
+        return ArtworkSuggestionService.fetchCandidateBatches(game, game.artworkSearchQueries(fallbackTitle))
+            .firstOrNull { it.isNotEmpty() }.orEmpty().distinctBy(ArtworkCandidate::imageUrl).take(24)
+    }
+
+    private suspend fun downloadArtworkWithFallback(
+        game: GameEntry,
+        title: String,
+        suggestions: List<ArtworkCandidate>,
+        fileName: String
+    ): String? {
+        val coroutineContext = currentCoroutineContext()
+        val batches = sequence {
+            yield(suggestions)
+            yieldAll(ArtworkSuggestionService.fetchCandidateBatches(game, game.artworkSearchQueries(title)))
+        }
+        return firstSuccessfulArtworkBatch(batches) { candidates ->
+            coroutineContext.ensureActive()
+            importedIconStore.downloadBestAspectImage(
+                fileName = fileName,
+                imageUrls = candidates.map(ArtworkCandidate::imageUrl),
+                targetAspectRatio = preferredArtworkAspectRatio(game.platform),
+                cancellationCheck = { coroutineContext.ensureActive() }
+            ).also { savedUri ->
+                if (savedUri != null) {
+                    val queryKey = game.artworkSearchQueries(title).joinToString(separator = "\u001f")
+                    cacheArtworkSuggestions(game.id, queryKey, candidates)
+                    _artworkSuggestions.update { it + (game.id to candidates) }
+                }
             }
         }
-        return emptyList()
+    }
+
+    private fun artworkSuggestionQueryKey(id: String, title: String): String =
+        artworkSearchQueriesFor(id, title).joinToString(separator = "\u001f")
+
+    private fun cachedArtworkSuggestions(id: String, queryKey: String): List<ArtworkCandidate>? =
+        artworkSuggestionCache.get(id)
+            ?.takeIf { (cachedKey, _) -> cachedKey == queryKey }
+            ?.second
+
+    private fun cacheArtworkSuggestions(id: String, queryKey: String, suggestions: List<ArtworkCandidate>) {
+        if (suggestions.isNotEmpty()) artworkSuggestionCache.put(id, queryKey to suggestions)
     }
 
     private fun persistCleanedGamesIfNeeded() {
         val loaded = repository.loadGames()
         if (loaded != _games.value) {
             repository.saveGames(_games.value)
+        }
+    }
+
+    private fun scheduleSwitchDuplicateReconciliation() {
+        if (!canWrite()) return
+        switchDuplicateReconciliationJob?.cancel()
+        switchDuplicateReconciliationJob = launchWorker {
+            while (true) {
+                val snapshot = _games.value
+                val titleIdsByGameId = withContext(Dispatchers.IO) {
+                    val context = getApplication<Application>()
+                    snapshot.mapNotNull { game ->
+                        if (GamePlatforms.normalizeOrNull(game.platform) != "Nintendo Switch") {
+                            return@mapNotNull null
+                        }
+                        val targetTitleIds = game.allTargets().mapNotNull { target ->
+                            val rawUri = target.intentDataUri?.takeIf { it.isNotBlank() }
+                                ?: return@mapNotNull null
+                            val uri = runCatching { Uri.parse(rawUri) }.getOrNull()
+                                ?: return@mapNotNull null
+                            runCatching { inferSwitchTitleIdFromPackageUri(context, uri) }
+                                .getOrNull()
+                                ?.let { target.stableKey() to it }
+                        }
+                        game.id to targetTitleIds.toMap()
+                    }.toMap()
+                }
+
+                if (_games.value != snapshot) continue
+                val deduped = dedupeSwitchGameEntries(snapshot, titleIdsByGameId)
+                if (deduped != snapshot) persistGames(deduped)
+                return@launchWorker
+            }
         }
     }
 
@@ -876,6 +1363,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun restoreAuthorizedRomTreeUriIfNeeded() {
+        // Explicit welcome/reset state must never recover a revoked/failed-to-release old grant.
+        if (!_setupCompleted.value) return
         val app = getApplication<Application>()
         val current = _authorizedRomTreeUri.value
         if (current != null && app.hasPersistedReadPermissionForTree(current)) return
@@ -884,69 +1373,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         repository.saveAuthorizedRomTreeUri(restored)
     }
 
-    private data class UpsertResult(
-        val outcome: UpsertOutcome,
-        val gameId: String,
-        val title: String
-    )
-
-    private enum class UpsertOutcome {
-        ADDED,
-        MERGED,
-        DUPLICATE
-    }
-
-    private fun upsertOrMergeInPlace(
-        current: MutableList<GameEntry>,
-        entry: GameEntry,
-        target: LaunchTarget
-    ): UpsertResult {
-        val normalizedTitle = entry.title.trim().lowercase()
-        val normalizedPlatform = resolvePlatform(entry)
-        val existingIndex = current.indexOfFirst { existing ->
-            existing.title.trim().lowercase() == normalizedTitle &&
-                resolvePlatform(existing) == normalizedPlatform
-        }
-        if (existingIndex == -1) {
-            current += entry
-            return UpsertResult(
-                outcome = UpsertOutcome.ADDED,
-                gameId = entry.id,
-                title = entry.title
-            )
-        }
-
-        val existing = current[existingIndex]
-        val currentTargets = existing.allTargets()
-        val duplicate = currentTargets.any { existingTarget ->
-            existingTarget.sourceType == target.sourceType &&
-                existingTarget.packageName == target.packageName &&
-                existingTarget.activityName == target.activityName &&
-                existingTarget.shortcutId == target.shortcutId &&
-                existingTarget.intentDataUri == target.intentDataUri
-        }
-        if (duplicate) {
-            return UpsertResult(
-                outcome = UpsertOutcome.DUPLICATE,
-                gameId = existing.id,
-                title = existing.title
-            )
-        }
-
-        val merged = existing.copy(
-            subtitle = existing.subtitle.ifBlank { target.label },
-            genre = existing.genre ?: entry.genre,
-            platform = existing.platform ?: entry.platform,
-            imageUri = existing.imageUri ?: entry.imageUri,
-            alternateTargetsJson = (existing.alternateTargets() + target).toJsonString()
-        )
-        current[existingIndex] = merged
-        return UpsertResult(
-            outcome = UpsertOutcome.MERGED,
-            gameId = merged.id,
-            title = merged.title
-        )
-    }
 }
 
 private fun splitCrossPlatformRetroArchEntry(entry: GameEntry): List<GameEntry> {
@@ -1000,7 +1426,10 @@ private fun splitCrossPlatformRetroArchEntry(entry: GameEntry): List<GameEntry> 
 }
 
 private fun resolvePlatform(entry: GameEntry): String? {
-    if (entry.sourceType == GameSourceType.ACTIVITY) return GamePlatforms.ANDROID
+    if (entry.sourceType == GameSourceType.ACTIVITY) return com.ariy.retrolauncher.launch.standaloneActivityPlatform(entry.packageName)
+    if (entry.packageName == "app.gamenative") return com.ariy.retrolauncher.model.PcGameStores.fromExtras(entry.extrasJson)
+        ?: entry.platform?.takeIf { it in com.ariy.retrolauncher.model.PcGameStores.platforms }
+        ?: "GameNative"
     val storedPlatform = GamePlatforms.normalizeOrNull(entry.platform)
     val retroArchCorePlatform = inferRetroArchPlatformFromExtras(entry)
     val inferredFromExtrasPath = inferPlatformFromExtrasPath(entry)
@@ -1176,7 +1605,6 @@ private fun GameEntry.normalizeRetroArchTargetForLaunch(
 private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Intent {
     val effectiveTarget = normalizeRetroArchTargetForLaunch(app, target)
     val isRetroArchTarget = effectiveTarget.packageName.isRetroArchPackage()
-    val isRpcsxTarget = effectiveTarget.packageName.isRpcsxPackage()
     val isScummVmTarget = effectiveTarget.packageName.isScummVmPackage()
     val isDolphinTarget = effectiveTarget.packageName.isDolphinPackage()
     val extrasObject = effectiveTarget.extrasJson
@@ -1200,12 +1628,13 @@ private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Inten
         )
     }
     extrasObject?.remove(RETRO_LAUNCHER_EDEN_RESOLUTION_SETUP)
+    val registeredScummVmTarget = ScummVmGames.registeredTarget(effectiveTarget.extrasJson)
+    extrasObject?.remove(ScummVmGames.REGISTERED_TARGET)
     val action = effectiveTarget.intentAction?.takeIf { it.isNotBlank() }
         ?.let { existingAction ->
             if (isEdenCustomConfigLaunch) EDEN_CUSTOM_CONFIG_ACTION else existingAction
         }
         ?: EDEN_CUSTOM_CONFIG_ACTION.takeIf { isEdenCustomConfigLaunch }
-        ?: Intent.ACTION_MAIN.takeIf { isRpcsxTarget }
         ?: Intent.ACTION_MAIN.takeIf { isRetroArchTarget }
         ?: effectiveTarget.intentDataUri?.takeIf { it.isNotBlank() }?.let { Intent.ACTION_VIEW }
         ?: Intent.ACTION_MAIN
@@ -1257,7 +1686,7 @@ private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Inten
     val resolvedFilePath = sourceData
         .toLaunchFilePath()
         ?.let { rawPath ->
-            if (effectiveTarget.packageName.isRpcsxPackage()) normalizeRpcsxBootPath(rawPath) else rawPath
+            rawPath
         }
         ?.let { rawPath ->
             maybeExtractLaunchPath(
@@ -1284,7 +1713,6 @@ private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Inten
         resolvedFilePath.isNotBlank()
     val attachDataToIntent = !effectiveTarget.packageName.isCitraPackage() &&
         !effectiveTarget.packageName.isRetroArchPackage() &&
-        !effectiveTarget.packageName.isRpcsxPackage() &&
         !effectiveTarget.packageName.isScummVmPackage() &&
         !isEdenCustomConfigLaunch &&
         !usesDolphinAutoStart
@@ -1378,19 +1806,21 @@ private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Inten
         val sourceUri = data ?: target.intentDataUri?.takeIf { it.isNotBlank() }?.let(Uri::parse)
         val folderPath = sourceUri.toLaunchFilePath()
             ?: sourceUri.toScummVmLaunchPath().orEmpty()
-        val detectedGameId = resolveScummVmGameId(
-            app = app,
-            folderPath = folderPath,
-            sourceUri = sourceUri
-        )
-        val gameId = normalizeScummVmTargetId(explicitScummVmGameId ?: detectedGameId, folderPath)
-        // On this ScummVM Android build, path-based payloads (scummvm:--path=...) crash reliably.
-        // Use id-only autostart when available; otherwise open ScummVM UI with no payload.
-        if (!gameId.isNullOrBlank()) {
-            intent.data = Uri.fromParts("scummvm", gameId, null)
-        } else {
-            intent.data = null
-        }
+        val detectedGameId = if (registeredScummVmTarget == null && sourceUri?.scheme == "content") {
+            runCatching { detectScummVmFolder(app, sourceUri) }.getOrNull()
+        } else null
+        val requestedId = explicitScummVmGameId ?: detectedGameId
+        // Android passes the URI payload as ONE native argument. A folder/--path command is not supported.
+        // Only a target from the registered-game picker/config or a published shortcut is safe to autostart.
+        val publishedTarget = if (registeredScummVmTarget == null) {
+            InstalledTargets(app).loadShortcuts().firstOrNull { shortcut ->
+                shortcut.packageName == ScummVmGames.PACKAGE &&
+                    shortcut.intentDataUri?.let { Uri.parse(it).schemeSpecificPart } == requestedId
+            }?.intentDataUri?.let { Uri.parse(it).schemeSpecificPart }
+        } else null
+        val gameId = registeredScummVmTarget ?: publishedTarget
+            ?: throw IllegalArgumentException("Add the game in ScummVM first, grant ScummVM access to its folder, then use 'Choose registered game' or import its exported scummvm.ini. A folder marker alone is not a registered launch target.")
+        intent.data = Uri.fromParts("scummvm", gameId, null)
         Log.d(
             "RetroLauncher",
             "ScummVM launch mode='${if (gameId.isNullOrBlank()) "ui" else "id"}' folder='$folderPath' gameId='${gameId.orEmpty()}' explicit='${explicitScummVmGameId.orEmpty()}' detected='${detectedGameId.orEmpty()}' data='${intent.data}'"
@@ -1859,8 +2289,6 @@ private fun validateLaunchPayload(packageName: String?, resolvedFilePath: String
 
 private fun String?.isDrasticPackage(): Boolean = this == "com.dsemu.drastic"
 
-private fun String?.isRpcsxPackage(): Boolean = this == "net.rpcsx"
-
 private fun String?.isScummVmPackage(): Boolean = this == "org.scummvm.scummvm"
 
 private fun String?.isEdenPackage(): Boolean = this == EDEN_PACKAGE_NAME
@@ -1882,116 +2310,6 @@ private const val EDEN_EXTRA_TITLE_ID = "title_id"
 private const val EDEN_EXTRA_CUSTOM_SETTINGS = "custom_settings"
 private const val RETRO_LAUNCHER_EDEN_RESOLUTION_SETUP = "_retroLauncherEdenResolutionSetup"
 private const val BACKGROUND_ARTWORK_AUTOFILL_CONCURRENCY = 3
-
-private fun resolveScummVmGameId(app: Application, folderPath: String, sourceUri: Uri?): String? {
-    val fromStorage = resolveScummVmGameIdFromFolder(folderPath)
-    if (!fromStorage.isNullOrBlank()) return fromStorage
-    return resolveScummVmGameIdFromDocumentTree(app, sourceUri)
-}
-
-private fun resolveScummVmGameIdFromFolder(folderPath: String): String? {
-    val root = folderPath.trim().takeIf { it.isNotBlank() } ?: return null
-    val dir = java.io.File(root)
-    if (!dir.exists() || !dir.isDirectory) return null
-
-    val topLevel = dir.listFiles()
-        ?.asSequence()
-        ?.filter { it.isFile }
-        ?.mapNotNull { markerFileToScummVmGameId(it) }
-        ?.firstOrNull()
-    if (!topLevel.isNullOrBlank()) return topLevel
-
-    return dir.walkTopDown()
-        .maxDepth(2)
-        .filter { it.isFile }
-        .mapNotNull { markerFileToScummVmGameId(it) }
-        .firstOrNull()
-}
-
-private fun resolveScummVmGameIdFromDocumentTree(app: Application, sourceUri: Uri?): String? {
-    val uri = sourceUri ?: return null
-    val treeRoot = runCatching { DocumentFile.fromTreeUri(app, uri) }.getOrNull() ?: return null
-    val top = runCatching { treeRoot.listFiles().asSequence() }.getOrNull() ?: return null
-    val topGameId = top
-        .filter { it.isFile }
-        .mapNotNull { doc ->
-            markerNameToScummVmGameId(
-                doc.name ?: doc.uri.lastPathSegment.orEmpty()
-            )
-        }
-        .firstOrNull()
-    if (!topGameId.isNullOrBlank()) return topGameId
-
-    return top
-        .filter { it.isDirectory }
-        .flatMap { dir -> runCatching { dir.listFiles().asSequence() }.getOrDefault(emptySequence()) }
-        .filter { it.isFile }
-        .mapNotNull { doc ->
-            markerNameToScummVmGameId(
-                doc.name ?: doc.uri.lastPathSegment.orEmpty()
-            )
-        }
-        .firstOrNull()
-}
-
-private fun markerFileToScummVmGameId(file: java.io.File): String? {
-    return markerNameToScummVmGameId(file.name)
-}
-
-private fun markerNameToScummVmGameId(rawName: String): String? {
-    val name = rawName.trim()
-    val lower = name.lowercase()
-    return when {
-        lower.endsWith(".scummvm") -> name.substring(0, name.length - ".scummvm".length)
-        lower.endsWith(".svm") -> name.substring(0, name.length - ".svm".length)
-        else -> null
-    }?.trim()?.lowercase()?.takeIf { it.isNotBlank() }
-}
-
-private fun normalizeScummVmTargetId(gameId: String?, folderPath: String): String? {
-    val id = gameId?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
-    return when (id) {
-        "dot", "dott" -> "tentacle"
-        else -> id
-    }
-}
-
-private fun scummVmQuoteArg(raw: String): String {
-    val value = raw.trim()
-    if (value.isEmpty()) return "\"\""
-    val needsQuotes = value.any { it.isWhitespace() || it == '"' || it == '\\' }
-    if (!needsQuotes) return value
-    return buildString {
-        append('"')
-        value.forEach { ch ->
-            if (ch == '"' || ch == '\\') append('\\')
-            append(ch)
-        }
-        append('"')
-    }
-}
-
-private fun normalizeRpcsxBootPath(rawPath: String): String {
-    val trimmed = rawPath.trim()
-    if (trimmed.isBlank()) return rawPath
-    val candidate = java.io.File(trimmed)
-    val name = candidate.name.lowercase()
-    if (name.endsWith(".iso")) return trimmed
-    if (name == "eboot.bin") {
-        val parent = candidate.parentFile ?: return trimmed
-        if (parent.name.equals("usrdir", ignoreCase = true)) {
-            return parent.parentFile?.absolutePath ?: parent.absolutePath
-        }
-        return parent.absolutePath
-    }
-    if (name == "param.sfo") {
-        return candidate.parentFile?.absolutePath ?: trimmed
-    }
-    if (name.endsWith(".bin") || name.endsWith(".rap")) {
-        return candidate.parentFile?.absolutePath ?: trimmed
-    }
-    return trimmed
-}
 
 private fun normalizeRedreamBootPath(rawPath: String): String {
     val trimmed = rawPath.trim()
@@ -2152,12 +2470,6 @@ private fun Application.globalAuthorizedRomTreeUri(): String? =
     getSharedPreferences("retro_launcher", android.content.Context.MODE_PRIVATE)
         .getString("authorized_rom_tree_uri", null)
         ?.ifBlank { null }
-
-private fun Application.rpcsxLaunchMode(): String =
-    getSharedPreferences("retro_launcher", android.content.Context.MODE_PRIVATE)
-        .getString("rpcsx_launch_mode", "external")
-        ?.ifBlank { "external" }
-        ?: "external"
 
 private fun Application.findRestorableRomTreeUri(): String? {
     return contentResolver.persistedUriPermissions
@@ -2327,84 +2639,6 @@ private fun startRetroArchTwoStageLaunch(
             Log.w("RetroLauncher", "RetroArch two-stage content handoff failed", error)
         }
     }, 1200L)
-}
-
-private fun startRpcsxIntentWithFallbacks(
-    app: Application,
-    target: LaunchTarget,
-    baseIntent: Intent
-) {
-    if (app.rpcsxLaunchMode() == "embedded") {
-        startEmbeddedRpcsxIntentWithFallbacks(app, baseIntent)
-        return
-    }
-
-    val packageName = target.packageName?.takeIf { it.isNotBlank() } ?: run {
-        app.startActivity(baseIntent)
-        return
-    }
-    val emulatorActivity = "$packageName.RPCSXActivity"
-    val mainActivity = target.activityName
-        ?.takeIf { it.isNotBlank() }
-        ?.let { canonicalActivityName(packageName, it) }
-        ?: "$packageName.MainActivity"
-
-    // Preferred contract in RPCSX upstream: Emulator action + RPCSXActivity + "path" extra.
-    val emulatorIntent = Intent(baseIntent).apply {
-        action = "rpcsx.intent.action.Emulator"
-        component = ComponentName(packageName, emulatorActivity)
-        `package` = null
-    }
-    try {
-        startIntentWithFileUriSupport(app, packageName, emulatorIntent)
-        return
-    } catch (_: ActivityNotFoundException) {
-        // Try launcher activity fallback next.
-    } catch (_: SecurityException) {
-        // Activity may not be exported in this build; fallback next.
-    }
-
-    val mainIntent = Intent(baseIntent).apply {
-        action = Intent.ACTION_MAIN
-        component = ComponentName(packageName, mainActivity)
-        `package` = null
-    }
-    try {
-        startIntentWithFileUriSupport(app, packageName, mainIntent)
-        return
-    } catch (_: ActivityNotFoundException) {
-        // Fall through to package fallback.
-    }
-
-    val packageOnlyIntent = Intent(baseIntent).apply {
-        component = null
-        setPackage(packageName)
-    }
-    startIntentWithFileUriSupport(app, packageName, packageOnlyIntent)
-}
-
-private fun startEmbeddedRpcsxIntentWithFallbacks(
-    app: Application,
-    baseIntent: Intent
-) {
-    val mainIntent = Intent(baseIntent).apply {
-        action = "rpcsx.intent.action.Emulator"
-        component = ComponentName(app.packageName, "net.rpcsx.MainActivity")
-        `package` = null
-    }
-    try {
-        app.startActivity(mainIntent)
-        return
-    } catch (_: ActivityNotFoundException) {
-        // Fall through to direct emulator activity.
-    }
-
-    val emulatorIntent = Intent(baseIntent).apply {
-        action = "rpcsx.intent.action.Emulator"
-        component = ComponentName(app.packageName, "net.rpcsx.RPCSXActivity")
-        `package` = null
-    }
-    app.startActivity(emulatorIntent)
 }
 
 private fun canonicalActivityName(packageName: String, activityName: String): String {

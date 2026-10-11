@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private vulnerability reporting
+    url: https://github.com/yakirari/retro-launcher/security/advisories/new
+    about: Use when enabled; otherwise ask the maintainer for a private channel without disclosing details.

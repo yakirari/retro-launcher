@@ -18,8 +18,14 @@ fun GameEntry.artworkSearchQueries(
     includeCoverDescriptor: Boolean = true
 ): List<String> {
     val fileName = romFileNameForArtworkSearch()
-    val baseTitle = normalizedArtworkTitle(fallbackTitle)
-        ?: normalizedArtworkTitle(fileName)
+    val baseTitle = if (GamePlatforms.normalizeOrNull(platform) == "ScummVM") {
+        ScummVmGames.artworkTitle(fallbackTitle)
+    } else if (platform in com.ariy.retrolauncher.model.PcGameStores.platforms || platform == "PC (Windows)") {
+        SteamStoreArtworkCatalog.catalogTitle(fallbackTitle)
+    } else if (GamePlatforms.normalizeOrNull(platform) == "Sony PlayStation Portable") {
+        pspArtworkTitle(fallbackTitle)
+    } else normalizedArtworkTitle(fallbackTitle, stripFileExtension = true)
+        ?: normalizedArtworkTitle(fileName, stripFileExtension = true)
         ?: fallbackTitle.trim().takeIf { it.isNotBlank() }
         ?: fileName?.trim()?.takeIf { it.isNotBlank() }
         ?: title.trim().takeIf { it.isNotBlank() }
@@ -43,7 +49,23 @@ fun GameEntry.artworkSearchQueries(
     val platformTerms = artworkPlatformSearchTerms(platform)
         .filterNot { term -> baseTitle.contains(term, ignoreCase = true) }
     val primaryPlatformTerm = platformTerms.firstOrNull()
+    val switchSpecificQueries = buildList {
+        if (platform.equals("Nintendo Switch", ignoreCase = true) || platform.equals("Switch", ignoreCase = true)) {
+            val rawFileName = fileName?.trim()?.takeIf { it.isNotBlank() }
+            val switchBase = switchArtworkSearchName(rawFileName)
+                ?.let { normalizedArtworkTitle(it, stripFileExtension = true) }
+                ?.takeIf { it.isNotBlank() }
+                ?: baseTitle
+            if (switchBase.isNotBlank()) {
+                add("$switchBase Nintendo Switch game artwork -box -case -package -sealed -listing")
+                add("$switchBase video game key art illustration")
+                add("$switchBase Nintendo Switch promotional artwork")
+                add("$switchBase game poster art -box -case -package")
+            }
+        }
+    }
     return buildList {
+        addAll(switchSpecificQueries)
         add(
             listOfNotNull(
                 baseTitle.takeIf { it.isNotBlank() },
@@ -52,14 +74,30 @@ fun GameEntry.artworkSearchQueries(
             ).joinToString(" ")
         )
         primaryPlatformTerm?.let { term ->
-            add(listOf(baseTitle, term, "box art").joinToString(" "))
-            add(listOf(baseTitle, term, "cover art").joinToString(" "))
+            add(listOf(baseTitle, term, "game artwork").joinToString(" "))
+            add(listOf(baseTitle, term, "game cover").joinToString(" "))
+            add(listOf(baseTitle, term, "key art").joinToString(" "))
         }
         add(listOf(baseTitle, "cover art").joinToString(" "))
+        add(listOf(baseTitle, "game cover").joinToString(" "))
         add(baseTitle)
     }.map(String::trim)
         .filter(String::isNotBlank)
         .distinct()
+}
+
+private fun switchArtworkSearchName(fileName: String?): String? {
+    val stem = fileName
+        ?.substringAfterLast('/')
+        ?.substringAfterLast('\\')
+        ?.substringBeforeLast('.', fileName)
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
+        ?: return null
+    return stem.replace(
+        Regex("""(?i)[\s._-]*[\[(]?(?:update|patch|dlc|addon|add-on|aoc|content|extra|season[\s._-]*pass|mod(?:ded)?)(?:[\s._-].*)?[\])}]?$"""),
+        ""
+    ).trim().takeIf { it.isNotBlank() }
 }
 
 fun GameEntry.arcadeRomShortNameForArtworkSearch(): String? =
@@ -70,6 +108,7 @@ fun GameEntry.arcadeRomShortNameForArtworkSearch(): String? =
 
 fun GameEntry.arcadeOverlayAssetBaseNames(): List<String> {
     val baseNames = linkedSetOf<String>()
+    ArcadeGameCatalog.find(arcadeRomShortNameForArtworkSearch())?.rom?.let(baseNames::add)
     title.toArcadeOverlayAssetSlug()?.let(baseNames::add)
     arcadeRomShortNameForArtworkSearch()?.let(baseNames::add)
     return baseNames.toList()
@@ -137,15 +176,20 @@ private fun GameEntry.supportsAndroidAppIconArtworkQuery(): Boolean =
 
 fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): String? {
     val trimmed = raw?.trim().orEmpty()
-    val baseName = if (stripFileExtension && trimmed.contains('.')) {
-        trimmed.substringBeforeLast('.', trimmed).trim()
+    val normalizedInput = stripUriPathNoise(trimmed)
+    val baseName = if (stripFileExtension && normalizedInput.contains('.')) {
+        stripUriPathNoise(normalizedInput.substringBeforeLast('.', normalizedInput).trim())
     } else {
-        trimmed
+        normalizedInput
     }
     if (baseName.isBlank()) return null
     val cleaned = baseName
         .replace('_', ' ')
         .replace('.', ' ')
+        .replace(Regex("(?i)\\b0100[a-f0-9]{12}\\b"), " ")
+        .replace(Regex("(?i)\\b[a-f0-9]{16}\\b"), " ")
+        .replace(Regex("(?i)\\b0100[a-f0-9]{12}\\b"), " ")
+        .replace(Regex("(?i)\\b(?=[a-f0-9]{16}\\b)(?=[a-f0-9]*[a-f])(?=[a-f0-9]*\\d)[a-f0-9]{16}\\b"), " ")
         .replace(Regex("\\([^)]*\\)"), " ")
         .replace(Regex("\\[[^]]*]"), " ")
         .replace(Regex("""\{[^}]*\}"""), " ")
@@ -153,6 +197,16 @@ fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): S
         .replace(Regex("\\s+"), " ")
         .trim()
     return cleaned.ifBlank { baseName.takeIf { it.isNotBlank() } }
+}
+
+private fun stripUriPathNoise(raw: String?): String {
+    val value = raw?.trim().orEmpty()
+    if (value.isBlank()) return ""
+    val trimmedPath = value
+        .substringAfterLast('/')
+        .substringAfterLast(':')
+        .trim()
+    return trimmedPath.ifBlank { value }
 }
 
 private fun artworkPlatformSearchTerms(rawPlatform: String?): List<String> {
@@ -204,7 +258,8 @@ private fun GameEntry.romFileNameForArtworkSearch(): String? {
                     File(uriString).name
                 }
                 val decoded = Uri.decode(segment).ifBlank { segment }
-                val withoutExt = decoded.substringBeforeLast('.', decoded).trim()
+                val leafName = stripUriPathNoise(decoded)
+                val withoutExt = leafName.substringBeforeLast('.', leafName).trim()
                 withoutExt.ifBlank { null }
             }.getOrNull()
         }

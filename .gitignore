@@ -8,6 +8,13 @@ local.properties
 keystore/
 release-keystore.properties
 
+# Local GIMP working files; exported templates are the build inputs.
+*.xcf
+*.xcf.gz
+*.xcf.bz2
+*.XCF
+overlay_raw/
+
 # Local/generated assets
 .tmp_*
 *:Zone.Identifier

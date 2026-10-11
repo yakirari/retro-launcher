@@ -30,6 +30,7 @@ import com.ariy.retrolauncher.inferSwitchTitleIdFromPackageUri
 import com.ariy.retrolauncher.normalizeSwitchBaseTitleId
 import com.ariy.retrolauncher.normalizeSwitchTitleId
 import com.ariy.retrolauncher.resolvePreferredRomFolder
+import com.ariy.retrolauncher.listRomDocuments
 import com.caverock.androidsvg.SVG
 import org.json.JSONArray
 import org.json.JSONObject
@@ -51,19 +52,14 @@ data class ArcadeScanCandidate(
 
 data class ScummVmScanCandidate(
     val title: String,
-    val folderUri: String
+    val folderUri: String,
+    val gameId: String? = null,
+    val registeredTarget: String? = null
 )
 
 data class PlatformRomScanCandidate(
     val title: String,
     val romUri: String
-)
-
-private data class ResolvedArcadeScanCandidate(
-    val title: String,
-    val romUri: String,
-    val overlayAssetName: String,
-    val curatedMatch: Boolean
 )
 
 private data class ResolvedPlatformRomScanCandidate(
@@ -76,7 +72,6 @@ private data class ResolvedPlatformRomScanCandidate(
 private data class PlatformScanSpec(
     val allowedExtensions: Set<String>,
     val extensionPriority: List<String>,
-    val ignoredNamePatterns: List<Regex> = emptyList(),
     val accepts: (Context, AvailableRom) -> Boolean = { _, _ -> true },
     val candidateDedupeKey: (Context, AvailableRom, String) -> String? =
         { _, rom, title -> defaultPlatformScanDedupeKey(title, rom) },
@@ -126,13 +121,10 @@ private data class RecommendationSource(
     val key: String = recommendationSourceKey(filterLabel, platform, romFolderHint)
 )
 
-private val cachedRecommendationArtworkUris = mutableMapOf<String, String?>()
-private val cachedAvailableRoms = mutableMapOf<String, List<AvailableRom>>()
+private val cachedAvailableRoms = TimedCache<String, List<AvailableRom>>(32, 30_000)
 private const val WILDCARD_RECOMMENDATION_REASON = "Wild card"
 private val ignoredRecommendationExtensions = setOf("txt", "png", "jpg", "jpeg", "pdf", "doc", "docx", "csv")
 private val archiveExtensions = setOf("zip", "7z")
-private val discTrackNamePattern = Regex("""(?i)(?:^|[\s._-])track[\s._-]*0*\d+(?:$|[\s._-])""")
-private val switchAddonNamePattern = Regex("""(?i)(?:^|[\s._\-\[(])(update|patch|dlc|addon|add-on|aoc)(?:$|[\s._\-\])])""")
 private val explicitPlatformScanPlatforms = setOf(
     "Final Burn Neo",
     "Nintendo Entertainment System",
@@ -195,7 +187,11 @@ private fun romFileExtension(displayName: String?): String? =
 private fun hasAllowedPlatformScanExtension(
     rom: AvailableRom,
     allowedExtensions: Set<String>
-): Boolean = romFileExtension(rom.displayName) in allowedExtensions
+): Boolean = hasAllowedRomExtension(rom.displayName, allowedExtensions)
+
+private fun acceptsPlatformRom(context: Context, rom: AvailableRom, spec: PlatformScanSpec): Boolean =
+    hasAllowedPlatformScanExtension(rom, spec.allowedExtensions) &&
+        spec.accepts(context, rom)
 
 private fun platformScanPriority(
     rom: AvailableRom,
@@ -212,7 +208,7 @@ private fun discImageScanSpec(
 ): PlatformScanSpec = PlatformScanSpec(
     allowedExtensions = allowedExtensions,
     extensionPriority = extensionPriority,
-    ignoredNamePatterns = listOf(discTrackNamePattern)
+    accepts = { _, rom -> !isDiscTrackDataFile(rom.displayName) }
 )
 
 private fun switchTitleIdFromRom(
@@ -221,6 +217,10 @@ private fun switchTitleIdFromRom(
 ): String? {
     val uri = runCatching { Uri.parse(rom.uriString) }.getOrNull() ?: return null
     return normalizeSwitchTitleId(inferSwitchTitleIdFromPackageUri(context, uri))
+}
+
+internal fun switchDisplayDedupeKey(displayName: String?): String? {
+    return com.ariy.retrolauncher.switchFilenameDedupeKey(displayName)
 }
 
 private fun switchBaseTitleIdFromRom(
@@ -246,26 +246,26 @@ private fun switchBaseTitleIdFromGameEntry(
 private fun switchScanSpec(): PlatformScanSpec = PlatformScanSpec(
     allowedExtensions = setOf("xci", "xcz", "nsp", "nsz"),
     extensionPriority = listOf("xci", "nsp", "xcz", "nsz"),
-    ignoredNamePatterns = listOf(switchAddonNamePattern),
     accepts = { context, rom ->
         val extensionAllowed = hasAllowedPlatformScanExtension(rom, setOf("xci", "xcz", "nsp", "nsz"))
         if (!extensionAllowed) {
             false
         } else {
-            val titleId = switchTitleIdFromRom(context, rom)
-            when {
-                titleId != null -> titleId.endsWith("000")
-                else -> !switchAddonNamePattern.containsMatchIn(rom.displayName)
-            }
+            isSwitchBaseGame(switchTitleIdFromRom(context, rom), rom.displayName)
         }
     },
     candidateDedupeKey = { context, rom, title ->
         switchBaseTitleIdFromRom(context, rom)
+            ?: switchDisplayDedupeKey(rom.displayName)
             ?: defaultPlatformScanDedupeKey(title, rom)
     },
     existingGameDedupeKeys = { context, game ->
         buildSet {
             switchBaseTitleIdFromGameEntry(context, game)?.let(::add)
+            game.allTargets().forEach { target ->
+                scanCandidateDisplayNameFromUriString(target.intentDataUri)
+                    ?.let(::switchDisplayDedupeKey)?.let(::add)
+            }
             addAll(defaultPlatformScanDedupeKeys(game))
         }
     }
@@ -280,6 +280,9 @@ private fun explicitPlatformScanSpec(
     val normalizedPackageName = packageName?.trim()?.takeIf { it.isNotBlank() }
     val usesRetroArch = normalizedPackageName == "com.retroarch" ||
         normalizedPackageName == "com.retroarch.aarch64"
+    // A null package is local discovery, not a launch contract. Retain supported
+    // cartridge archives even when the emulator will be configured after import.
+    val discoveryOnly = normalizedPackageName == null
     return when (normalizedPlatform) {
         "Final Burn Neo" -> PlatformScanSpec(
             allowedExtensions = setOf("zip", "7z", "chd"),
@@ -287,28 +290,28 @@ private fun explicitPlatformScanSpec(
         )
         "Nintendo Entertainment System" -> PlatformScanSpec(
             allowedExtensions = setOf("nes", "fds", "unf", "unif") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.NesEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.NesEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("nes", "fds", "unf", "unif", "zip", "7z")
         )
         "Sega Master System" -> PlatformScanSpec(
             allowedExtensions = setOf("sms", "bin") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("sms", "bin", "zip", "7z")
         )
         "PC Engine / TurboGrafx-16" -> PlatformScanSpec(
             allowedExtensions = setOf("pce", "sgx", "cue", "chd", "iso", "bin", "m3u") +
-                if (normalizedPackageName == "com.PceEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || normalizedPackageName == "com.PceEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("m3u", "cue", "chd", "iso", "pce", "sgx", "bin", "zip", "7z"),
-            ignoredNamePatterns = listOf(discTrackNamePattern)
+            accepts = { _, rom -> !isDiscTrackDataFile(rom.displayName) }
         )
         "Sega Genesis / Mega Drive" -> PlatformScanSpec(
             allowedExtensions = setOf("md", "bin", "gen", "smd") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("md", "bin", "gen", "smd", "zip", "7z")
         )
         "Game Boy" -> PlatformScanSpec(
             allowedExtensions = setOf("gb", "sgb") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.GbcEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.GbcEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("gb", "sgb", "zip", "7z")
         )
         "Neo Geo" -> PlatformScanSpec(
@@ -317,7 +320,7 @@ private fun explicitPlatformScanSpec(
         )
         "Super Nintendo" -> PlatformScanSpec(
             allowedExtensions = setOf("sfc", "smc", "fig", "swc") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.Snes9xPlus") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.Snes9xPlus") archiveExtensions else emptySet(),
             extensionPriority = listOf("sfc", "smc", "fig", "swc", "zip", "7z")
         )
         "Sega CD" -> discImageScanSpec(
@@ -326,7 +329,7 @@ private fun explicitPlatformScanSpec(
         )
         "Sega 32X" -> PlatformScanSpec(
             allowedExtensions = setOf("32x", "bin", "md", "gen") +
-                if (normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || normalizedPackageName == "com.explusalpha.MdEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("32x", "bin", "md", "gen", "zip", "7z")
         )
         "Sega Saturn" -> discImageScanSpec(
@@ -339,17 +342,17 @@ private fun explicitPlatformScanSpec(
         )
         "Nintendo 64" -> PlatformScanSpec(
             allowedExtensions = setOf("z64", "n64", "v64") +
-                if (usesRetroArch || normalizedPackageName == "org.mupen64plusae.v3.fzurita.pro") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "org.mupen64plusae.v3.fzurita.pro") archiveExtensions else emptySet(),
             extensionPriority = listOf("z64", "n64", "v64", "zip", "7z")
         )
         "Game Boy Color" -> PlatformScanSpec(
             allowedExtensions = setOf("gbc") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.GbcEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.GbcEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("gbc", "zip", "7z")
         )
         "Neo Geo Pocket" -> PlatformScanSpec(
             allowedExtensions = setOf("ngp") +
-                if (normalizedPackageName == "com.explusalpha.NgpEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || normalizedPackageName == "com.explusalpha.NgpEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("ngp", "zip", "7z")
         )
         "Sega Dreamcast" -> discImageScanSpec(
@@ -358,7 +361,7 @@ private fun explicitPlatformScanSpec(
         )
         "Neo Geo Pocket Color" -> PlatformScanSpec(
             allowedExtensions = setOf("ngc", "ngpc", "npc") +
-                if (normalizedPackageName == "com.explusalpha.NgpEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || normalizedPackageName == "com.explusalpha.NgpEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("ngpc", "ngc", "npc", "zip", "7z")
         )
         "Sony PlayStation 2" -> discImageScanSpec(
@@ -367,7 +370,7 @@ private fun explicitPlatformScanSpec(
         )
         "Game Boy Advance" -> PlatformScanSpec(
             allowedExtensions = setOf("gba", "agb") +
-                if (usesRetroArch || normalizedPackageName == "com.explusalpha.GbaEmu") archiveExtensions else emptySet(),
+                if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.GbaEmu") archiveExtensions else emptySet(),
             extensionPriority = listOf("gba", "agb", "zip", "7z")
         )
         "Nintendo GameCube" -> PlatformScanSpec(
@@ -375,7 +378,7 @@ private fun explicitPlatformScanSpec(
             extensionPriority = listOf("rvz", "gcz", "iso", "gcm", "wia", "ciso")
         )
         "Nintendo DS" -> PlatformScanSpec(
-            allowedExtensions = setOf("nds") + if (usesRetroArch) archiveExtensions else emptySet(),
+            allowedExtensions = setOf("nds") + if (discoveryOnly || usesRetroArch) archiveExtensions else emptySet(),
             extensionPriority = listOf("nds", "zip", "7z")
         )
         "Sony PlayStation Portable" -> PlatformScanSpec(
@@ -434,6 +437,8 @@ private fun platformRecommendationSource(
 
 object GameRecommendations {
     private val cachedRules = mutableMapOf<Int, List<RecommendationRule>>()
+
+    fun invalidateRomInventory() = cachedAvailableRoms.clear()
 
     private val sources = listOf(
         platformRecommendationSource(
@@ -589,11 +594,6 @@ object GameRecommendations {
             retroArchCoreSoFile = "ppsspp_libretro_android.so"
         ),
         platformRecommendationSource(
-            platform = "Sony PlayStation 3",
-            romFolderHint = "ps3",
-            preferredTemplatePackages = listOf("net.rpcsx")
-        ),
-        platformRecommendationSource(
             platform = "Nintendo Wii",
             romFolderHint = "wii",
             preferredTemplatePackages = listOf("org.dolphinemu.dolphinemu", "org.dolphinemu.mmjr")
@@ -659,82 +659,37 @@ object GameRecommendations {
     fun scanImportableMameRoms(
         context: Context,
         authorizedRomTreeUri: String?,
-        games: List<GameEntry>
+        games: List<GameEntry>,
+        cancellationCheck: () -> Unit = {}
     ): List<ArcadeScanCandidate> {
         if (authorizedRomTreeUri.isNullOrBlank()) return emptyList()
         val source = sources.firstOrNull { it.platform.equals("MAME Arcade", ignoreCase = true) }
             ?: return emptyList()
-        val availableAssets = runCatching {
-            context.assets.list("overlay_mame")
-                ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-                ?.associateBy { it.lowercase() }
-                .orEmpty()
-        }.getOrDefault(emptyMap())
-        if (availableAssets.isEmpty()) return emptyList()
-
         val visibleRomUris = games.flatMapTo(mutableSetOf(), ::gameRomUriCandidates)
-        val existingOverlayAssets = games
+        val existingKeys = games
             .asSequence()
             .filter { game -> game.platform.equals("MAME Arcade", ignoreCase = true) }
-            .mapNotNull { game ->
-                findMatchingArcadeOverlayAssetName(
-                    availableAssets = availableAssets,
-                    assetBaseNames = game.arcadeOverlayAssetBaseNames()
-                )?.takeUnless(::isGenericArcadeFallbackAssetName)
+            .flatMap { game ->
+                val filenames = gameRomUriCandidates(game).mapNotNull { uri ->
+                    runCatching { java.net.URI(uri).path?.substringAfterLast('/') }.getOrNull()
+                }
+                (filenames.mapNotNull(::arcadeRomIdentity) + listOfNotNull(ArcadeGameCatalog.find(game.title)?.rom)).asSequence()
             }
-            .map(::arcadeOverlayDedupeKey)
             .toSet()
-        val rules = loadRules(context, source.priorityListResId)
-
-        return availableRomsForSource(context, authorizedRomTreeUri, source)
-            .asSequence()
-            .filterNot { rom -> rom.uriString in visibleRomUris }
-            .mapNotNull { rom ->
-                val curatedRule = bestMatchingRuleForRom(rom, rules)
-                val matchedRule = curatedRule ?: wildcardRecommendationRuleFor(rom)
-                val matchedAsset = findMatchingArcadeOverlayAssetName(
-                    availableAssets = availableAssets,
-                    assetBaseNames = matchedRule.previewAssetBaseNames()
-                )?.takeUnless(::isGenericArcadeFallbackAssetName) ?: return@mapNotNull null
-                ResolvedArcadeScanCandidate(
-                    title = matchedRule.title.trim().ifBlank {
-                        wildcardRecommendationTitleFor(rom.displayName)
-                    },
-                    romUri = rom.uriString,
-                    overlayAssetName = matchedAsset,
-                    curatedMatch = curatedRule != null
-                )
+        val roms = availableRomsForSource(context, authorizedRomTreeUri, source, forceRefresh = true, cancellationCheck = cancellationCheck)
+            .map { rom ->
+                cancellationCheck()
+                ArcadeRomForImport(rom.displayName, rom.uriString)
             }
-            .filterNot { candidate ->
-                arcadeOverlayDedupeKey(candidate.overlayAssetName) in existingOverlayAssets
-            }
-            .groupBy { candidate -> arcadeOverlayDedupeKey(candidate.overlayAssetName) }
-            .values
-            .mapNotNull { grouped ->
-                grouped
-                    .sortedWith(
-                        compareByDescending<ResolvedArcadeScanCandidate> { it.curatedMatch }
-                            .thenBy { normalizeLooseKey(it.title)?.length ?: it.title.length }
-                            .thenBy { it.title.lowercase() }
-                            .thenBy { it.romUri.lowercase() }
-                    )
-                    .firstOrNull()
-            }
-            .map { candidate ->
-                ArcadeScanCandidate(
-                    title = candidate.title,
-                    romUri = candidate.romUri
-                )
-            }
-            .distinctBy { candidate -> candidate.romUri }
-            .sortedBy { candidate -> candidate.title.lowercase() }
-            .toList()
+        cancellationCheck()
+        return selectArcadeRomsForImport(roms, existingKeys, visibleRomUris)
     }
 
     fun scanImportableScummVmFolders(
         context: Context,
         authorizedRomTreeUri: String?,
-        games: List<GameEntry>
+        games: List<GameEntry>,
+        cancellationCheck: () -> Unit = {}
     ): List<ScummVmScanCandidate> {
         if (authorizedRomTreeUri.isNullOrBlank()) return emptyList()
         val source = sources.firstOrNull { it.platform.equals("ScummVM", ignoreCase = true) }
@@ -743,23 +698,37 @@ object GameRecommendations {
             context = context,
             authorizedRomTreeUri = authorizedRomTreeUri,
             subfolderHint = source.romFolderHint,
-            platform = source.platform
+            platform = source.platform,
+            cancellationCheck = cancellationCheck
         ) ?: return emptyList()
-        val visibleRomUris = games.flatMapTo(mutableSetOf(), ::gameRomUriCandidates)
-        return runCatching { directory.listFiles().toList() }
-            .getOrDefault(emptyList())
+        val documents = listRomDocuments(context, directory, cancellationCheck)
+        val configGames = documents.filter { !it.isDirectory && it.name.equals("scummvm.ini", true) }.flatMap { config ->
+            cancellationCheck()
+            val text = context.contentResolver.openInputStream(config.uri)?.use { input ->
+                val bytes = input.readNBytes(2 * 1024 * 1024 + 1)
+                require(bytes.size <= 2 * 1024 * 1024) { "ScummVM config is too large" }
+                String(bytes, Charsets.UTF_8)
+            }.orEmpty()
+            ScummVmGames.parseConfig(text)
+        }
+        val published = publishedScummVmTargets(context)
+        return documents
             .asSequence()
-            .filter { file -> runCatching { file.isDirectory }.getOrDefault(false) }
+            .filter { it.isDirectory }
             .mapNotNull { folder ->
-                runCatching {
-                    val displayName = documentDisplayName(folder) ?: return@runCatching null
-                    ScummVmScanCandidate(
-                        title = wildcardRecommendationTitleFor(displayName),
-                        folderUri = folder.uri.toString()
-                    )
-                }.getOrNull()
+                cancellationCheck()
+                val detected = detectScummVmFolder(context, folder.uri, cancellationCheck)
+                val registered = configGames.filter { game ->
+                    Uri.decode(game.path).trimEnd('/').substringAfterLast('/').equals(folder.name, true)
+                }.singleOrNull() ?: published.firstOrNull { it.target == detected }
+                ScummVmScanCandidate(
+                    title = registered?.title ?: ScummVmGames.title(detected) ?: wildcardRecommendationTitleFor(folder.name),
+                    folderUri = folder.uri.toString(),
+                    gameId = detected,
+                    registeredTarget = registered?.target
+                )
             }
-            .filterNot { candidate -> candidate.folderUri in visibleRomUris }
+            // Existing folder entries may have broken legacy targets. Let shared upsert repair them.
             .distinctBy { candidate -> candidate.folderUri }
             .sortedBy { candidate -> candidate.title.lowercase() }
             .toList()
@@ -771,7 +740,8 @@ object GameRecommendations {
         games: List<GameEntry>,
         platform: String,
         packageName: String? = null,
-        retroArchSystemId: String? = null
+        retroArchSystemId: String? = null,
+        cancellationCheck: () -> Unit = {}
     ): List<PlatformRomScanCandidate> {
         if (authorizedRomTreeUri.isNullOrBlank()) return emptyList()
         val scanSpec = explicitPlatformScanSpec(
@@ -788,14 +758,13 @@ object GameRecommendations {
             .filter { game -> game.platform.equals(platform, ignoreCase = true) }
             .flatMap { game -> scanSpec.existingGameDedupeKeys(context, game).asSequence() }
             .toSet()
-        val rules = loadRules(context, source.priorityListResId)
-        return availableRomsForSource(context, authorizedRomTreeUri, source)
+        val rules = loadSourceRules(context, source)
+        return availableRomsForSource(context, authorizedRomTreeUri, source, forceRefresh = true, cancellationCheck = cancellationCheck)
             .asSequence()
             .filterNot { rom -> rom.uriString in visibleRomUris }
             .filter { rom ->
-                hasAllowedPlatformScanExtension(rom, scanSpec.allowedExtensions) &&
-                    scanSpec.ignoredNamePatterns.none { pattern -> pattern.containsMatchIn(rom.displayName) } &&
-                    scanSpec.accepts(context, rom)
+                cancellationCheck()
+                acceptsPlatformRom(context, rom, scanSpec)
             }
             .mapNotNull { rom ->
                 val matchedRule = bestMatchingRuleForRom(rom, rules) ?: wildcardRecommendationRuleFor(rom)
@@ -920,7 +889,9 @@ object GameRecommendations {
             "RetroLauncher",
             "Recommendation request filter=$filter treePresent=${!authorizedRomTreeUri.isNullOrBlank()} sourcePlatform=${source.platform} romFolderHint=${source.romFolderHint}"
         )
-        val availableRoms = availableRomsForSource(context, authorizedRomTreeUri, source)
+        val availableRoms = runCatching { availableRomsForSource(context, authorizedRomTreeUri, source) }
+            .onFailure { Log.w("RetroLauncher", "Recommendation folder scan failed for ${source.platform}", it) }
+            .getOrDefault(emptyList())
         if (availableRoms.isEmpty()) {
             Log.w(
                 "RetroLauncher",
@@ -930,7 +901,7 @@ object GameRecommendations {
         }
 
         val templateGame = recommendationTemplateGame(visibleGames, source)
-        val rules = loadRules(context, source.priorityListResId)
+        val rules = loadSourceRules(context, source)
         var noLaunchEntryCount = 0
         var excludedCount = 0
         var wildcardCount = 0
@@ -947,6 +918,7 @@ object GameRecommendations {
         )
         for (rom in orderedRoms) {
             if (selectedRecommendations.size >= limit) break
+            if (source.platform == "MAME Arcade" && romFileExtension(rom.displayName) !in setOf("zip", "7z", "chd")) continue
             val recommendationId = fileBackedRecommendationIdFor(source, rom)
             if (!cursorState.hasReachedStart) {
                 if (recommendationId == cursorState.afterRecommendationId) {
@@ -969,6 +941,8 @@ object GameRecommendations {
                 noLaunchEntryCount += 1
                 continue
             }
+            val scanSpec = explicitPlatformScanSpec(source.platform, baseLaunchEntry.packageName)
+            if (scanSpec != null && !acceptsPlatformRom(context, rom, scanSpec)) continue
             val sourcedArtworkUri = if (
                 previewAssetPath.isNullOrBlank() &&
                 !source.platform.equals("MAME Arcade", ignoreCase = true)
@@ -1019,6 +993,16 @@ object GameRecommendations {
         return selectedRecommendations
     }
 
+    private fun loadSourceRules(context: Context, source: RecommendationSource): List<RecommendationRule> {
+        val loaded = loadRules(context, source.priorityListResId)
+        if (loaded.isNotEmpty() || source.platform != "MAME Arcade") return loaded
+        return ArcadeGameCatalog.games.map { game ->
+            RecommendationRule(id = game.rom, title = game.title, romFileName = "${game.rom}.zip",
+                reason = "Classic arcade", acceptedRomSets = listOf(game.rom) + game.clones,
+                preferredRomSet = game.rom, overlayAssetName = "${game.rom}.png")
+        }
+    }
+
     private fun loadRules(context: Context, @RawRes rawResId: Int?): List<RecommendationRule> {
         if (rawResId == null) return emptyList()
         synchronized(cachedRules) {
@@ -1047,25 +1031,9 @@ private fun resolveRecommendationImportedArtworkUri(
     context: Context,
     recommendationId: String
 ): String? {
-    synchronized(cachedRecommendationArtworkUris) {
-        if (cachedRecommendationArtworkUris.containsKey(recommendationId)) {
-            return cachedRecommendationArtworkUris[recommendationId]
-        }
-    }
-
     val importedIconStore = ImportedIconStore(context)
     val cacheFileName = "${recommendationArtworkFileName(recommendationId)}-cover"
-    val existingArtwork = importedIconStore.existingBitmapUri(cacheFileName)
-    if (!existingArtwork.isNullOrBlank()) {
-        synchronized(cachedRecommendationArtworkUris) {
-            cachedRecommendationArtworkUris[recommendationId] = existingArtwork
-        }
-        return existingArtwork
-    }
-    synchronized(cachedRecommendationArtworkUris) {
-        cachedRecommendationArtworkUris[recommendationId] = null
-    }
-    return null
+    return importedIconStore.existingBitmapUri(cacheFileName)
 }
 
 private fun resolveWildcardRecommendationArtworkUri(
@@ -1085,13 +1053,10 @@ private fun resolveWildcardRecommendationArtworkUri(
         .firstNotNullOfOrNull { query ->
             importedIconStore.downloadFirstAvailableImage(
                 fileName = cacheFileName,
-                imageUrls = ArtworkSuggestionService.fetchCandidates(query).map(ArtworkCandidate::imageUrl)
+                imageUrls = ArtworkSuggestionService.fetchCandidates(launchEntry, query).map(ArtworkCandidate::imageUrl)
             )
         }
 
-    synchronized(cachedRecommendationArtworkUris) {
-        cachedRecommendationArtworkUris[recommendationId] = downloadedUri
-    }
     return downloadedUri
 }
 
@@ -1425,67 +1390,44 @@ private fun wildcardRecommendationTitleFor(displayName: String): String {
 private fun availableRomsForSource(
     context: Context,
     authorizedRomTreeUri: String?,
-    source: RecommendationSource
+    source: RecommendationSource,
+    forceRefresh: Boolean = false,
+    cancellationCheck: () -> Unit = {}
 ): List<AvailableRom> {
+    cancellationCheck()
     val cacheKey = listOf(
         authorizedRomTreeUri?.trim().orEmpty(),
         source.key
     ).joinToString(separator = "|")
-    synchronized(cachedAvailableRoms) {
-        cachedAvailableRoms[cacheKey]?.let { return it }
-    }
+    if (!forceRefresh) cachedAvailableRoms.get(cacheKey)?.let { return it }
     val directory = resolvePreferredRomFolder(
         context = context,
         authorizedRomTreeUri = authorizedRomTreeUri,
         subfolderHint = source.romFolderHint,
-        platform = source.platform
+        platform = source.platform,
+        cancellationCheck = cancellationCheck
     ) ?: return emptyList()
-    val allFiles = runCatching { directory.listFiles().toList() }
-        .onFailure { error ->
-            Log.w(
-                "RetroLauncher",
-                "ROM scan listFiles failed folderHint=${source.romFolderHint} dir=${documentDebugSummary(directory)} error=${error.javaClass.simpleName}:${error.message}"
-            )
-        }
-        .getOrDefault(emptyList())
+    // Listing failures propagate to the scan UI and must never be cached as an empty folder.
+    val allFiles = listRomDocuments(context, directory, cancellationCheck)
     val candidateEntries = allFiles.filter { file ->
-        runCatching { if (source.includeDirectories) file.isFile || file.isDirectory else file.isFile }
-            .onFailure { error ->
-                Log.w(
-                    "RetroLauncher",
-                    "ROM scan type check failed folderHint=${source.romFolderHint} file=${documentDebugSummary(file)} error=${error.javaClass.simpleName}:${error.message}"
-                )
-            }
-            .getOrDefault(false)
+        if (source.includeDirectories) file.isDirectory else !file.isDirectory
     }
     val resolvedRoms = candidateEntries.mapNotNull { file ->
-        runCatching {
-            val displayName = documentDisplayName(file) ?: return@runCatching null
-            if (file.isFile && displayName.hasIgnoredRecommendationExtension()) return@runCatching null
-            val normalizedStems = normalizeLooseStemCandidates(displayName)
-            if (normalizedStems.isEmpty()) {
-                null
-            } else {
-                AvailableRom(
-                    displayName = displayName,
-                    uriString = file.uri.toString(),
-                    normalizedStems = normalizedStems
-                )
-            }
-        }.onFailure { error ->
-            Log.w(
-                "RetroLauncher",
-                "ROM scan file failed folderHint=${source.romFolderHint} file=${documentDebugSummary(file)} error=${error.javaClass.simpleName}:${error.message}"
-            )
-        }.getOrNull()
+        cancellationCheck()
+        val displayName = file.name
+        if (!file.isDirectory && displayName.hasIgnoredRecommendationExtension()) return@mapNotNull null
+        val normalizedStems = normalizeLooseStemCandidates(displayName)
+        if (normalizedStems.isEmpty()) null else AvailableRom(
+            displayName = displayName,
+            uriString = file.uri.toString(),
+            normalizedStems = normalizedStems
+        )
     }
-    Log.w(
+    Log.d(
         "RetroLauncher",
-        "ROM scan folderHint=${source.romFolderHint} dirNames=${documentDebugSummary(directory)} all=${allFiles.size} candidates=${candidateEntries.size} resolved=${resolvedRoms.size} samples=${candidateEntries.take(8).map(::documentDebugSummary)}"
+        "ROM scan folderHint=${source.romFolderHint} all=${allFiles.size} candidates=${candidateEntries.size} resolved=${resolvedRoms.size}"
     )
-    synchronized(cachedAvailableRoms) {
-        cachedAvailableRoms[cacheKey] = resolvedRoms
-    }
+    cachedAvailableRoms.put(cacheKey, resolvedRoms)
     return resolvedRoms
 }
 
@@ -1494,52 +1436,23 @@ private fun sourceHasAvailableRoms(
     authorizedRomTreeUri: String?,
     source: RecommendationSource
 ): Boolean {
-    val directory = resolvePreferredRomFolder(
-        context = context,
-        authorizedRomTreeUri = authorizedRomTreeUri,
-        subfolderHint = source.romFolderHint,
-        platform = source.platform
-    ) ?: return false
-    val entries = runCatching { directory.listFiles().toList() }.getOrDefault(emptyList())
-    return entries.any { file ->
-        val isCandidate = runCatching {
-            if (source.includeDirectories) file.isFile || file.isDirectory else file.isFile
-        }.getOrDefault(false)
-        if (!isCandidate) return@any false
-        runCatching {
-            val displayName = documentDisplayName(file) ?: return@runCatching false
-            if (file.isFile && displayName.hasIgnoredRecommendationExtension()) return@runCatching false
-            normalizeLooseStemCandidates(displayName).isNotEmpty()
-        }.getOrDefault(false)
-    }
+    val spec = explicitPlatformScanSpec(source.platform, "com.retroarch")
+    return runCatching { availableRomsForSource(context, authorizedRomTreeUri, source) }
+        .onFailure { Log.w("RetroLauncher", "ROM availability check failed for ${source.platform}", it) }
+        .getOrDefault(emptyList())
+        .any { rom ->
+            when {
+                spec != null -> acceptsPlatformRom(context, rom, spec)
+                source.platform == "MAME Arcade" -> romFileExtension(rom.displayName) in setOf("zip", "7z", "chd")
+                else -> true
+            }
+        }
 }
-
-private fun documentDisplayName(file: androidx.documentfile.provider.DocumentFile): String? =
-    sequenceOf(
-        file.name,
-        file.uri.lastPathSegment?.substringAfterLast('/'),
-        runCatching { DocumentsContract.getDocumentId(file.uri) }
-            .getOrNull()
-            ?.substringAfterLast(':')
-            ?.substringAfterLast('/')
-    ).mapNotNull { rawName ->
-        rawName?.trim()?.takeIf { it.isNotBlank() }
-    }.firstOrNull()
 
 private fun String.hasIgnoredRecommendationExtension(): Boolean =
     substringAfterLast('.', "")
         .lowercase()
         .let(ignoredRecommendationExtensions::contains)
-
-private fun documentDebugSummary(file: androidx.documentfile.provider.DocumentFile): String =
-    buildList {
-        add("name=${file.name ?: "<null>"}")
-        add("uri=${file.uri.lastPathSegment ?: "<null>"}")
-        runCatching { DocumentsContract.getDocumentId(file.uri) }
-            .getOrNull()
-            ?.let { add("docId=$it") }
-        add("isFile=${file.isFile}")
-    }.joinToString(separator = ",")
 
 private fun gamesMatchingFilter(games: List<GameEntry>, filter: String): List<GameEntry> {
     val platformFilter = GamePlatforms.filterLabel(filter)
@@ -2133,14 +2046,14 @@ private fun normalizeLooseKeyCandidates(
                 .replace("&", " and ")
                 .split(Regex("[^a-z0-9]+"))
                 .filter { it.isNotBlank() }
+            val filteredJoin = tokens.filterNot(::isLooseArticleToken)
+                .joinToString(separator = "")
+                .takeIf { it.isNotBlank() }
+            val rawJoin = tokens.joinToString(separator = "")
+                .takeIf { it.isNotBlank() }
             buildList {
-                tokens.joinToString(separator = "")
-                    .takeIf { it.isNotBlank() }
-                    ?.let(::add)
-                tokens.filterNot(::isLooseArticleToken)
-                    .joinToString(separator = "")
-                    .takeIf { it.isNotBlank() }
-                    ?.let(::add)
+                filteredJoin?.let(::add)
+                rawJoin?.let(::add)
             }
         }
         ?.distinct()

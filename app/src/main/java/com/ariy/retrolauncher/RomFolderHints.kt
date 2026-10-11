@@ -44,8 +44,11 @@ fun resolvePreferredRomFolder(
     context: Context,
     authorizedRomTreeUri: String?,
     subfolderHint: String?,
-    platform: String? = null
+    platform: String? = null,
+    allowUnrecognizedRootFallback: Boolean = true,
+    cancellationCheck: () -> Unit = {}
 ): DocumentFile? {
+    cancellationCheck()
     val treeUri = authorizedRomTreeUri
         ?.takeIf { it.isNotBlank() }
         ?.let { runCatching { Uri.parse(it) }.getOrNull() }
@@ -54,54 +57,87 @@ fun resolvePreferredRomFolder(
     val hintCandidates = romFolderHintCandidates(subfolderHint, platform)
     if (hintCandidates.isEmpty()) return root
 
-    val rootDirectories = childDirectories(root)
+    // Reuse directory snapshots for matching, refinement, and diagnostics within this resolution.
+    val snapshots = mutableMapOf<String, List<RomDocument>>()
+    val knownNames = mutableMapOf<String, String>()
+    fun entries(directory: DocumentFile): List<RomDocument> = snapshots.getOrPut(directory.uri.toString()) {
+        cancellationCheck()
+        val children = if (allowUnrecognizedRootFallback) {
+            try { listRomDocuments(context, directory, cancellationCheck) }
+            catch (error: kotlinx.coroutines.CancellationException) { throw error }
+            catch (_: Exception) { emptyList() }
+        } else listRomDocuments(context, directory, cancellationCheck)
+        children.also { children ->
+            children.forEach { knownNames[it.uri.toString()] = it.name }
+        }
+    }
+    fun names(directory: DocumentFile): List<String> =
+        documentMatchNames(directory, knownNames[directory.uri.toString()])
+    fun directories(directory: DocumentFile): List<DocumentFile> = entries(directory)
+        .filter { it.isDirectory }
+        .mapNotNull { DocumentFile.fromSingleUri(context, it.uri) }
+    fun fileCount(directory: DocumentFile): Int = entries(directory).count {
+        !it.isDirectory && !it.name.contains("Zone.Identifier", ignoreCase = true)
+    }
+    fun hasFiles(directory: DocumentFile): Boolean = fileCount(directory) > 0
+    fun matches(directories: List<DocumentFile>): List<DocumentFile> =
+        matchingDirectories(directories, hintCandidates, ::names)
+    fun nestedMatch(candidates: List<DocumentFile>): DocumentFile? {
+        candidates.firstOrNull(::hasFiles)?.let { return it }
+        val nested = matches(candidates.flatMap(::directories))
+        return nested.firstOrNull(::hasFiles) ?: nested.firstOrNull()
+    }
+
+    val rootDirectories = directories(root)
     Log.w(
         "RetroLauncher",
-        "ROM resolver hint=$subfolderHint candidates=$hintCandidates rootName=${documentMatchNames(root)} directDirs=${rootDirectories.take(12).flatMap(::documentMatchNames).distinct()}"
+        "ROM resolver hint=$subfolderHint candidates=$hintCandidates rootName=${names(root)} directDirs=${rootDirectories.take(12).flatMap(::names).distinct()}"
     )
-    val directMatches = matchingDirectories(rootDirectories, hintCandidates)
+    val directMatches = matches(rootDirectories)
     if (directMatches.isNotEmpty()) {
         Log.w(
             "RetroLauncher",
-            "ROM resolver directMatches=${directMatches.map(::documentMatchNames)} fileCounts=${directMatches.map(::directFileCount)} childDirs=${directMatches.flatMap(::childDirectories).take(12).flatMap(::documentMatchNames).distinct()}"
+            "ROM resolver directMatches=${directMatches.map(::names)} fileCounts=${directMatches.map(::fileCount)}"
         )
     }
-    val refinedDirectMatch = resolveNestedMatch(directMatches, hintCandidates)
+    val refinedDirectMatch = nestedMatch(directMatches)
     if (refinedDirectMatch != null) {
         Log.w(
             "RetroLauncher",
-            "ROM resolver selected direct=${documentMatchNames(refinedDirectMatch)} files=${directFileCount(refinedDirectMatch)}"
+            "ROM resolver selected direct=${names(refinedDirectMatch)} files=${fileCount(refinedDirectMatch)}"
         )
         return refinedDirectMatch
     }
 
-    val containerDirectories = rootDirectories.filter(::isLikelyRomContainerDirectory)
-    val nestedMatches = matchingDirectories(
-        containerDirectories.flatMap(::childDirectories),
-        hintCandidates
-    )
-    val refinedNestedMatch = resolveNestedMatch(nestedMatches, hintCandidates)
+    val containerDirectories = rootDirectories.filter { isLikelyRomContainerDirectory(it, ::names) }
+    val nestedMatches = matches(containerDirectories.flatMap(::directories))
+    val refinedNestedMatch = nestedMatch(nestedMatches)
     if (refinedNestedMatch != null) {
         Log.w(
             "RetroLauncher",
-            "ROM resolver selected nested=${documentMatchNames(refinedNestedMatch)} files=${directFileCount(refinedNestedMatch)}"
+            "ROM resolver selected nested=${names(refinedNestedMatch)} files=${fileCount(refinedNestedMatch)}"
         )
         return refinedNestedMatch
     }
 
-    val nonEmptyMatch = (directMatches + nestedMatches).firstOrNull(::documentDirectoryHasFiles)
+    val nonEmptyMatch = (directMatches + nestedMatches).firstOrNull(::hasFiles)
     if (nonEmptyMatch != null) return nonEmptyMatch
 
-    val matchingRoot = hintCandidates.firstOrNull { candidate -> romFolderNameMatches(root.name, candidate) }
-    if (matchingRoot != null && documentDirectoryHasFiles(root)) {
+    val recognizedRoot = isRecognizedRomScanRoot(names(root), subfolderHint, platform)
+    if (recognizedRoot && hasFiles(root)) {
         return root
     }
 
     return directMatches.firstOrNull()
         ?: nestedMatches.firstOrNull()
-        ?: root.takeIf(::documentDirectoryHasFiles)
-        ?: root
+        ?: root.takeIf { !allowUnrecognizedRootFallback && recognizedRoot }
+        ?: if (!allowUnrecognizedRootFallback) null else
+            root.takeIf(::hasFiles)
+        ?: root.takeIf { allowUnrecognizedRootFallback }
 }
+
+internal fun isRecognizedRomScanRoot(names: List<String>, hint: String?, platform: String?): Boolean =
+    romFolderHintCandidates(hint, platform).any { candidate -> names.any { romFolderNameMatches(it, candidate) } }
 
 fun romFolderHintDisplayLabel(subfolderHint: String?): String? {
     val candidates = romFolderHintCandidates(subfolderHint)
@@ -136,7 +172,6 @@ fun preferredRomFolderHintForPlatform(platform: String?): String? =
         "Nintendo GameCube" -> "gamecube"
         "Nintendo DS" -> "nds"
         "Sony PlayStation Portable" -> "psp"
-        "Sony PlayStation 3" -> "ps3"
         "Nintendo Wii" -> "wii"
         "Nintendo 3DS" -> "n3ds"
         "Sony PlayStation Vita" -> "vita"
@@ -193,19 +228,14 @@ private fun romFolderHintCandidatesForRawHint(subfolderHint: String?): List<Stri
 private fun prioritizeRomFolderHint(primary: String, aliases: List<String>): List<String> =
     (listOf(primary) + aliases).distinctBy { it.lowercase() }
 
-private fun childDirectories(directory: DocumentFile): List<DocumentFile> =
-    runCatching { directory.listFiles().filter(DocumentFile::isDirectory) }.getOrDefault(emptyList())
-
-private fun directFileCount(directory: DocumentFile): Int =
-    runCatching { directory.listFiles().count(DocumentFile::isFile) }.getOrDefault(0)
-
 private fun matchingDirectories(
     directories: List<DocumentFile>,
-    hintCandidates: List<String>
+    hintCandidates: List<String>,
+    names: (DocumentFile) -> List<String>
 ): List<DocumentFile> =
     directories
         .mapNotNull { directory ->
-            directoryMatchPriority(directory, hintCandidates)?.let { priority ->
+            directoryMatchPriority(directory, hintCandidates, names)?.let { priority ->
                 Triple(directory, priority.first, priority.second)
             }
         }
@@ -213,25 +243,17 @@ private fun matchingDirectories(
             compareBy<Triple<DocumentFile, Int, Int>>(
                 { it.second },
                 { it.third },
-                { normalizeRomFolderName(it.first.name).orEmpty() }
+                { normalizeRomFolderName(names(it.first).firstOrNull()).orEmpty() }
             )
         )
         .map { it.first }
         .distinctBy { it.uri.toString() }
 
-private fun resolveNestedMatch(
-    candidateDirectories: List<DocumentFile>,
-    hintCandidates: List<String>
-): DocumentFile? {
-    val directNonEmpty = candidateDirectories.firstOrNull(::documentDirectoryHasFiles)
-    if (directNonEmpty != null) return directNonEmpty
-
-    val nestedMatches = matchingDirectories(candidateDirectories.flatMap(::childDirectories), hintCandidates)
-    return nestedMatches.firstOrNull(::documentDirectoryHasFiles) ?: nestedMatches.firstOrNull()
-}
-
-private fun isLikelyRomContainerDirectory(directory: DocumentFile): Boolean {
-    return documentMatchNames(directory).any { rawName ->
+private fun isLikelyRomContainerDirectory(
+    directory: DocumentFile,
+    names: (DocumentFile) -> List<String>
+): Boolean {
+    return names(directory).any { rawName ->
         val normalizedName = normalizeRomFolderName(rawName) ?: return@any false
         normalizedName == "rom" ||
             normalizedName == "roms" ||
@@ -246,9 +268,9 @@ private fun isLikelyRomContainerDirectory(directory: DocumentFile): Boolean {
     }
 }
 
-private fun documentMatchNames(document: DocumentFile): List<String> =
+private fun documentMatchNames(document: DocumentFile, knownName: String?): List<String> =
     buildList {
-        document.name?.trim()?.takeIf { it.isNotBlank() }?.let(::add)
+        (knownName ?: document.name)?.trim()?.takeIf { it.isNotBlank() }?.let(::add)
         document.uri.lastPathSegment?.substringAfterLast('/')?.trim()?.takeIf { it.isNotBlank() }?.let(::add)
         runCatching { DocumentsContract.getDocumentId(document.uri) }
             .getOrNull()
@@ -277,11 +299,12 @@ private fun romFolderNameMatchStrength(rawName: String?, expectedName: String): 
 
 private fun directoryMatchPriority(
     directory: DocumentFile,
-    hintCandidates: List<String>
+    hintCandidates: List<String>,
+    names: (DocumentFile) -> List<String>
 ): Pair<Int, Int>? {
     var bestCandidateIndex = Int.MAX_VALUE
     var bestMatchStrength = Int.MAX_VALUE
-    documentMatchNames(directory).forEach { rawName ->
+    names(directory).forEach { rawName ->
         hintCandidates.forEachIndexed { candidateIndex, candidate ->
             val strength = romFolderNameMatchStrength(rawName, candidate) ?: return@forEachIndexed
             if (
@@ -317,9 +340,3 @@ private fun tokenizeRomFolderName(rawName: String?): List<String> =
         ?.mapNotNull { token -> token.takeIf(String::isNotBlank) }
         .orEmpty()
 
-private fun documentDirectoryHasFiles(directory: DocumentFile): Boolean =
-    runCatching {
-        directory.listFiles().any { child ->
-            child.isFile && !(child.name ?: "").contains("Zone.Identifier", ignoreCase = true)
-        }
-    }.getOrDefault(false)

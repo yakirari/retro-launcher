@@ -5,6 +5,7 @@ import java.net.URLEncoder
 import java.net.URL
 import java.util.regex.Pattern
 import org.json.JSONObject
+import com.ariy.retrolauncher.model.GameEntry
 
 data class ArtworkCandidate(
     val title: String,
@@ -13,11 +14,140 @@ data class ArtworkCandidate(
 )
 
 object ArtworkSuggestionService {
-    fun fetchCandidates(query: String): List<ArtworkCandidate> {
-        if (query.isBlank()) return emptyList()
+    fun fetchCandidates(game: GameEntry, query: String): List<ArtworkCandidate> =
+        fetchCandidateBatches(game, listOf(query)).firstOrNull { it.isNotEmpty() }.orEmpty()
+
+    internal fun fetchCandidateBatches(game: GameEntry, queries: List<String>): Sequence<List<ArtworkCandidate>> = sequence {
+        val searchQueries = queries.filter(String::isNotBlank).distinct()
+        if (searchQueries.isEmpty()) return@sequence
+        val scummVm = com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(game.platform) == "ScummVM"
+        val digital = game.platform in com.ariy.retrolauncher.model.PcGameStores.platforms || game.platform == "PC (Windows)"
+        val catalogTitle = if (scummVm) {
+            ScummVmGames.artworkTitle(game.title)
+        } else if (digital) {
+            SteamStoreArtworkCatalog.catalogTitle(game.title)
+        } else if (com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(game.platform) == "Sony PlayStation Portable") {
+            pspArtworkTitle(game.title)
+        } else normalizedArtworkTitle(game.title, stripFileExtension = true)
+            ?: normalizedArtworkTitle(searchQueries.first(), stripFileExtension = true)
+        if (catalogTitle != null) {
+            if (digital) yield(SteamStoreArtworkCatalog.fetchCandidates(catalogTitle))
+            if (!game.platform.equals("Nintendo Switch", ignoreCase = true) &&
+                !game.platform.equals("Switch", ignoreCase = true)
+            ) {
+                yield(EdenBoxartCatalog.fetchCandidates(game.platform, catalogTitle))
+            }
+            yield(LibretroArtworkCatalog.fetchCandidates(game.platform, catalogTitle))
+            if (game.platform.equals("Nintendo Switch", ignoreCase = true) ||
+                game.platform.equals("Switch", ignoreCase = true)
+            ) {
+                yield(SteamStoreArtworkCatalog.fetchCandidates(catalogTitle))
+            }
+        }
+        // A missing exact ScummVM cover is preferable to a generic image for a short engine key.
+        if (!scummVm) for (query in searchQueries) yieldAll(fetchWebCandidateBatches(query))
+    }
+
+    fun fetchCandidates(query: String): List<ArtworkCandidate> =
+        fetchWebCandidateBatches(query).firstOrNull { it.isNotEmpty() }.orEmpty()
+
+    private fun fetchWebCandidateBatches(query: String): Sequence<List<ArtworkCandidate>> = sequence {
+        if (query.isBlank()) return@sequence
         val duckCandidates = fetchDuckDuckGoCandidates(query)
-        if (duckCandidates.isNotEmpty()) return duckCandidates
-        return fetchGoogleFallbackCandidates(query)
+            .filterNot { isPhysicalProductSearchResult(it.title) }
+            .filter { isRelevantArtworkTitle(query, it.title) }
+            .distinctBy(ArtworkCandidate::imageUrl)
+        yield(duckCandidates.take(18))
+
+        val bingCandidates = fetchBingFallbackCandidates(query)
+            .distinctBy(ArtworkCandidate::imageUrl)
+        yield(bingCandidates.take(6))
+
+        yield(fetchGoogleFallbackCandidates(query)
+            .distinctBy(ArtworkCandidate::imageUrl)
+            .take(6))
+    }
+
+    internal fun isRelevantArtworkTitle(query: String, resultTitle: String): Boolean {
+        val contextTerms = setOf(
+            "art", "artwork", "game", "illustration", "key", "nintendo", "official", "poster",
+            "promotional", "screenshot", "switch", "video", "wallpaper", "playstation", "portable", "psp"
+        )
+        val ignoredTerms = setOf(
+            "art", "artwork", "box", "case", "cover", "front", "game", "image", "illustration",
+            "key", "nintendo", "official", "png", "poster", "promotional", "scan", "switch", "the",
+            "video", "wallpaper", "playstation", "portable", "psp"
+        )
+        val positiveQuery = query.replace(Regex("""(?:^|\s)-(?:"[^"]*"|\S+)"""), " ")
+        val queryTerms = positiveQuery.lowercase()
+            .split(Regex("[^a-z0-9]+"))
+            .filter { it.isNotBlank() && (it.length > 1 || it.all(Char::isDigit)) && it !in ignoredTerms }
+            .toSet()
+        if (queryTerms.isEmpty()) return true
+        val resultTerms = resultTitle.lowercase()
+            .split(Regex("[^a-z0-9]+"))
+            .toSet()
+        val hasTitleMatch = queryTerms.all { it in resultTerms }
+        if (!hasTitleMatch) return false
+        val shortAmbiguousTitle = queryTerms.all { it.length <= 3 }
+        return !shortAmbiguousTitle || positiveQuery.lowercase()
+            .split(Regex("[^a-z0-9]+"))
+            .any { it in contextTerms && it in resultTerms }
+    }
+
+    internal fun isPhysicalProductSearchResult(title: String): Boolean =
+        Regex(
+            """(?i)\b(?:sealed|unopened|unboxing|for sale|listing|empty case|case only|physical copy|console bundle|lot of \d+|complete in box|\bcib\b)\b"""
+        ).containsMatchIn(title)
+
+    internal fun extractImageUrlsFromHtml(html: String): List<String> {
+        val decoded = html
+            .replace("\\/", "/")
+            .replace("\\\"", "\"")
+            .replace("\\u0026", "&")
+            .replace("\\u003d", "=")
+            .replace("&amp;", "&")
+            .replace("&#x2F;", "/")
+            .replace("&#x3A;", ":")
+            .replace("&#x3D;", "=")
+            .replace("&quot;", "\"")
+
+        val preferred = linkedSetOf<String>()
+        val patterns = listOf(
+            Regex("""(?i)(?:imgurl|murl|image_url|imageUrl|ou|src)\\s*[:=]\\s*[\"']?(https?://[^\"'\\s>]+)"""),
+            Regex("""(?i)<img[^>]+src=[\"'](https?://[^\"']+)[\"']""")
+        )
+        patterns.forEach { pattern ->
+            pattern.findAll(decoded).forEach { match ->
+                val candidate = cleanImageCandidate(match.groupValues.lastOrNull().orEmpty())
+                if (candidate != null) {
+                    preferred += candidate
+                }
+            }
+        }
+        if (preferred.isNotEmpty()) return preferred.toList()
+
+        val found = linkedSetOf<String>()
+        var scanIndex = 0
+        while (scanIndex < decoded.length) {
+            val httpIndex = decoded.indexOf("http", startIndex = scanIndex)
+            if (httpIndex < 0) break
+            var endIndex = httpIndex + "http".length
+            while (endIndex < decoded.length) {
+                val char = decoded[endIndex]
+                val stopsUrl = char == '"' || char == '\'' || char == ',' || char == ' ' || char == '<' ||
+                    char == '>' || char == ')' || char == ']' || char == '}' || char == ';' ||
+                    char == '\n' || char == '\r' || char == '\t'
+                if (stopsUrl) break
+                endIndex += 1
+            }
+            val candidate = cleanImageCandidate(decoded.substring(httpIndex, endIndex))
+            if (candidate != null) {
+                found += candidate
+            }
+            scanIndex = endIndex + 1
+        }
+        return found.toList()
     }
 
     private fun fetchDuckDuckGoCandidates(query: String): List<ArtworkCandidate> {
@@ -59,11 +189,29 @@ object ArtworkSuggestionService {
         return null
     }
 
+    private fun fetchBingFallbackCandidates(query: String): List<ArtworkCandidate> {
+        val encoded = URLEncoder.encode(query, Charsets.UTF_8.name())
+        val searchUrl = "https://www.bing.com/images/search?q=$encoded&form=HDRSC2"
+        val html = getHtml(searchUrl) ?: return emptyList()
+        val imageUrls = extractImageUrlsFromHtml(html)
+        return buildList {
+            imageUrls.take(6).forEach { imageUrl ->
+                add(
+                    ArtworkCandidate(
+                        title = query,
+                        source = "Bing Images",
+                        imageUrl = imageUrl
+                    )
+                )
+            }
+        }
+    }
+
     private fun fetchGoogleFallbackCandidates(query: String): List<ArtworkCandidate> {
         val encoded = URLEncoder.encode(query, Charsets.UTF_8.name())
         val searchUrl = "https://www.google.com/search?tbm=isch&q=$encoded"
         val html = getHtml(searchUrl) ?: return emptyList()
-        val imageUrls = extractImageUrls(html)
+        val imageUrls = extractImageUrlsFromHtml(html)
         return buildList {
             imageUrls.take(6).forEach { imageUrl ->
                 add(
@@ -88,26 +236,35 @@ object ArtworkSuggestionService {
         openConnection(url).inputStream.bufferedReader().use { it.readText() }
     }.getOrNull()
 
-    private fun extractImageUrls(html: String): List<String> {
-        val regex = Pattern.compile("""https:\\/\\/[^"'\\]+""")
-        val matches = regex.matcher(html)
-        val found = linkedSetOf<String>()
-        while (matches.find()) {
-            val candidate = matches.group()
-                .replace("\\u003d", "=")
-                .replace("\\u0026", "&")
-                .replace("\\/", "/")
-            val looksLikeImage = candidate.contains("gstatic.com/images") ||
-                candidate.contains("encrypted-tbn0.gstatic.com") ||
-                candidate.endsWith(".jpg") ||
-                candidate.endsWith(".jpeg") ||
-                candidate.endsWith(".png") ||
-                candidate.endsWith(".webp")
-            if (looksLikeImage) {
-                found += candidate
-            }
+    private fun cleanImageCandidate(raw: String): String? {
+        val candidate = raw
+            .replace("\\/", "/")
+            .replace("\\u0026", "&")
+            .replace("\\u003d", "=")
+            .replace("&amp;", "&")
+            .replace("&quot;", "\"")
+            .replace("&#x2F;", "/")
+            .replace("&#x3A;", ":")
+            .replace("&#x3D;", "=")
+            .trim()
+            .trim('"', '\'')
+            .takeIf { it.startsWith("http://") || it.startsWith("https://") } ?: return null
+
+        if (candidate.contains("bing.com/sa/simg") ||
+            candidate.contains("facebook_sharing") ||
+            candidate.contains("microsoft.com") ||
+            candidate.contains("google.com/images/branding") ||
+            candidate.contains("/googlelogo") ||
+            candidate.contains("/logo.") ||
+            candidate.contains("/favicon.")) {
+            return null
         }
-        return found.toList()
+
+        val extension = candidate.substringAfterLast('.', "").substringBefore('?', "").lowercase()
+        if (extension !in setOf("jpg", "jpeg", "png", "webp", "gif", "avif")) {
+            return null
+        }
+        return candidate
     }
 
     private fun openConnection(url: String, referer: String? = null): HttpURLConnection =

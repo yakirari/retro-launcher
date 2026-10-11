@@ -1,121 +1,77 @@
 # Retro Launcher
 
-Android home launcher for retro games, targeting ARM devices on Android 13+.
+An Android Home launcher for retro and PC game libraries, with controller navigation,
+platform galleries, nostalgic cartridge/case templates, ROM scanning, and Android game shortcuts.
 
-## What is implemented
+**Requirements:** Android 13 or newer. Emulators and PC game hubs are installed separately.
+Retro Launcher does not include emulator engines, ROMs, BIOS files, firmware, or games.
 
-- Home launcher activity with `HOME` and `DEFAULT` categories.
-- Scrollable game grid with fixed density modes: `1`, `4`, or `8` columns.
-- Persisted game tiles.
-- Add tiles from launcher-visible shortcuts when this app is the active Home launcher.
-- Add tiles from normal launcher activities.
-- Add custom emulator/game intents for systems that do not expose shortcuts.
-- Edit title/subtitle.
-- Pick a custom image for each tile from device storage.
-- Remove tiles.
+> **Licensing:** original launcher code and author-created artwork are MIT-licensed. Third-party cabinet
+> references retain their source terms. Asset redistribution review is still required before
+> publishing this repository or an APK. See [third-party notices](THIRD_PARTY_NOTICES.md) and the
+> [release checklist](docs/RELEASING.md). Not every included asset is open source.
 
-## Android shortcut constraint
+## Features
 
-This app can enumerate and launch shortcuts from other apps only when Android treats it as the active launcher. That is an Android platform rule, not a project limitation.
+- Two global nostalgic presets: **Grid** and **Shelf**, each remembering its own tile count.
+- Default: Grid, 2 tiles and transparent tile backgrounds; appearance stays the same across filters.
+- Separate **Android Games** and **Emulators & Launchers** galleries.
+- Touch/controller navigation and incremental gallery pages that extend ahead of scrolling.
+- Authorized-folder ROM scans, conservative duplicate handling, and editable launch targets.
+- Optional first-run setup: choose one ROM root for automatic recognized-platform import and
+   later artwork lookup; cancel/retry from Options. Missing emulator/core setup is clearly marked.
+- Android-managed game shortcuts from GameNative, GameHub, GameHub Lite and other publishers.
+- ScummVM registered-game picker and exported configuration import.
+- Cover lookup, custom artwork, global captions and release-year sorting.
+- Popularity sorting based on **your successful launch count**, not a global ranking.
 
-It does **not** read arbitrary pinned shortcuts created by some other launcher app. Instead, it uses `LauncherApps` as a real launcher would.
+Integration depends on each emulator's version and public launch contract. A preset/platform
+name is not a guarantee that every game will boot.
 
-## Emulator strategy
+## Start here
 
-There are two integration paths:
+1. Install an APK from a trusted maintainer-published release **if one is available**, or
+   [build a debug APK](docs/DEVELOPMENT.md). Check [GitHub Releases](https://github.com/yakirari/retro-launcher/releases)
+   for published artifacts; documentation does not imply a release already exists.
+2. Open Retro Launcher and choose it in Android's **default Home app** settings.
+3. Choose your ROM root in welcome to import supported platform folders automatically, or skip
+   for installed apps/shared hub games. Install/configure emulators separately; repair marked
+   unconfigured tiles or retry **Options → Scan library / Setup** afterward.
+4. Follow the [user guide](docs/USER_GUIDE.md) and [integration guide](docs/INTEGRATIONS.md).
 
-1. If Daijishō, Dolphin, or another emulator/frontend exposes launcher shortcuts, import those from the `Shortcuts` tab.
-2. If a game is visible inside an emulator but no launcher shortcut exists, create a `Custom` tile and enter the package, optional activity class, action, data URI, MIME type, categories, and extras JSON for the emulator’s launch intent.
+Keep another Home launcher installed so you can switch back during testing.
 
-The repo includes template seeds for:
+## Documentation
 
-- Dolphin
-- Daijishō
-- Blank custom intent
-- Explicit emulator activity
+| Audience | Guide |
+| --- | --- |
+| New users | [Installation, libraries, appearance and troubleshooting](docs/USER_GUIDE.md) |
+| Emulator/hub users | [ROM, ScummVM and PC shortcut workflows](docs/INTEGRATIONS.md) |
+| Developers | [Build, tests, deployment and asset regeneration](docs/DEVELOPMENT.md) |
+| Maintainers | [Architecture and data-safety invariants](docs/ARCHITECTURE.md) |
+| Contributors | [Contribution workflow](CONTRIBUTING.md) |
+| Release maintainers | [Publication and release checklist](docs/RELEASING.md) |
+| Repository administrators | [Hosting, security settings and audit scope](docs/HOSTING.md) |
+| Security reporters | [Security reporting policy](SECURITY.md) |
+| Asset contributors | [Licensing scope and third-party notices](THIRD_PARTY_NOTICES.md) |
 
-`RPCSX` now has a preset seed (`net.rpcsx/.MainActivity`) with both `path` and `game` extras. If your installed build expects a different contract, edit the tile's intent fields.
+## Status and licensing
 
-## RPCSX Direct Boot Integration
+Experimental, version 0.1.0. The root Gradle project builds only `:app`; no emulator source tree
+or engine is bundled. JVM tests cover policies/parsing/merging/artwork/paging;
+real-device UI and game-launch tests remain necessary.
 
-Stock RPCSX Android builds may open the app but not auto-boot a game from third-party launchers.
+There is currently no dedicated in-app library backup/export feature. Uninstalling or clearing
+storage can lose the library and folder permissions.
 
-This workspace now includes a vendored RPCSX source tree at:
+Original launcher code and documentation: [MIT](LICENSE). Third-party material is excluded from
+that grant where separate rights apply; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes. Do not submit games,
+account credentials, BIOS/firmware or artwork without documented distribution rights.
 
-- `vendor/rpcsx-ui-android`
+## Project and maintainer
 
-Patched behavior in the vendored copy:
-
-- `MainActivity` now accepts launch payloads (`path`, `game`, or `data`) and forwards them to `RPCSXActivity`.
-- `MainActivity` also handles `onNewIntent` so repeated launches can boot another title.
-- Added `rpcsx.intent.action.Emulator` intent filter on `MainActivity`.
-
-Patched files:
-
-- `vendor/rpcsx-ui-android/app/src/main/java/net/rpcsx/MainActivity.kt`
-- `vendor/rpcsx-ui-android/app/src/main/AndroidManifest.xml`
-
-To use this flow on-device, install the patched RPCSX app build from `vendor/rpcsx-ui-android`, then re-add the RPCSX tile in Retro Launcher.
-
-## Build
-
-This workspace did not include a JDK, Gradle, or Android SDK, so no APK was produced here.
-
-To build locally in Android Studio:
-
-1. Open this folder as a Gradle project.
-2. Install Android SDK 35 and JDK 17.
-3. Sync the project.
-4. Build `app` for a release or debug APK.
-
-## Auto deploy on change
-
-For local iteration against the current ADB target, run:
-
-```bash
-scripts/deploy-on-change.sh
-```
-
-What it does:
-
-- Watches `app/src`, root/module Gradle files, and the embedded RPCSX sources under `vendor/rpcsx-ui-android/app/src/main`.
-- Watches the top-level source art folders `backgrounds/`, `overlay/`, and `overlay_mame/`.
-- Builds `assembleRelease` by default with the normal warm Gradle cache under `~/.gradle`.
-- Installs the matching APK to `ADB_SERIAL`, or auto-picks a single connected device.
-- Prefers a single USB ADB device automatically when both USB and TCP/IP devices are visible.
-
-Useful overrides:
-
-- `scripts/deploy-on-change.sh --once` runs one build/install cycle and exits.
-- `scripts/deploy-on-change.sh --serial 192.168.68.119:41561` overrides the target device.
-- `ADB_SERIAL=192.168.68.119:41561 scripts/deploy-on-change.sh` sets the default device via environment.
-- `BUILD_VARIANT=debug scripts/deploy-on-change.sh --once` forces a debug deploy instead.
-- `scripts/deploy-on-change.sh --fastdeploy --variant debug --once` enables adb fast deploy for quicker USB debug installs.
-- `scripts/deploy-on-change.sh --no-streaming --once` forces push-then-install mode, which can be more reliable on flaky wireless ADB links.
-- If you switch signing keys and get `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, uninstall `com.ariy.retrolauncher` on the device before redeploying.
-
-## Overlay source art
-
-The top-level folders are the editable source of truth for launcher overlays:
-
-- `overlay_mame/` for MAME cabinet art, synced into `app/src/main/assets/overlay_mame`
-- `overlay/` for nostalgic console/device overlays, synced into `app/src/main/res/drawable-nodpi`
-
-Those sync automatically during app builds via `preBuild`, so changing `overlay_mame/mame.png` or a file under `overlay/` now gets picked up without a separate manual copy step.
-
-## Platform badge SVGs
-
-Platform badge SVGs now live in `app/src/main/res/raw`.
-
-To add a new one:
-
-1. Drop the SVG file into `app/src/main/res/raw` without editing the SVG contents.
-2. Use an Android resource-safe filename: lowercase letters, numbers, and underscores only.
-3. Link the platform name to `R.raw.your_file_name` in `app/src/main/java/com/ariy/retrolauncher/model/PlatformSvgIcons.kt`.
-
-## Likely next work
-
-- Replace manual custom intent entry with emulator-specific ROM pickers.
-- Add icon extraction for imported shortcuts and activities.
-- Add backup/export of launcher configuration.
-- Validate actual Dolphin / RPCSX per-game launch contracts on-device and keep improving one-tap integrations.
+- Repository: https://github.com/yakirari/retro-launcher
+- Maintainer: [@yakirari](https://github.com/yakirari)
+- Bugs and proposals: [Issues](https://github.com/yakirari/retro-launcher/issues)
+- Vulnerabilities: follow [SECURITY.md](SECURITY.md), not public bug reports.

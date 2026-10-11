@@ -8,6 +8,24 @@ import org.json.JSONArray
 class GameRepository(context: Context) {
     private val prefs = context.getSharedPreferences("retro_launcher", Context.MODE_PRIVATE)
 
+    // Migrate before installed emulator tiles are automatically added. Existing installs
+    // never have to repeat setup, even when their saved library is currently empty.
+    fun loadSetupCompleted(): Boolean {
+        if (!prefs.contains("setup_completed")) {
+            prefs.edit().putBoolean("setup_completed", com.ariy.retrolauncher.LibrarySetupPolicy.migrateCompleted(
+                null, prefs.contains(KEY_GAMES) || prefs.contains(KEY_AUTHORIZED_ROM_TREE_URI) ||
+                    prefs.contains(KEY_GRID_COLUMNS) || prefs.contains(KEY_GENRE_FILTER)
+            )).apply()
+        }
+        return prefs.getBoolean("setup_completed", false)
+    }
+
+    fun saveSetupCompleted() { prefs.edit().putBoolean("setup_completed", true).apply() }
+
+    // Never reconstruct this from a normalized authorization ancestor.
+    fun loadSelectedRomRoot(): String? = prefs.getString("selected_rom_scan_root", null)
+    fun saveSelectedRomRoot(uri: String?) { prefs.edit().putString("selected_rom_scan_root", uri).apply() }
+
     fun loadGames(): List<GameEntry> {
         val raw = prefs.getString(KEY_GAMES, null) ?: return emptyList()
         val json = runCatching { JSONArray(raw) }.getOrNull() ?: return emptyList()

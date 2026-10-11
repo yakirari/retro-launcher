@@ -22,13 +22,24 @@ data class NostalgicOverlaySpec(
     val cropLeftFraction: Float = 0f,
     val cropTopFraction: Float = 0f,
     val cropWidthFraction: Float = 1f,
-    val cropHeightFraction: Float = 1f
+    val cropHeightFraction: Float = 1f,
+    val trimPlayStationSpine: Boolean = false,
+    // Scale the complete cartridge and its artwork together, keeping label placement intact.
+    val gridArtworkScale: Float = 1f
 ) {
     val croppedAspectRatio: Float
         get() = aspectRatio * (cropWidthFraction / cropHeightFraction)
 }
 
 object NostalgicOverlays {
+    private val digitalGameSpec = NostalgicOverlaySpec(
+        drawableResourceId = R.drawable.nostalgic_overlay_digital_pc,
+        aspectRatio = 600f / 900f,
+        artworkLeftFraction = 54f / 600f, artworkTopFraction = 81f / 900f,
+        artworkWidthFraction = 492f / 600f, artworkHeightFraction = 738f / 900f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false
+    )
     // These artwork fractions are fallbacks. The renderer derives live placement
     // from the overlay PNG's transparent window when a mask is available.
     private val defaultSpec = NostalgicOverlaySpec(
@@ -72,11 +83,17 @@ object NostalgicOverlays {
     private val ps1Spec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_ps1,
         aspectRatio = 960f / 768f,
-        artworkLeftFraction = 320f / 960f,
+        artworkLeftFraction = 215f / 960f,
         artworkTopFraction = 93f / 768f,
-        artworkWidthFraction = 502f / 960f,
+        artworkWidthFraction = 607f / 960f,
         artworkHeightFraction = 587f / 768f,
-        artworkCornerRadiusFraction = 0f
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false,
+        fitArtworkToWindow = true,
+        cropLeftFraction = 126f / 960f,
+        cropTopFraction = 72f / 768f,
+        cropWidthFraction = 714f / 960f,
+        cropHeightFraction = 630f / 768f
     )
     private val snesCartridgeSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_snes,
@@ -254,7 +271,8 @@ object NostalgicOverlays {
         cropLeftFraction = 459f / 1408f,
         cropTopFraction = 77f / 769f,
         cropWidthFraction = 482f / 1408f,
-        cropHeightFraction = 615f / 769f
+        cropHeightFraction = 615f / 769f,
+        gridArtworkScale = 0.88f
     )
 
     private val specByPlatform = mapOf(
@@ -283,7 +301,7 @@ object NostalgicOverlays {
         specForPlatform(platform) != null
 
     fun specForPlatform(platform: String?): NostalgicOverlaySpec? =
-        platform
+        if (platform in PcGameStores.platforms || platform == "PC (Windows)") digitalGameSpec else platform
             ?.takeIf { it.isNotBlank() }
             ?.let { key ->
                 specByPlatform.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value

@@ -41,18 +41,17 @@ object CustomIntentTemplates {
             extrasJson = "{\"AutoStartFile\":\"{filePath}\"}"
         ),
         CustomIntentTemplate(
-            label = "RPCSX preset",
-            description = "Targets RPCSX Android app. Pick your PS3 game file, then launch with path/game extras for compatibility.",
-            emulatedPlatform = "PlayStation 3",
-            romSubfolderHint = "ps3",
-            packageName = "net.rpcsx",
-            activityName = "net.rpcsx.MainActivity",
-            action = "android.intent.action.MAIN",
-            extrasJson = "{\"path\":\"{filePath}\",\"game\":\"{filePath}\",\"uri\":\"{dataUri}\"}"
-        ),
-        CustomIntentTemplate(
             label = "Eden preset",
             description = "Uses Eden's documented Android launch contract: EmulationActivity + TECH_DISCOVERED. Reuses this game's current ROM URI.",
+            emulatedPlatform = "Nintendo Switch",
+            romSubfolderHint = "switch",
+            packageName = "dev.eden.eden_emulator",
+            activityName = "org.yuzu.yuzu_emu.activities.EmulationActivity",
+            action = "android.nfc.action.TECH_DISCOVERED"
+        ),
+        CustomIntentTemplate(
+            label = "Eden optimized preset",
+            description = "Variant for Eden-optimized builds on the same Switch launch contract. Keeps the same ROM URI and handoff semantics.",
             emulatedPlatform = "Nintendo Switch",
             romSubfolderHint = "switch",
             packageName = "dev.eden.eden_emulator",
@@ -151,7 +150,7 @@ object CustomIntentTemplates {
         ),
         CustomIntentTemplate(
             label = "ScummVM preset",
-            description = "Targets ScummVM package. Pick the game folder (not a single file) for direct launch; otherwise this opens ScummVM UI.",
+            description = "Add games and authorize their folders inside ScummVM first. Choose a registered game or import ScummVM's exported config for direct launch; folder markers alone cannot register games.",
             emulatedPlatform = "Classic adventure",
             romSubfolderHint = "scummvm",
             packageName = "org.scummvm.scummvm",
@@ -167,6 +166,15 @@ object CustomIntentTemplates {
             activityName = "com.github.stenzek.duckstation.EmulationActivity",
             action = "android.intent.action.MAIN",
             extrasJson = "{\"bootPath\":\"{filePath}\"}"
+        ),
+        CustomIntentTemplate(
+            label = "Vita3K preset",
+            description = "Targets Vita3K for direct PS Vita ROM launch. Pick the game file and keep the launch URI on the platform-specific path.",
+            emulatedPlatform = "Sony PlayStation Vita",
+            romSubfolderHint = "vita",
+            packageName = "org.vita3k.emulator",
+            activityName = "org.vita3k.emulator.MainActivity",
+            action = "android.intent.action.VIEW"
         ),
         CustomIntentTemplate(
             label = "PCE.emu preset",
@@ -237,7 +245,7 @@ object CustomIntentTemplates {
         CustomIntentTemplate(
             label = "GameNative preset",
             description = "Targets GameNative's documented LAUNCH_GAME contract to boot a Steam/GOG/Epic/Amazon PC game directly, skipping GameNative's own library screen. Replace app_id/game_source in Extras with the game's numeric id and source (STEAM, GOG, EPIC, AMAZON or CUSTOM_GAME).",
-            emulatedPlatform = "PC (Windows)",
+            emulatedPlatform = "GameNative",
             romSubfolderHint = "pc",
             packageName = "app.gamenative",
             activityName = "app.gamenative.MainActivity",

@@ -87,7 +87,11 @@ data class GameEntry(
     val extrasJson: String? = null,
     val authorizedTreeUri: String? = null,
     val alternateTargetsJson: String? = null,
-    val preferredTargetKey: String? = null
+    val preferredTargetKey: String? = null,
+    val releaseYear: String? = null,
+    val tagline: String? = null,
+    val playCount: Long = 0,
+    val needsLaunchSetup: Boolean = false
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
@@ -110,6 +114,10 @@ data class GameEntry(
         put("authorizedTreeUri", authorizedTreeUri)
         put("alternateTargetsJson", alternateTargetsJson)
         put("preferredTargetKey", preferredTargetKey)
+        put("releaseYear", releaseYear)
+        put("tagline", tagline)
+        put("playCount", playCount)
+        put("needsLaunchSetup", needsLaunchSetup)
     }
 
     fun primaryTarget(): LaunchTarget = LaunchTarget(
@@ -167,7 +175,11 @@ data class GameEntry(
             extrasJson = json.optString("extrasJson").ifBlank { null },
             authorizedTreeUri = json.optString("authorizedTreeUri").ifBlank { null },
             alternateTargetsJson = json.optString("alternateTargetsJson").ifBlank { null },
-            preferredTargetKey = json.optString("preferredTargetKey").ifBlank { null }
+            preferredTargetKey = json.optString("preferredTargetKey").ifBlank { null },
+            releaseYear = json.optString("releaseYear").ifBlank { null },
+            tagline = json.optString("tagline").ifBlank { null },
+            playCount = json.optLong("playCount", 0).coerceAtLeast(0),
+            needsLaunchSetup = json.optBoolean("needsLaunchSetup", false)
         )
     }
 }

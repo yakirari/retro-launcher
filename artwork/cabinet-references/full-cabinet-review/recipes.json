@@ -1,0 +1,134 @@
+{
+  "review": "2026-10-09: all 280 manifest-selected photos inspected on raw-1 through raw-8. Coordinates refer to each original source, not a replacement template. Cutouts require contrast-sheet review after preparation.",
+  "additionalSources": [
+    {"rom":"ddragon","file":"ddragon.png","url":"https://adb.arcadeitalia.net/media/mame.current/cabinets/ddragon.png"}
+  ],
+  "mappingOverrides": {
+    "ddragonu": {"sourceRom":"ddragon","notes":"Manifest confirms ddragon as parent. Replaces rejected cropped US front photo with reviewed full parent photo; region/control layout not claimed identical."}
+  },
+  "groups": [
+    {
+      "mode": "rows",
+      "threshold": 2,
+      "margin": 1,
+      "notes": "Reviewed continuous upright. Preserve original dark interior between source-photo visible outer rails; retain existing deliberate alpha when available.",
+      "roms": "1941 1942 1943 1943kai 1944 19xx 3wonders 720 aburner aburner2 aerofgt airwolf ajax aliensu aliensyn altbeast amidar aquajack arknoid2 arknoidu asteroid astorm atetris avspu baddudes bankp batman batrider bbros berzerk1 bionicc blktiger blstroid bnj bombjack bosco btime btoads bubbles bublbob2 bublbobl buckrog bucky bwidow bzone cabal captaven captcomm cawing ccastles cclimber centtime chasehq chinagat chplft chplftb circusc columns commando congo contra crimfght ctribe darkseal dassault dbreed ddragon2 ddragonu ddsom ddtod defendg digdug dimahoo dino dkong3 dkongjr dkongo docastle dsaber dstlk ecofghtr elevator endurobl enduror exedexes ffightu flicky foodf forgottn frogger ga2 gaiden galaga galaga88 galaxian gangwars gaplus gaunt22p gaunt2p ghostb ghoulsu gigawing gijoeu gngt goldnaxe gorf gtmr2 gunbird2 gunsmoke gyruss hangon hattrick hharryu hitice hooku ikari3 ikarijpb inthunt invaders irobot jailbrek journey joust jungleh junofrst kangaroo karnov kchamp kick klax knights kungfum ldrun lifefrce liquidk lkage llander loderndf looping lwings mainevt mappy marble mario mercs metamrph mhavoc milliped missile mk mk2 mk3 monsterb mpatrol mrdo mshvsf mspacman mswordu mvsc narc nbajam nbajamte nemesis nibbler ninjakd2 nslasher offroad outrunb outzone pacland pacman pang3 paperboy pengo peterpak phoenix pitfight polepos polepos2 pooyan popeyef pow progear punchout punisher punkshot puzzloop qbert qix rallyx rampage ramprt2p rastanu renegade ringking robocop robocop2 robotron rocnrope rthunder rtype2 rtypeleo rtypeu rushatck rygar s1945 s1945ii s1945iii scontra seawolf sf2 sf2t sfa2 sfa3 shangon shangonb shaolins sharrier shdancer shinobi shollow sidearms simpsn2p sinistar slammast slyspy smashtv snowbros sonic sonson spf2t spidey splatter spnchout spyhunt ssf2t ssprint ssrdrubc starcas starwars strider superman superpac tapper tekken tekken2 tekken3 tempest tetris thndrbld tigeroad timeplt tmnt tmnt2 tnzs toki toobin trackfld trojan tron tumblep umk3 unsquad upndown varth vendetta vf vigilant viostorm vsav wboyu willow wow xevious xmcota xmen xmvsf zaxxon zerowing zookeep"
+    }
+  ],
+  "overrides": {
+    "ddragon": {"mode":"rows","notes":"Reviewed existing full Double Dragon parent cabinet photo; original source pixels and dark front retained."},
+    "sonson": {"mode":"reject","notes":"Source ends directly below control deck; lower cabinet absent."},
+    "1941": {"mode":"polygon","notes":"Reviewed source outer contour restores dark lower front/right edge; source bottom crops feet only.","polygon":[[0.120,0.111],[0.169,0.027],[0.802,0.040],[0.811,0.084],[0.793,0.180],[0.727,0.204],[0.687,0.306],[0.806,0.627],[0.789,0.996],[0.159,0.996],[0.126,0.327]]},
+    "19xx": {"threshold":16},
+    "aliensu": {"mode":"polygon","notes":"Reviewed source-specific outline retains almost-black side wall/front; no black color key within cabinet.","polygon":[[0.373,0.028],[0.838,0.038],[0.834,0.140],[0.750,0.216],[0.762,0.458],[0.868,0.516],[0.868,0.560],[0.817,0.589],[0.769,0.891],[0.419,0.983],[0.233,0.857],[0.155,0.625],[0.138,0.306],[0.251,0.112]]},
+    "arknoidu": {"threshold":16},
+    "ctribe": {"mode":"reject","notes":"Front source photo ends beneath controls, excluding lower cabinet. Not a full-cabinet reference."},
+    "defendg": {"threshold":16},
+    "dkongo": {"threshold":16},
+    "mswordu": {"mode":"polygon","notes":"Reviewed source outer contour restores original near-black lower panel. Bottom base clipped by source, not reconstructed.","polygon":[[0.116,0.227],[0.213,0.134],[0.364,0.056],[0.830,0.086],[0.852,0.234],[0.677,0.293],[0.655,0.432],[0.728,0.574],[0.806,0.611],[0.778,0.686],[0.738,0.994],[0.161,0.994],[0.116,0.921]]},
+    "nemesis": {"mode":"polygon","notes":"Reviewed frontal photo. Source-specific visible outer rail contour retains original dark front; base meets photo edge.","polygon":[[0.242,0.027],[0.752,0.027],[0.783,0.587],[0.752,0.994],[0.245,0.994],[0.218,0.577]]},
+    "ninjakd2": {"threshold":16},
+    "outzone": {"threshold":16},
+    "rallyx": {"threshold":16},
+    "renegade": {"mode":"reject","notes":"Marquee/monitor/controls only; no lower cabinet in photo."},
+    "ringking": {"threshold":16},
+    "scontra": {"threshold":16},
+    "sf2t": {"mode":"polygon","notes":"Reviewed photographed source outline restores dark side and front panels, not a replacement cabinet.","polygon":[[0.142,0.031],[0.532,0.014],[0.649,0.019],[0.850,0.107],[0.870,0.480],[0.821,0.905],[0.555,0.985],[0.201,0.904],[0.207,0.590],[0.126,0.556],[0.126,0.471],[0.195,0.435],[0.240,0.213],[0.156,0.174]]},
+    "sfa2": {"mode":"polygon","notes":"Reviewed front cabinet. Source-specific rail contour retains original dark lower front; source ends at base edge.","polygon":[[0.200,0.013],[0.838,0.013],[0.838,0.140],[0.800,0.265],[0.812,0.481],[0.825,0.494],[0.963,0.591],[0.972,0.675],[0.815,0.686],[0.797,0.994],[0.183,0.994],[0.170,0.678],[0.032,0.665],[0.025,0.591],[0.142,0.494],[0.200,0.481],[0.245,0.268],[0.200,0.140]]},
+    "simpsn2p": {"threshold":16},
+    "tigeroad": {"mode":"polygon","notes":"Reviewed photo contour preserves black monitor interior and white side. No interior black flood.","polygon":[[0.245,0.056],[0.689,0.056],[0.719,0.039],[0.797,0.038],[0.866,0.069],[0.852,0.243],[0.814,0.787],[0.594,0.975],[0.245,0.900],[0.183,0.530],[0.183,0.484],[0.248,0.447],[0.310,0.355],[0.300,0.260],[0.250,0.180]]},
+    "tumblep": {"threshold":16},
+    "vigilant": {"threshold":16},
+    "zerowing": {"threshold":16},
+    "pow": {"threshold":16},
+    "superman": {"threshold":16},
+    "galaga88": {"mode":"polygon","notes":"Reviewed photographed full outer contour excludes detached bottom scan baseline; dark cabinet pixels retained.","polygon":[[0.306,0.050],[0.743,0.061],[0.760,0.206],[0.710,0.230],[0.726,0.463],[0.803,0.504],[0.800,0.582],[0.752,0.588],[0.732,0.882],[0.345,0.936],[0.241,0.787],[0.228,0.254],[0.256,0.112]]},
+    "kchamp": {"margin":4,"threshold":16},
+    "kungfum": {"margin":4,"threshold":16},
+    "mhavoc": {"mode":"polygon","notes":"Reviewed photographed outer contour excludes detached scan baseline; dark rear monitor housing retained.","polygon":[[0.295,0.082],[0.614,0.069],[0.701,0.077],[0.815,0.122],[0.826,0.359],[0.764,0.378],[0.758,0.420],[0.693,0.764],[0.779,0.776],[0.787,0.803],[0.682,0.876],[0.633,0.903],[0.444,0.934],[0.254,0.892],[0.235,0.492],[0.307,0.445],[0.309,0.384],[0.262,0.375]]},
+    "missile": {"mode":"polygon","notes":"Reviewed full photo contour excludes detached baseline; dark front panel retained with source pixels.","polygon":[[0.299,0.109],[0.405,0.077],[0.750,0.072],[0.804,0.067],[0.862,0.246],[0.811,0.739],[0.565,0.930],[0.226,0.816],[0.172,0.511],[0.124,0.501],[0.124,0.431],[0.260,0.381]]},
+    "narc": {"mode":"polygon","notes":"Reviewed full photo contour excludes detached baseline; monitor and dark front kept without color key.","polygon":[[0.227,0.061],[0.643,0.037],[0.650,0.028],[0.665,0.028],[0.821,0.109],[0.817,0.386],[0.830,0.390],[0.823,0.578],[0.785,0.600],[0.782,0.835],[0.650,0.965],[0.281,0.882],[0.234,0.587],[0.125,0.581],[0.125,0.515],[0.309,0.435],[0.327,0.367],[0.252,0.367]]},
+    "pacland": {"mode":"polygon","notes":"Reviewed photographed outer contour excludes detached top scan line. Preserve dark monitor/front, no generic cabinet shape.","polygon":[[0.350,0.041],[0.733,0.049],[0.758,0.133],[0.750,0.161],[0.688,0.237],[0.735,0.429],[0.805,0.442],[0.842,0.495],[0.831,0.562],[0.797,0.570],[0.797,0.903],[0.407,0.958],[0.161,0.850],[0.168,0.249]]},
+    "gigawing": {"mode":"polygon","notes":"Reviewed frontal photo contour restores dark lower panel; source bottom clips base. No unseen parts reconstructed.","polygon":[[0.057,0.035],[0.938,0.035],[0.929,0.159],[0.886,0.537],[0.947,0.750],[0.908,0.845],[0.837,0.845],[0.821,0.994],[0.166,0.994],[0.145,0.859],[0.095,0.798],[0.095,0.680],[0.113,0.564]]},
+    "amidar": {
+      "mode":"polygon",
+      "notes":"Reviewed photo-specific frontal contour restores dark base that merges with black exterior. Original front-panel pixels retained.",
+      "polygon":[[0.236,0.042],[0.645,0.042],[0.673,0.130],[0.645,0.270],[0.632,0.418],[0.659,0.505],[0.644,0.987],[0.294,0.990],[0.276,0.500],[0.272,0.140]]
+    },
+    "batrider": {"mode":"reject","notes":"Upper-body angled close-up; base outside source photo and black lower contour cannot be reliably recovered."},
+    "vendetta": {"mode":"reject","notes":"Cabinet photo includes printed people overlapping side/front and clipped top; not a clean unobscured full-cabinet reference."},
+    "gaiden": {"mode":"reject","notes":"Front close-up terminates beneath control deck, excluding most lower body."},
+    "astorm": {"mode":"reject","notes":"Only marquee, monitor, and control deck photographed; lower cabinet absent. Cannot reconstruct a full cabinet from this photo."},
+    "bombjack": {"mode":"reject","notes":"Front close-up terminates at control deck; lower cabinet absent."},
+    "endurobl": {"mode":"reject","notes":"Front close-up excludes most lower body and racing assembly."},
+    "gngt": {"mode":"reject","notes":"Upper front close-up; lower body absent."},
+    "hooku": {"mode":"reject","notes":"Upper-body close-up; cabinet base absent."},
+    "metamrph": {"mode":"reject","notes":"Angled upper-body close-up; lower cabinet absent."},
+    "mshvsf": {"mode":"reject","notes":"Upper-body close-up; lower cabinet absent."},
+    "nslasher": {"mode":"reject","notes":"Photo ends just beneath control deck; base absent."},
+    "punkshot": {"mode":"reject","notes":"Photo cuts through lower artwork immediately below control deck."},
+    "ramprt2p": {"mode":"reject","notes":"Upper-body close-up, lower cabinet absent."},
+    "rocnrope": {"mode":"reject","notes":"Upper/front close-up cuts off lower cabinet."},
+    "rtypeleo": {"mode":"reject","notes":"Monitor and controls only; lower cabinet absent."},
+    "shdancer": {"mode":"reject","notes":"Monitor and controls only; lower cabinet absent."},
+    "slammast": {"mode":"reject","notes":"Upper front and controls only; lower cabinet absent."},
+    "slyspy": {"mode":"reject","notes":"Upper-body close-up; lower cabinet absent."},
+    "varth": {"mode":"reject","notes":"Monitor and controls only; lower cabinet absent."},
+    "aliensyn": {
+      "mode":"polygon",
+      "notes":"Reviewed outer photo contour including dark side wall and pink topper. Polygon restores source pixels where black side meets backdrop, not fabricated cabinet texture.",
+      "polygon":[[0.030,0.870],[0.012,0.640],[0.047,0.137],[0.150,0.120],[0.258,0.054],[0.340,0.029],[0.453,0.024],[0.536,0.040],[0.585,0.046],[0.652,0.073],[0.677,0.113],[0.745,0.118],[0.769,0.140],[0.791,0.326],[0.820,0.455],[0.950,0.494],[0.975,0.504],[0.971,0.546],[0.843,0.568],[0.812,0.869],[0.480,0.967],[0.373,0.968]]
+    },
+    "chplftb": {
+      "mode":"polygon",
+      "notes":"Source-specific polygon excludes brown room/backdrop left of cabinet. Base touches source boundary; no unseen feet reconstructed.",
+      "polygon":[[0.255,0.025],[0.715,0.035],[0.770,0.136],[0.700,0.150],[0.710,0.380],[0.790,0.540],[0.877,0.600],[0.851,0.683],[0.843,0.991],[0.375,0.991],[0.354,0.665],[0.315,0.350]]
+    },
+    "lifefrce": {
+      "mode":"polygon",
+      "notes":"Reviewed source-specific polygon removes detached nonblack scan frame, keeping white side and dark front. Source bottom edge clips feet; no fabricated base.",
+      "polygon":[[0.066,0.171],[0.312,0.035],[0.728,0.071],[0.771,0.066],[0.829,0.142],[0.900,0.385],[0.804,0.504],[0.937,0.560],[0.902,0.973],[0.079,0.973]]
+    },
+    "looping": {"threshold":16,"notes":"Reviewed near-black scan backdrop; source-visible white side and dark monitor retained using row interior. Source feet meet boundary."},
+    "shinobi": {"threshold":16,"notes":"Existing reviewed Shinobi alpha retained; non-alpha source uses source-specific purple-black backdrop threshold."},
+    "aburner2": {"mode":"edge","notes":"Reviewed enclosed cockpit. Edge-connected backdrop removal only; no row/hull fill across cockpit recesses."},
+    "buckrog": {
+      "mode":"polygon",
+      "notes":"Reviewed sit-down cockpit. Photo-specific outer contour retains dark seat walls; explicit outside gap between front console and screen retained. No convex hull or row fill.",
+      "polygon":[[0.006,0.286],[0.390,0.343],[0.475,0.538],[0.443,0.577],[0.474,0.557],[0.382,0.145],[0.412,0.004],[0.731,0.004],[0.721,0.175],[0.894,0.234],[0.989,0.404],[0.976,0.599],[0.935,0.840],[0.600,0.935],[0.368,0.991],[0.076,0.868],[0.054,0.523]]
+    },
+    "jungleh": {
+      "mode":"edge",
+      "notes":"Reviewed cocktail table. Preserve leg gaps; restore only dark tabletop/front rail source pixels inside explicit polygons.",
+      "restore":[[[0.180,0.180],[0.817,0.180],[0.954,0.560],[0.030,0.560]],[[0.180,0.660],[0.812,0.660],[0.780,0.744],[0.232,0.744]]]
+    },
+    "sharrier": {"mode":"edge","notes":"Reviewed open seat/motion frame. Edge mask preserves openings; no hull/row fill across the seating structure."},
+    "spyhunt": {"mode":"edge","notes":"Reviewed sit-down assembly. Keep source opening between separate console and screen body; no global hull/row fill."},
+    "ssprint": {"mode":"edge","threshold":16,"notes":"Reviewed steering pedestal. Keep open space behind wheel/support; no global hull/row fill."},
+    "starwars": {
+      "mode":"polygon",
+      "notes":"Reviewed enclosed Star Wars cockpit outer contour; retain photographed dark seat/interior rather than falsely keying them transparent. No global hull fill. Door recess is cabinet interior, not exterior backdrop.",
+      "polygon":[[0.130,0.286],[0.330,0.107],[0.537,0.080],[0.560,0.071],[0.768,0.054],[0.862,0.171],[0.885,0.224],[0.885,0.307],[0.876,0.327],[0.879,0.337],[0.868,0.523],[0.815,0.568],[0.778,0.783],[0.630,0.822],[0.256,0.951],[0.251,0.951],[0.210,0.812],[0.163,0.606],[0.155,0.426]]
+    },
+    "1943kai": {"mode":"reject","notes":"Front photo ends below controls, with most lower cabinet absent."},
+    "bbros": {"mode":"reject","notes":"Photo ends beneath controls; most lower front/base absent."},
+    "ddragonu": {"mode":"reject","notes":"Front photo ends beneath controls; lower front/base absent."},
+    "ddsom": {"mode":"reject","notes":"Photo ends beneath controls; lower front/base absent."},
+    "junofrst": {"notes":"Reviewed upright; source bottom clips foot/base edge."},
+    "mainevt": {"mode":"reject","notes":"Front photo ends directly below control deck; lower body absent."},
+    "mk3": {"notes":"Reviewed angled upright; source clips feet/base edge."},
+    "outrunb": {"notes":"Reviewed upright racing cabinet, not seated cockpit; source clips foot/base edge."},
+    "popeyef": {"notes":"Reviewed upright front; source clips lower base edge."},
+    "puzzloop": {"notes":"Reviewed upright photo; source clips lower base edge."},
+    "s1945": {"mode":"reject","notes":"Photo ends below control deck; most lower body absent."},
+    "shangonb": {"mode":"reject","notes":"Photo shows screen and handlebars, but lacks complete lower pedestal/base."},
+    "sidearms": {"notes":"Reviewed wood-side upright; source clips foot/base edge."},
+    "spf2t": {"notes":"Reviewed upright front; source clips lower base edge."},
+    "spidey": {"notes":"Reviewed upright front; source clips lower base edge."},
+    "strider": {"mode":"reject","notes":"Photo cuts off lower front below control deck; black remnant cannot supply full cabinet geometry."},
+    "tekken3": {"notes":"Reviewed upright photo; source clips lower base edge."},
+    "tnzs": {"notes":"Reviewed upright photo; source clips foot/base edge."},
+    "willow": {"mode":"reject","notes":"Front photo ends directly below controls; lower body absent."},
+    "xmvsf": {"notes":"Reviewed front upright; source clips lower base edge."}
+  }
+}

@@ -11,10 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://jitpack.io") // required by RPCSX's materialswitch dependency
     }
 }
 
 rootProject.name = "RetroLauncher"
 include(":app")
-include(":embedded-rpcsx")

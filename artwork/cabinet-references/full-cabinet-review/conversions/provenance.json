@@ -1,0 +1,4521 @@
+{
+  "representation": "period-style-conversion",
+  "disclaimer": "Imagined operator conversions assembled from real shell photos plus sign/decal/control edits. NOT photographs of these titles' authentic cabinets. No original photo files were altered.",
+  "shells": [
+    {
+      "rom": "frogger",
+      "asset": "frogger.png",
+      "sourceFile": "frogger.png",
+      "url": "https://adb.arcadeitalia.net/media/mame.current/cabinets/frogger.png",
+      "sourceSha256": "5723e814bd9513c695b433b49333c7c868e054b1efefb5336e71934def155841",
+      "cutoutSha256": "5ed1e5a2d76c82d9025e7967bf759bf890e9addf8f390970f5a9e16717e84520"
+    },
+    {
+      "rom": "columns",
+      "asset": "columns.png",
+      "sourceFile": "downloads/columns.png",
+      "url": "https://adb.arcadeitalia.net/media/mame.current/cabinets/columns.png",
+      "sourceSha256": "d014ed30f5870cd7c3aa8795fe0350956bc417bab95ba79408a11badbcaacc14",
+      "cutoutSha256": "449d21c9565f4fbc5bc74529bfc370e9c30dfea6f22ac99da1db98c6188a5546"
+    },
+    {
+      "rom": "sonic",
+      "asset": "sonic.png",
+      "sourceFile": "downloads/sonic.png",
+      "url": "https://adb.arcadeitalia.net/media/mame.current/cabinets/sonic.png",
+      "sourceSha256": "bd334bf0feb2cabbdebe3c574829d10bd26c21dd83b34d20ee6a2c0ab1280c52",
+      "cutoutSha256": "5f4a6fac6baf7941b7e1f99e09338054756eb6fd689f002599e3a0d709eef218"
+    }
+  ],
+  "games": [
+    {
+      "rom": "1943kai",
+      "title": "1943 Kai - Midway Kaisen",
+      "year": "1987",
+      "canonical": "1943kai",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "1943kai"
+      ],
+      "asset": "1943kai__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "cc57ccd6b001557c61a5c95f3244858b0b4d679a79853fb866a5887fcb7eed87",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 131895,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "actfancr",
+      "title": "Act-Fancer Cybernetick Hyper Weapon",
+      "year": "1989",
+      "canonical": "actfancr",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "actfancr"
+      ],
+      "asset": "actfancr__conversion.png",
+      "marquee": {
+        "rom": "actfancr",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/actfancr.png",
+        "status": "downloaded",
+        "file": "marquees/actfancr.png",
+        "width": 1200.0,
+        "height": 453.0,
+        "sha256": "2cdd26ebd00e63dc935515c232fe031a662c7c3ae32eda788d101c262b65249e",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8bb3c67b4e968664c2aade0989c82cb4353aa8452c054706807d0e2854bd6845",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128501,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "aligatun",
+      "title": "Alligator Hunt",
+      "year": "1994",
+      "canonical": "aligator",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "aligatun",
+        "aligator"
+      ],
+      "asset": "aligatun__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "f26347f2b013b3bffc17ec2668e22ec5692eeaa45fa86cfe44d2c1d1f63356fe",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132124,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "armwaru",
+      "title": "Armored Warriors",
+      "year": "1994",
+      "canonical": "armwar",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "armwaru",
+        "armwar"
+      ],
+      "asset": "armwaru__conversion.png",
+      "marquee": {
+        "rom": "armwar",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/armwar.png",
+        "status": "downloaded",
+        "file": "marquees/armwar.png",
+        "width": 1200.0,
+        "height": 375.0,
+        "sha256": "611641ebccb615933d553b74ae4cda56695a6b8095870051720dd805032b1e66",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "4aa72172c10ae8ec599c05a609bb19247571ef804c20539e107a8d127ffe31d3",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125969,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "asterix",
+      "title": "Asterix",
+      "year": "1992",
+      "canonical": "asterix",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "asterix"
+      ],
+      "asset": "asterix__conversion.png",
+      "marquee": {
+        "rom": "asterix",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/asterix.png",
+        "status": "downloaded",
+        "file": "marquees/asterix.png",
+        "width": 1200.0,
+        "height": 335.0,
+        "sha256": "d613c8384cd4f4dc4e99b4b8780ef36079ab08b9c11ffbf0e262e8ff3bce5295",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c3c32d6aa4c65496aae326471e446558711e48b7b6a3b46eb04c190f925729b4",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124785,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "astorm",
+      "title": "Alien Storm",
+      "year": "1990",
+      "canonical": "astorm",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "astorm"
+      ],
+      "asset": "astorm__conversion.png",
+      "marquee": {
+        "rom": "astorm",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/astorm.png",
+        "status": "downloaded",
+        "file": "marquees/astorm.png",
+        "width": 1200.0,
+        "height": 355.0,
+        "sha256": "50a7542570b3b33805e588c413cfdb0f94299d424fcbd38ce5f24c3a232c911f",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "b7c5a6e412fff7b832d3eb0f5f136a9d451e3d5a7ef271c202b480543a7be1b5",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125893,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "astormbl",
+      "title": "Alien Storm",
+      "year": "1990",
+      "canonical": "astorm",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "astormbl",
+        "astorm"
+      ],
+      "asset": "astormbl__conversion.png",
+      "marquee": {
+        "rom": "astorm",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/astorm.png",
+        "status": "downloaded",
+        "file": "marquees/astorm.png",
+        "width": 1200.0,
+        "height": 355.0,
+        "sha256": "50a7542570b3b33805e588c413cfdb0f94299d424fcbd38ce5f24c3a232c911f",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "b7c5a6e412fff7b832d3eb0f5f136a9d451e3d5a7ef271c202b480543a7be1b5",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125893,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "avspirit",
+      "title": "Avenging Spirit",
+      "year": "1991",
+      "canonical": "avspirit",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "avspirit"
+      ],
+      "asset": "avspirit__conversion.png",
+      "marquee": {
+        "rom": "avspirit",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/avspirit.png",
+        "status": "downloaded",
+        "file": "marquees/avspirit.png",
+        "width": 500.0,
+        "height": 117.0,
+        "sha256": "4be918526b359c191e7ab3feecfab559bfd6b9b63eaf7b38ee7451e109977383",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "39af53157fe21fbf5b1b8506e69f5ae2c9ad214e2699fc5b0bc50fb966e804a1",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126317,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "batcir",
+      "title": "Battle Circuit",
+      "year": "1997",
+      "canonical": "batcir",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "batcir"
+      ],
+      "asset": "batcir__conversion.png",
+      "marquee": {
+        "rom": "batcir",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/batcir.png",
+        "status": "downloaded",
+        "file": "marquees/batcir.png",
+        "width": 1200.0,
+        "height": 506.0,
+        "sha256": "28e7595d183ef1a411747e27d6c0a50eb20ca4382793668ccd28b8a90263bdd6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "265bd69c72d50dc1498eaaf39d551bfd9617451ea91d569bb73404b88c5cd75a",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 34928,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "batrider",
+      "title": "Armed Police Batrider",
+      "year": "1998",
+      "canonical": "batrider",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "batrider"
+      ],
+      "asset": "batrider__conversion.png",
+      "marquee": {
+        "rom": "batrider",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/batrider.png",
+        "status": "downloaded",
+        "file": "marquees/batrider.png",
+        "width": 1200.0,
+        "height": 481.0,
+        "sha256": "94872cfc7186216c4c4249dea113dee7fd80395591cc729eb7db5b6b49117c30",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "0f4159e8180a7c66a2ccad86f840636abaac02e93bb72e0a496d166b509f07f3",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 36344,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "bbros",
+      "title": "Buster Bros.",
+      "year": "1989",
+      "canonical": "bbros",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "bbros"
+      ],
+      "asset": "bbros__conversion.png",
+      "marquee": {
+        "rom": "bbros",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bbros.png",
+        "status": "downloaded",
+        "file": "marquees/bbros.png",
+        "width": 1200.0,
+        "height": 374.0,
+        "sha256": "87ae701d34c99ee1903865523f15e7de9a8136f8b216353b540b40a3b5c3224d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "7c0b6b7aee2cbd55eff26d0df852aa6777ec8c78f1ccf1e78820b970a41c2102",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126300,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "biomtoy",
+      "title": "Biomechanical Toy",
+      "year": "1995",
+      "canonical": "biomtoy",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "biomtoy"
+      ],
+      "asset": "biomtoy__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "e4ecfc08ca836936cbf54a47dbbf5c3523fae2ff1ec04ea5e21622df12169ba0",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39131,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "blswhstl",
+      "title": "Bells and Whistles",
+      "year": "1991",
+      "canonical": "blswhstl",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "blswhstl"
+      ],
+      "asset": "blswhstl__conversion.png",
+      "marquee": {
+        "rom": "blswhstl",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/blswhstl.png",
+        "status": "downloaded",
+        "file": "marquees/blswhstl.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "b26466ecc6fb8333956927d1db44f442e34d7aa5cb6b64f5676beadaca3ade7a",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "822197449980934def93272712613f872b0cef3e7dccdc8a58ba9128d7f04e95",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125701,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "bogeyman",
+      "title": "Bogey Manor",
+      "year": "1985",
+      "canonical": "bogeyman",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "bogeyman"
+      ],
+      "asset": "bogeyman__conversion.png",
+      "marquee": {
+        "rom": "bogeyman",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bogeyman.png",
+        "status": "downloaded",
+        "file": "marquees/bogeyman.png",
+        "width": 500.0,
+        "height": 152.0,
+        "sha256": "97c526fac0d8c3a39070552f49f827016f785b07b12f6016a5743c3db6a0e06e",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "e8c870874025f2b187848fc6c64791117637ea4d49ebf8addb349a57e8c2902e",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 40951,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "bombjack",
+      "title": "Bomb Jack",
+      "year": "1984",
+      "canonical": "bombjack",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "bombjack"
+      ],
+      "asset": "bombjack__conversion.png",
+      "marquee": {
+        "rom": "bombjack",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bombjack.png",
+        "status": "downloaded",
+        "file": "marquees/bombjack.png",
+        "width": 1200.0,
+        "height": 431.0,
+        "sha256": "0f55aee807e3e49389383483a1dcd46c3d272332e6076e147d683e38512cf8d7",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "cedc9041dbb9395f52c644b632e0a373825e9972c2b7b0975a577ff71859bd14",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 43087,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "boogwing",
+      "title": "Boogie Wings",
+      "year": "1992",
+      "canonical": "boogwing",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "boogwing"
+      ],
+      "asset": "boogwing__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "7bb791d296344187d0db735b08acd99d90fa18077719f7d544c16528b8dd77ca",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132130,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "candance",
+      "title": "Cannon Dancer",
+      "year": "1996",
+      "canonical": "candance",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "candance"
+      ],
+      "asset": "candance__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "cd226be1141a83d347453bb3a8ab2a115f5581c258908f7d1a10f954266a8eeb",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39222,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "cbuster",
+      "title": "Crude Buster",
+      "year": "1990",
+      "canonical": "cbuster",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "cbuster"
+      ],
+      "asset": "cbuster__conversion.png",
+      "marquee": {
+        "rom": "cbuster",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/cbuster.png",
+        "status": "downloaded",
+        "file": "marquees/cbuster.png",
+        "width": 1200.0,
+        "height": 381.0,
+        "sha256": "2d59d7d56cfdda22fe1525db480970741f22c3dee5109708bd3f2184f4f247ed",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "2a8cf2a5630de9f2dc4c072df7c77e9b0dc696de2714d99b773c4fcb4efff0d7",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125710,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "citycon",
+      "title": "City Connection",
+      "year": "1985",
+      "canonical": "citycon",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "citycon"
+      ],
+      "asset": "citycon__conversion.png",
+      "marquee": {
+        "rom": "citycon",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/citycon.png",
+        "status": "downloaded",
+        "file": "marquees/citycon.png",
+        "width": 500.0,
+        "height": 135.0,
+        "sha256": "232998272e49ed4ee681f54292cba2f43cb3b8e60f2b5747bfcd1f39e24510a0",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "5235fa80deaa6ad0b32025aaf5ce90497b0c2a846fcb21da95e5d4cebf4bfb04",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 40469,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ctribe",
+      "title": "The Combatribes",
+      "year": "1990",
+      "canonical": "ctribe",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "ctribe"
+      ],
+      "asset": "ctribe__conversion.png",
+      "marquee": {
+        "rom": "ctribe",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ctribe.png",
+        "status": "downloaded",
+        "file": "marquees/ctribe.png",
+        "width": 1200.0,
+        "height": 355.0,
+        "sha256": "213c3e7459cd2a9386f59583f1b92d1a9c442b081cf8edf1053ee7a5b10a310f",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8c5d5c7682ae3534f612a1206fde96a602a645362f75d42cf4789736a0c1af78",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125169,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "cybots",
+      "title": "Cyberbots: Fullmetal Madness",
+      "year": "1995",
+      "canonical": "cybots",
+      "shell": "sonic",
+      "controls": "six-button",
+      "candidates": [
+        "cybots"
+      ],
+      "asset": "cybots__conversion.png",
+      "marquee": {
+        "rom": "cybots",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/cybots.png",
+        "status": "downloaded",
+        "file": "marquees/cybots.png",
+        "width": 1200.0,
+        "height": 679.0,
+        "sha256": "daa3d487b5cd73eb3875647a8f5c4d86974eb1476fe36479df72e790bd82ed22",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "c306a3ff5ddfa5c3825e9637eef6b394f28a1d9a84a51abd09bf524236d7eeb4",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39265,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "cyvern",
+      "title": "Cyvern",
+      "year": "1998",
+      "canonical": "cyvern",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "cyvern"
+      ],
+      "asset": "cyvern__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "bbb2d4876d98801c9dfa4ab7fad20db5da52fec0e4da3daeb6aeb929ff42e1c2",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39394,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ddcrew",
+      "title": "D. D. Crew",
+      "year": "1991",
+      "canonical": "ddcrew",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "ddcrew"
+      ],
+      "asset": "ddcrew__conversion.png",
+      "marquee": {
+        "rom": "ddcrew",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ddcrew.png",
+        "status": "downloaded",
+        "file": "marquees/ddcrew.png",
+        "width": 500.0,
+        "height": 143.0,
+        "sha256": "b6e8bebd9fcd471a8a3c0e16950b9f4a11de261de434f1d543836b43656de369",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "9d43ea07973d8c0bc4882c51cd062dc1971f83f0e97ddc183f8ae9d2315acc64",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125283,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ddsomu",
+      "title": "Dungeons & Dragons: Shadow over Mystara",
+      "year": "1996",
+      "canonical": "ddsom",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "ddsomu",
+        "ddsom"
+      ],
+      "asset": "ddsomu__conversion.png",
+      "marquee": {
+        "rom": "ddsom",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ddsom.png",
+        "status": "downloaded",
+        "file": "marquees/ddsom.png",
+        "width": 1200.0,
+        "height": 707.0,
+        "sha256": "10c5cceb7effb4380709df599eab8591136ca97d878e9971cc43821d7630165d",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "74e8b54e9bd4665fbbcf060b734b26fa146a75cd6a80e4e32a6a13d6ce54d82b",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 36448,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "deadconx",
+      "title": "Dead Connection",
+      "year": "1992",
+      "canonical": "deadconx",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "deadconx"
+      ],
+      "asset": "deadconx__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "2d0db2a55a494fe53ccbf92773b3287f90c93032faa97c6799b369db791ce344",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132081,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "digdug2",
+      "title": "Dig Dug II",
+      "year": "1985",
+      "canonical": "digdug2",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "digdug2"
+      ],
+      "asset": "digdug2__conversion.png",
+      "marquee": {
+        "rom": "digdug2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/digdug2.png",
+        "status": "downloaded",
+        "file": "marquees/digdug2.png",
+        "width": 500.0,
+        "height": 171.0,
+        "sha256": "df04cb6d4dadcf4bb9d31471cac8d0cc46f9c88346e0a2b982f9909efd549ca6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "6b2abf672390f94c1a10bb77d4f125808ab5dfd0929943dc277406b2c9205997",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 41337,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "dogyuun",
+      "title": "Dogyuun",
+      "year": "1992",
+      "canonical": "dogyuun",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "dogyuun"
+      ],
+      "asset": "dogyuun__conversion.png",
+      "marquee": {
+        "rom": "dogyuun",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/dogyuun.png",
+        "status": "downloaded",
+        "file": "marquees/dogyuun.png",
+        "width": 750.0,
+        "height": 200.0,
+        "sha256": "a6ea72424ff4b4ec30244add7645adf1bd4a9ab4528a7e461c946851a6d0ff83",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d5f915a1e28a9a1d79ef6d565f6159b2ce6e7f3fbf76a854a8336fc3b4c045fa",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124954,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "dondokod",
+      "title": "Don Doko Don",
+      "year": "1989",
+      "canonical": "dondokod",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "dondokod"
+      ],
+      "asset": "dondokod__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c3414f0921fcaf7353c7b53c27c65936c3afdf16bf5ef4923d27dcd8d8a0f365",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132145,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "donpachi",
+      "title": "DonPachi",
+      "year": "1995",
+      "canonical": "donpachi",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "donpachi"
+      ],
+      "asset": "donpachi__conversion.png",
+      "marquee": {
+        "rom": "donpachi",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/donpachi.png",
+        "status": "downloaded",
+        "file": "marquees/donpachi.png",
+        "width": 1200.0,
+        "height": 627.0,
+        "sha256": "14df22aa8501922e3bf4625b8ea407063a7ea627aa984aca7b8d06171c7afc07",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "b6e0b3b8883f047f39be1c8d9bf6f11bd5ae4d76ccd9dd9c75962532d2fd78e5",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 36929,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "drtoppel",
+      "title": "Dr. Toppel's Adventure",
+      "year": "1987",
+      "canonical": "drtoppel",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "drtoppel"
+      ],
+      "asset": "drtoppel__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "6d1b5fca636a7ae73df1a7a901cd422a926bba414e20b419edfc695e78429c2b",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 131944,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "dw",
+      "title": "Dynasty Wars",
+      "year": "1989",
+      "canonical": "dw",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "dw"
+      ],
+      "asset": "dw__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d6bf2baf0186e81409f951f9cbb0ece9dc9144028d101dd30dbc110b618ca589",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132138,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "edrandy",
+      "title": "The Cliffhanger - Edward Randy",
+      "year": "1990",
+      "canonical": "edrandy",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "edrandy"
+      ],
+      "asset": "edrandy__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c10e1b71587f64bfaef2d978d8e2cb6bd5b9ecf845248e0be8bf594ce09e73f9",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 131705,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "elvactr",
+      "title": "Elevator Action Returns",
+      "year": "1994",
+      "canonical": "elvactr",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "elvactr"
+      ],
+      "asset": "elvactr__conversion.png",
+      "marquee": {
+        "rom": "elvactr",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/elvactr.png",
+        "status": "downloaded",
+        "file": "marquees/elvactr.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "330a61be7c56f65c29834c043709699f05e34b10d356ab0858ab1f7b5555f7db",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "27e619a6fb25e3b33c8be19c5389d1a12484e1ca3016239f555457a01d7cba0c",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127316,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "endurobl",
+      "title": "Enduro Racer",
+      "year": "1986",
+      "canonical": "enduror",
+      "shell": "frogger",
+      "controls": "handlebar",
+      "candidates": [
+        "endurobl",
+        "enduror"
+      ],
+      "asset": "endurobl__conversion.png",
+      "marquee": {
+        "rom": "enduror",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/enduror.png",
+        "status": "downloaded",
+        "file": "marquees/enduror.png",
+        "width": 1200.0,
+        "height": 314.0,
+        "sha256": "bf27472332d20c7beccad7cdfe5512404c76ac1066f9ca17129136bb318e1799",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "aad0d274c70df728fb26bc7014862d73667c38bcf68c81e0c87fe20014ee89e3",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 40944,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "fantzn2",
+      "title": "Fantasy Zone 2",
+      "year": "198?",
+      "canonical": "fantzn2",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "fantzn2"
+      ],
+      "asset": "fantzn2__conversion.png",
+      "marquee": null,
+      "eraReason": "Uncertain metadata year; early wooden upright family, not an exact date claim.",
+      "outputSha256": "02eceb581d9cb35138ec62b723945f8996ae2971d3d79af9c3fcaa74eb0a1102",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45208,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "fantzone",
+      "title": "Fantasy Zone",
+      "year": "1986",
+      "canonical": "fantzone",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "fantzone"
+      ],
+      "asset": "fantzone__conversion.png",
+      "marquee": {
+        "rom": "fantzone",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/fantzone.png",
+        "status": "downloaded",
+        "file": "marquees/fantzone.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "db8664fc033f8e7d8d14d81f9c3324ac7ca3ba563fc5ac8dc5e74de074748ae6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "54eccd684f41665bc2648a6d09999106c04c5e35db4bae0756cabeb32036d657",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 40880,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "funkyjet",
+      "title": "Funky Jet",
+      "year": "1992",
+      "canonical": "funkyjet",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "funkyjet"
+      ],
+      "asset": "funkyjet__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "449ae2df50e3c5e83df7062e1d374099f5646d24cca0597f49382720b56aa0c8",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132270,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gaiden",
+      "title": "Ninja Gaiden",
+      "year": "1988",
+      "canonical": "gaiden",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "gaiden"
+      ],
+      "asset": "gaiden__conversion.png",
+      "marquee": {
+        "rom": "gaiden",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gaiden.png",
+        "status": "downloaded",
+        "file": "marquees/gaiden.png",
+        "width": 1200.0,
+        "height": 335.0,
+        "sha256": "e862cf7fe1c88c9c67d4b6248de39921941837c6399f448c31636a08de2a3f8b",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d3ae780ccc3d76a6470235a5ab1c3348dfc2846abc1e8473d061f203dff962fb",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126964,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "galmedes",
+      "title": "Galmedes",
+      "year": "1992",
+      "canonical": "galmedes",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "galmedes"
+      ],
+      "asset": "galmedes__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "5468b41e4a3c4c0174497a6a76d80617aaf055b9c0d0b4710b9d0001fe172b8d",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132233,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gnbarich",
+      "title": "Gunbarich",
+      "year": "2001",
+      "canonical": "gnbarich",
+      "shell": "sonic",
+      "controls": "spinner",
+      "candidates": [
+        "gnbarich"
+      ],
+      "asset": "gnbarich__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "94d5f96cce5cc5e3b78764a6d91cf6620bc3563c2e6cd2ae68c9bb2e2020e886",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39145,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gngt",
+      "title": "Ghosts ’n Goblins",
+      "year": "1985",
+      "canonical": "gng",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "gngt",
+        "gng"
+      ],
+      "asset": "gngt__conversion.png",
+      "marquee": {
+        "rom": "gngt",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gngt.png",
+        "status": "downloaded",
+        "file": "marquees/gngt.png",
+        "width": 1200.0,
+        "height": 449.0,
+        "sha256": "ab9d35b7d0ac418bb28725f6eae4b9d1ed81bfef89210bc9d05aff1b36ad7b3e",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "01b2eb2d0dedbaaea3cc863450c11196e408e835b0403b8f656ec7bb2bad6219",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 42721,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "godzilla",
+      "title": "Godzilla",
+      "year": "1993",
+      "canonical": "godzilla",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "godzilla"
+      ],
+      "asset": "godzilla__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "72a718c5f970ad38db363aa5510447688e7a3768d97c2b730061ce7dc6d4e1c3",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132277,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gradius2",
+      "title": "Gradius II - GOFER no Yabou",
+      "year": "1988",
+      "canonical": "gradius2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "gradius2"
+      ],
+      "asset": "gradius2__conversion.png",
+      "marquee": {
+        "rom": "gradius2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gradius2.png",
+        "status": "downloaded",
+        "file": "marquees/gradius2.png",
+        "width": 1200.0,
+        "height": 309.0,
+        "sha256": "7f1eabbdc6d4a80e16b79ca08ac7e71d811f62e6010cdcdf4bed800211a834f2",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "6e68626d0952a93db987b117a077e52d84680335a64f8bfbf62105da7165d54e",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 134907,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "grdians",
+      "title": "Guardians - Denjin Makai II",
+      "year": "1995",
+      "canonical": "grdians",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "grdians"
+      ],
+      "asset": "grdians__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "1d03cf3bfbf200581e3d59afe0784b8da726e0cb8506b612dc1a24cc0f91170f",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 38962,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "grdius3e",
+      "title": "Gradius III",
+      "year": "1989",
+      "canonical": "gradius3",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "grdius3e",
+        "gradius3"
+      ],
+      "asset": "grdius3e__conversion.png",
+      "marquee": {
+        "rom": "gradius3",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gradius3.png",
+        "status": "downloaded",
+        "file": "marquees/gradius3.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "5b95c4af6d715540a99b0f5c24b19fd60f8c7a178a697b1c3fe0816ed2562e93",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "b076861643f16c077f36427601411969324c009b498be877c5d7e4a89c8b7e34",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128567,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "growlu",
+      "title": "Growl",
+      "year": "1990",
+      "canonical": "growl",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "growlu",
+        "growl"
+      ],
+      "asset": "growlu__conversion.png",
+      "marquee": {
+        "rom": "growlu",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/growlu.png",
+        "status": "downloaded",
+        "file": "marquees/growlu.png",
+        "width": 500.0,
+        "height": 208.0,
+        "sha256": "4325d0b887f1e5ab4f804c0dc41ee6478fcf6f84e57208429e1d68700642b0fa",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "89a364f276fd62aafe1ca1409d63fdec872efccd8bc01af0b617096657ba8482",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 129988,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gunforc2",
+      "title": "Gunforce 2",
+      "year": "1994",
+      "canonical": "gunforc2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "gunforc2"
+      ],
+      "asset": "gunforc2__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "db695fb171561ad7b60bad3a55fe61b6f48b2e76e01a1e9f8aeb992ef6252469",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132240,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gunlock",
+      "title": "Gunlock",
+      "year": "1993",
+      "canonical": "gunlock",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "gunlock"
+      ],
+      "asset": "gunlock__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d43afd2044536aa86a68d075450616e30b00bdc524df13b09b92a201c96ba7be",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132278,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "gunnail",
+      "title": "GunNail",
+      "year": "1993",
+      "canonical": "gunnail",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "gunnail"
+      ],
+      "asset": "gunnail__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "5efafc68acd48b590b8475734c4a0aac9c7b9880739b2cae5d348a6caaf6685a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132267,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "guwange",
+      "title": "Guwange",
+      "year": "1999",
+      "canonical": "guwange",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "guwange"
+      ],
+      "asset": "guwange__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "9d398fc4e76ccb5773b4628c26f83421856e41da25469f790f299a2481910b5d",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39325,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "heatbrlu",
+      "title": "Heated Barrel",
+      "year": "1992",
+      "canonical": "heatbrl",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "heatbrlu",
+        "heatbrl"
+      ],
+      "asset": "heatbrlu__conversion.png",
+      "marquee": {
+        "rom": "heatbrl",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/heatbrl.png",
+        "status": "downloaded",
+        "file": "marquees/heatbrl.png",
+        "width": 1200.0,
+        "height": 358.0,
+        "sha256": "a3b66bb343b8a2653a6270ffeee149768e9ed8bfc211f3f42c31f153a1bb0d90",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "3adae259c382e05ddfcbee657ef48fec32afa0806c386de69bd3720e3571609a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127087,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "hooku",
+      "title": "Hook",
+      "year": "1992",
+      "canonical": "hook",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "hooku",
+        "hook"
+      ],
+      "asset": "hooku__conversion.png",
+      "marquee": {
+        "rom": "hook",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/hook.png",
+        "status": "downloaded",
+        "file": "marquees/hook.png",
+        "width": 1200.0,
+        "height": 368.0,
+        "sha256": "2421d9e78f08d0fa64981c5bf92603571be16d1a0efd580226b2963a93e21713",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "58b4e8b4f3d463c3e0c7687532232ecebdffd7113c9ef531d2e6687db1cd2136",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126628,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "horizon",
+      "title": "Horizon",
+      "year": "1985",
+      "canonical": "horizon",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "horizon"
+      ],
+      "asset": "horizon__conversion.png",
+      "marquee": null,
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "fd0bcf8f77acad9ca35934e4977d00953d15be42af44b7a17d6727277df58164",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45343,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "hvysmsh",
+      "title": "Heavy Smash",
+      "year": "1993",
+      "canonical": "hvysmsh",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "hvysmsh"
+      ],
+      "asset": "hvysmsh__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "0092aa2313c30b6847f3b0d05727cd6b134200665bab64061691351fcb943b46",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132157,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "imgfight",
+      "title": "Image Fight",
+      "year": "1988",
+      "canonical": "imgfight",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "imgfight"
+      ],
+      "asset": "imgfight__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "f8e1de46d11097f493143d675253fafc909be7d23562a341673c4c35e763d904",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132163,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "kodu",
+      "title": "The King of Dragons",
+      "year": "1991",
+      "canonical": "kod",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "kodu",
+        "kod"
+      ],
+      "asset": "kodu__conversion.png",
+      "marquee": {
+        "rom": "kod",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/kod.png",
+        "status": "downloaded",
+        "file": "marquees/kod.png",
+        "width": 1200.0,
+        "height": 371.0,
+        "sha256": "71782df00b0db756b5354d36bb600aec8e9c0061a7cb8cbe1a0c3637c30b41cd",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "683a5fb72359ec7060644e296f328d9e33bbdafac96120b3fe0578c09e48f51d",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126554,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "landmkrp",
+      "title": "Land Maker",
+      "year": "1998",
+      "canonical": "landmakr",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "landmkrp",
+        "landmakr"
+      ],
+      "asset": "landmkrp__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "eee10d50d304042881d28127bd42c325faa9223f0625c49017a31676b2a23b2a",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39283,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ldrun2",
+      "title": "Lode Runner II - The Bungeling Strikes Back",
+      "year": "1984",
+      "canonical": "ldrun2",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "ldrun2"
+      ],
+      "asset": "ldrun2__conversion.png",
+      "marquee": null,
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "74dc51b3fcde43d8c7606595a08b9f0c7b022c7cf5572a25cdc0341831a52f7a",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45229,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ldrun4",
+      "title": "Lode Runner IV - Teikoku Karano Dasshutsu",
+      "year": "1986",
+      "canonical": "ldrun4",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "ldrun4"
+      ],
+      "asset": "ldrun4__conversion.png",
+      "marquee": null,
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "ed9c806b139faf0bb0b41971692ca3a89980ee209c4665fc34973d73564d3257",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45272,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "lethalth",
+      "title": "Lethal Thunder",
+      "year": "1991",
+      "canonical": "lethalth",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "lethalth"
+      ],
+      "asset": "lethalth__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "42022a57ae73e33824459130df1882a9715a21a92984200e056facfe30a68969",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132127,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "lightbr",
+      "title": "Light Bringer",
+      "year": "1993",
+      "canonical": "lightbr",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "lightbr"
+      ],
+      "asset": "lightbr__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "07a84ae313514bb49513b4595b59f0c72fb9c8e969e5573b2623d9fce4320513",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132123,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "loht",
+      "title": "Legend of Hero Tonma",
+      "year": "1989",
+      "canonical": "loht",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "loht"
+      ],
+      "asset": "loht__conversion.png",
+      "marquee": {
+        "rom": "loht",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/loht.png",
+        "status": "downloaded",
+        "file": "marquees/loht.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "cb6ad37d45b583dc09febe391fc1f59eb06fce691b17c85439af68e42e23222b",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "2d717d163a8d303bc68f9d2960e3d8a95fe02c90eb9a63f96ffb715294adcc0a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125479,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "macross",
+      "title": "Super Spacefortress Macross - Chou-Jikuu Yousai Macross",
+      "year": "1992",
+      "canonical": "macross",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "macross"
+      ],
+      "asset": "macross__conversion.png",
+      "marquee": {
+        "rom": "macross",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macross.png",
+        "status": "downloaded",
+        "file": "marquees/macross.png",
+        "width": 1200.0,
+        "height": 405.0,
+        "sha256": "64fd0008c7e2636d59944ace619e24e56ac0e8286c4c8f18072656b241e23f29",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "a760ff57d7f7d95575d49d23e105510c8f2adb3840ec16ccc9749e846a7a389f",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 129346,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "macross2",
+      "title": "Super Spacefortress Macross II - Chou-Jikuu Yousai Macross II",
+      "year": "1993",
+      "canonical": "macross2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "macross2"
+      ],
+      "asset": "macross2__conversion.png",
+      "marquee": {
+        "rom": "macross2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macross2.png",
+        "status": "downloaded",
+        "file": "marquees/macross2.png",
+        "width": 1200.0,
+        "height": 312.0,
+        "sha256": "b0ee4eb684ea938e500500ef585302d9163161f5640a1bd2742ccfb7244aff3d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8f1923c84a4c0b276836ebf078e8fd500afa59260c2b810fcb557d60a1c6fb6a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125565,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "macrossp",
+      "title": "Macross Plus",
+      "year": "1996",
+      "canonical": "macrossp",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "macrossp"
+      ],
+      "asset": "macrossp__conversion.png",
+      "marquee": {
+        "rom": "macrossp",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macrossp.png",
+        "status": "downloaded",
+        "file": "marquees/macrossp.png",
+        "width": 1200.0,
+        "height": 312.0,
+        "sha256": "b8de2e1e5d3757ef498db1fce8a3d23329f24c046a46c190e2ef0add1c06bf63",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "35653bcad151be4d56d32c9ea8bcec6461de26d3ea45970f40767c94a6e1adb6",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 32868,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mainev2p",
+      "title": "The Main Event",
+      "year": "1988",
+      "canonical": "mainevt",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mainev2p",
+        "mainevt"
+      ],
+      "asset": "mainev2p__conversion.png",
+      "marquee": {
+        "rom": "mainevt",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mainevt.png",
+        "status": "downloaded",
+        "file": "marquees/mainevt.png",
+        "width": 1200.0,
+        "height": 426.0,
+        "sha256": "38d595e80b839c133076a64ceba4ca3dbb0778089893138da03ccee40c319d07",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c702dcab1876ab4a87f72c658fd5d13730e33228b73dcbaee309d81872ae7cda",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132570,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mazinger",
+      "title": "Mazinger Z",
+      "year": "1994",
+      "canonical": "mazinger",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mazinger"
+      ],
+      "asset": "mazinger__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "258c46d7a873ba5207cc95c62dd1169f997d06c31e54d1044b95351f376396a0",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132201,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mbombrd",
+      "title": "Muscle Bomber Duo - Ultimate Team Battle",
+      "year": "1993",
+      "canonical": "mbombrd",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mbombrd"
+      ],
+      "asset": "mbombrd__conversion.png",
+      "marquee": {
+        "rom": "mbombrd",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mbombrd.png",
+        "status": "downloaded",
+        "file": "marquees/mbombrd.png",
+        "width": 1200.0,
+        "height": 267.0,
+        "sha256": "be2639ea65e012f8c27790c4c600bd2b7158ddc43ede4e292724cf75e5e5bb48",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "2a0835a487b937a9e6a3ddb4143e36012a486292e4302ec220e062a09db1026a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126136,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "megaman2",
+      "title": "Mega Man 2: The Power Fighters",
+      "year": "1996",
+      "canonical": "megaman2",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "megaman2"
+      ],
+      "asset": "megaman2__conversion.png",
+      "marquee": {
+        "rom": "megaman2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/megaman2.png",
+        "status": "downloaded",
+        "file": "marquees/megaman2.png",
+        "width": 1000.0,
+        "height": 284.0,
+        "sha256": "743f7c7200724b14e5abe087811f4435639763508b1e20590fab3009095794c6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "b07a68fbe9585b117fcff74214c83212f4e946715c13604713973f6afc091227",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 32245,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "metamrph",
+      "title": "Metamorphic Force",
+      "year": "1993",
+      "canonical": "metamrph",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "metamrph"
+      ],
+      "asset": "metamrph__conversion.png",
+      "marquee": {
+        "rom": "metamrph",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/metamrph.png",
+        "status": "downloaded",
+        "file": "marquees/metamrph.png",
+        "width": 1200.0,
+        "height": 433.0,
+        "sha256": "0c52c27676b8e9a1d19addf866bfae60c4568f836f007c1dcbc73342b5dd7f0c",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "77ac90b3f525886fe447d8cb3a9d5af40eabb13427fe18eab305fb788634892c",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126474,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "metmqstr",
+      "title": "Metamoqester",
+      "year": "1995",
+      "canonical": "metmqstr",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "metmqstr"
+      ],
+      "asset": "metmqstr__conversion.png",
+      "marquee": null,
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "2d935367380f8d1cbbe047e210eb44e27b77633e2bc1ebd06fa490348ff96446",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 39206,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mgcrystl",
+      "title": "Magical Crystals",
+      "year": "1991",
+      "canonical": "mgcrystl",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mgcrystl"
+      ],
+      "asset": "mgcrystl__conversion.png",
+      "marquee": {
+        "rom": "mgcrystl",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mgcrystl.png",
+        "status": "downloaded",
+        "file": "marquees/mgcrystl.png",
+        "width": 1200.0,
+        "height": 343.0,
+        "sha256": "66523705a4366c84474f266b954eab2b85b3b3585571d6b1edc255bf9ee1942d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "79b3f968660fc021ab10ac512d65dd76a03633c43bfdf940a7ee3d0058640215",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125553,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mmatrix",
+      "title": "Mars Matrix: Hyper Solid Shooting",
+      "year": "2000",
+      "canonical": "mmatrix",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mmatrix"
+      ],
+      "asset": "mmatrix__conversion.png",
+      "marquee": {
+        "rom": "mmatrix",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mmatrix.png",
+        "status": "downloaded",
+        "file": "marquees/mmatrix.png",
+        "width": 1200.0,
+        "height": 375.0,
+        "sha256": "b4aba4da6b5d6396a62dc2fd4501393eafff9075a6761c5295e1aa5884d90a93",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "356c6a708ce79bde3de28d927f53b624d591d950a96cb063bb795234f9a911ca",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 33337,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "moonwalk",
+      "title": "Michael Jackson's Moonwalker",
+      "year": "1990",
+      "canonical": "moonwalk",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "moonwalk"
+      ],
+      "asset": "moonwalk__conversion.png",
+      "marquee": {
+        "rom": "moonwalk",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moonwalk.png",
+        "status": "downloaded",
+        "file": "marquees/moonwalk.png",
+        "width": 500.0,
+        "height": 134.0,
+        "sha256": "d7469bc84f6627861835d89b875b490c9e742087b21d9014703f1f482dadaf5b",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "e9510ecca601bf1965c4a972561a17292f45e700d31b770c4c109ccf24a2120e",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124932,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "moonwlkb",
+      "title": "Michael Jackson's Moonwalker",
+      "year": "1990",
+      "canonical": "moonwalk",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "moonwlkb",
+        "moonwalk"
+      ],
+      "asset": "moonwlkb__conversion.png",
+      "marquee": {
+        "rom": "moonwalk",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moonwalk.png",
+        "status": "downloaded",
+        "file": "marquees/moonwalk.png",
+        "width": 500.0,
+        "height": 134.0,
+        "sha256": "d7469bc84f6627861835d89b875b490c9e742087b21d9014703f1f482dadaf5b",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "e9510ecca601bf1965c4a972561a17292f45e700d31b770c4c109ccf24a2120e",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124932,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mooua",
+      "title": "Wild West C.O.W.-Boys of Moo Mesa",
+      "year": "1992",
+      "canonical": "moo",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mooua",
+        "moo"
+      ],
+      "asset": "mooua__conversion.png",
+      "marquee": {
+        "rom": "moo",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moo.png",
+        "status": "downloaded",
+        "file": "marquees/moo.png",
+        "width": 500.0,
+        "height": 186.0,
+        "sha256": "8f47d1976b50a4bc4732921a0af60ce77eebd91e6140dc97cdaff96811111219",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "79731cfb78418fe6cf499233ddc2dc5ad153a4a4d466e90984fce78d82efdd59",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126933,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mshvsfj",
+      "title": "Marvel Super Heroes Vs. Street Fighter",
+      "year": "1997",
+      "canonical": "mshvsf",
+      "shell": "sonic",
+      "controls": "six-button",
+      "candidates": [
+        "mshvsfj",
+        "mshvsf"
+      ],
+      "asset": "mshvsfj__conversion.png",
+      "marquee": {
+        "rom": "mshvsfj",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mshvsfj.png",
+        "status": "downloaded",
+        "file": "marquees/mshvsfj.png",
+        "width": 1200.0,
+        "height": 854.0,
+        "sha256": "2a11e65be88c6b1dc82649a86c289f13b5c8dd5b782e139a595eb146975ab41c",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "93291c21da07985af3c113c8ed7a65b4394abc42a2bb3783315b0b684813c146",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 37111,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mtwins",
+      "title": "Mega Twins",
+      "year": "1990",
+      "canonical": "mtwins",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mtwins"
+      ],
+      "asset": "mtwins__conversion.png",
+      "marquee": {
+        "rom": "mtwins",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mtwins.png",
+        "status": "downloaded",
+        "file": "marquees/mtwins.png",
+        "width": 1200.0,
+        "height": 346.0,
+        "sha256": "2ea488c67b37bc3f0fd0e7bde5a0419b6b2c6af49fe50fb30076188ade88be0e",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8ada9358d3425139dbd5a661f4023291121a014ce0e939aaeaec28cb18f3bbc6",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126317,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "mystwaru",
+      "title": "Mystic Warriors",
+      "year": "1993",
+      "canonical": "mystwarr",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "mystwaru",
+        "mystwarr"
+      ],
+      "asset": "mystwaru__conversion.png",
+      "marquee": {
+        "rom": "mystwarr",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mystwarr.png",
+        "status": "downloaded",
+        "file": "marquees/mystwarr.png",
+        "width": 1200.0,
+        "height": 359.0,
+        "sha256": "f899f8c16ea1bc02cc0d8229769bfa1b11746222c786c87743f160c6104d067f",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "1224e6576f74eb3ded3a2f5b1ed49797dfb961808d1639e97ebfdc0b0f944ddc",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 135123,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nbbatman",
+      "title": "Ninja Baseball Batman",
+      "year": "1993",
+      "canonical": "nbbatman",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "nbbatman"
+      ],
+      "asset": "nbbatman__conversion.png",
+      "marquee": {
+        "rom": "nbbatman",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nbbatman.png",
+        "status": "downloaded",
+        "file": "marquees/nbbatman.png",
+        "width": 1200.0,
+        "height": 366.0,
+        "sha256": "7a5f64dca915d15bf8a954f1e2f523fa76bbbe4b6d51cffac3e9ad1ee0f77433",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "65ffe1e001125144463390e48b1f0bf6f9a130056a34906e6af973a1b08fce3a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126529,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nemo",
+      "title": "Nemo",
+      "year": "1990",
+      "canonical": "nemo",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "nemo"
+      ],
+      "asset": "nemo__conversion.png",
+      "marquee": {
+        "rom": "nemo",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nemo.png",
+        "status": "downloaded",
+        "file": "marquees/nemo.png",
+        "width": 1200.0,
+        "height": 346.0,
+        "sha256": "399c241992207e8e0339cc3286f8b51cb889cb297900585067635cba029bed5d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "1d593b1c78fde22d31340d78e4aef3f00866f0c6e0582937be0107bd72aa3ded",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128894,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ninjak",
+      "title": "The Ninja Kids",
+      "year": "1990",
+      "canonical": "ninjak",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "ninjak"
+      ],
+      "asset": "ninjak__conversion.png",
+      "marquee": {
+        "rom": "ninjak",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ninjak.png",
+        "status": "downloaded",
+        "file": "marquees/ninjak.png",
+        "width": 1200.0,
+        "height": 300.0,
+        "sha256": "bf84560b6840f279dd24a72290ae185a20338d67a17ad866fc318fe01c46f8ba",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "688714031cf9a9c96e6fff7cfbae89b94890e1914e4bec1a0c5ee01b760a49d5",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126170,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nitrobal",
+      "title": "Nitro Ball",
+      "year": "1992",
+      "canonical": "nitrobal",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "nitrobal"
+      ],
+      "asset": "nitrobal__conversion.png",
+      "marquee": {
+        "rom": "nitrobal",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nitrobal.png",
+        "status": "downloaded",
+        "file": "marquees/nitrobal.png",
+        "width": 1200.0,
+        "height": 369.0,
+        "sha256": "450ad1624865f8e83ba669b28df333215f3491ef32c7e0e2e73c02cb24a1d325",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "a4601ed7f49252c8819988d600d0c4b6b095c6c4558f91d4a7b983805c47db59",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127423,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "noboranb",
+      "title": "Noboranka",
+      "year": "1986",
+      "canonical": "noboranb",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "noboranb"
+      ],
+      "asset": "noboranb__conversion.png",
+      "marquee": null,
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "a90d9b4aa5aa567d9558d7905db5b376eda849a4930f03a851438001f249ee2c",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45257,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nrallyx",
+      "title": "New Rally X",
+      "year": "1981",
+      "canonical": "nrallyx",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "nrallyx"
+      ],
+      "asset": "nrallyx__conversion.png",
+      "marquee": {
+        "rom": "nrallyx",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nrallyx.png",
+        "status": "downloaded",
+        "file": "marquees/nrallyx.png",
+        "width": 1024.0,
+        "height": 341.0,
+        "sha256": "0cce688d21bf04c17dea08d070e093fcdcd923c37ede5bab264f2507e09b864d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "d602e0e260996b39afdd4d71c65edcc345b47396cac63b27b60f5989bd894a89",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 41994,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nslasher",
+      "title": "Night Slashers",
+      "year": "1994",
+      "canonical": "nslasher",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "nslasher"
+      ],
+      "asset": "nslasher__conversion.png",
+      "marquee": {
+        "rom": "nslasher",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nslasher.png",
+        "status": "downloaded",
+        "file": "marquees/nslasher.png",
+        "width": 500.0,
+        "height": 146.0,
+        "sha256": "79d533ded1cc562729932077ecfdbe9233b5da4f5c87a4786314165d726d4c93",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "87c36f6396db283ca73551b1608bb8fca10b143b5e23d2a6d15f732307ab571f",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126881,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nspirit",
+      "title": "Ninja Spirit",
+      "year": "1988",
+      "canonical": "nspirit",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "nspirit"
+      ],
+      "asset": "nspirit__conversion.png",
+      "marquee": {
+        "rom": "nspirit",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nspirit.png",
+        "status": "downloaded",
+        "file": "marquees/nspirit.png",
+        "width": 3150.0,
+        "height": 1050.0,
+        "sha256": "c71fee24b68d6d354071d0c1459057f61cfc038af626d7f7b4d8d0416cc9922c",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "f5b770a78522acff6cb6d037e2ac4ec78a2d5373c705bbb15c7a0e0acf1e4b06",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128599,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "nwarr",
+      "title": "Night Warriors: Darkstalkers' Revenge",
+      "year": "1995",
+      "canonical": "nwarr",
+      "shell": "sonic",
+      "controls": "six-button",
+      "candidates": [
+        "nwarr"
+      ],
+      "asset": "nwarr__conversion.png",
+      "marquee": {
+        "rom": "nwarr",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nwarr.png",
+        "status": "downloaded",
+        "file": "marquees/nwarr.png",
+        "width": 1200.0,
+        "height": 679.0,
+        "sha256": "44ed6d10bde6d17143d286aa93d223ac69af8cc1ab807d821c68443b6763fefe",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "a9b31ccf7e0f3b50ec700dc14b72c20d0f6709a07b636fb86c4f5a851f6358cc",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 36134,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "outfxies",
+      "title": "Outfoxies",
+      "year": "1994",
+      "canonical": "outfxies",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "outfxies"
+      ],
+      "asset": "outfxies__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8ef08f8fc7c1c30ffda7e9446f511041e6d857cf2ac70167c7c9253f5c31847a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132242,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "parodius",
+      "title": "Parodius DA!",
+      "year": "1990",
+      "canonical": "parodius",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "parodius"
+      ],
+      "asset": "parodius__conversion.png",
+      "marquee": {
+        "rom": "parodius",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/parodius.png",
+        "status": "downloaded",
+        "file": "marquees/parodius.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "380394d08d8c7c3164e9ab0d2098f8ab71cf472182517b3e8430599a73e8378b",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "53e769ef4cffcea39517bf564b7abde2207257aa2f466b3f404931a67d1635e0",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125478,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "pipedrm",
+      "title": "Pipe Dream",
+      "year": "1990",
+      "canonical": "pipedrm",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "pipedrm"
+      ],
+      "asset": "pipedrm__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "3a9784022164e8102bb6ead6a93c7ea2e32b3451d20e87e1c5454967b293d824",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132195,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "punksht2",
+      "title": "Punk Shot",
+      "year": "1990",
+      "canonical": "punkshot",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "punksht2",
+        "punkshot"
+      ],
+      "asset": "punksht2__conversion.png",
+      "marquee": {
+        "rom": "punkshot",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/punkshot.png",
+        "status": "downloaded",
+        "file": "marquees/punkshot.png",
+        "width": 1200.0,
+        "height": 300.0,
+        "sha256": "50de79fcf697f0f4236619795c2705999736311acaa68f759190e73063416d7e",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "282098110c9eee4395fa5e8a9f6e7af201e97f845b62b4a57515685b340715c1",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126960,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "puyopuy2",
+      "title": "Puyo Puyo 2",
+      "year": "1994",
+      "canonical": "puyopuy2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "puyopuy2"
+      ],
+      "asset": "puyopuy2__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "67101d40659afc5339cf59e1fb52c5dedac05842bad3282d7d38caadf66642c3",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132201,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "puyopuya",
+      "title": "Puyo Puyo",
+      "year": "1992",
+      "canonical": "puyopuyo",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "puyopuya",
+        "puyopuyo"
+      ],
+      "asset": "puyopuya__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "9bb4918e761de9c5760e331c77a0636071c3b7483e512d25decbac1c2eee7f63",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132232,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ramprt2p",
+      "title": "Rampart",
+      "year": "1990",
+      "canonical": "rampart",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "ramprt2p",
+        "rampart"
+      ],
+      "asset": "ramprt2p__conversion.png",
+      "marquee": {
+        "rom": "rampart",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rampart.png",
+        "status": "downloaded",
+        "file": "marquees/rampart.png",
+        "width": 1200.0,
+        "height": 437.0,
+        "sha256": "e0940dcc49c0ae91831d1794898c147cc31ad7ff07cab07d2e4bf022c77c0757",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "359a84148045b89ab0cdfb0f02adf7c244393208d296137acbf3cf1cf493a26d",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127047,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "renegade",
+      "title": "Renegade",
+      "year": "1986",
+      "canonical": "renegade",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "renegade"
+      ],
+      "asset": "renegade__conversion.png",
+      "marquee": {
+        "rom": "renegade",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/renegade.png",
+        "status": "downloaded",
+        "file": "marquees/renegade.png",
+        "width": 1200.0,
+        "height": 391.0,
+        "sha256": "8717a1ac14b9b224374d1c1f6c6616d8f89e4aedca8361bf242cbc5c13d6ea50",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "3c318202270a5132054d329524649c33f1657867c7f8ac9d8582ac6b43ba7c5e",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 42892,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "ringdest",
+      "title": "Ring of Destruction: Slammasters II",
+      "year": "1994",
+      "canonical": "ringdest",
+      "shell": "columns",
+      "controls": "six-button",
+      "candidates": [
+        "ringdest"
+      ],
+      "asset": "ringdest__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "500bf79edfc471c2a1638b74649af5cd199396cb0c23372e798ae3c1d02d3c91",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132566,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "rocnrope",
+      "title": "Roc'n Rope",
+      "year": "1983",
+      "canonical": "rocnrope",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "rocnrope"
+      ],
+      "asset": "rocnrope__conversion.png",
+      "marquee": {
+        "rom": "rocnrope",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rocnrope.png",
+        "status": "downloaded",
+        "file": "marquees/rocnrope.png",
+        "width": 1200.0,
+        "height": 416.0,
+        "sha256": "791350ae8fbe2706265f03b94d7292fdd93551b97c4bbfa968137f40c02d27c9",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "5d6f1bd5f033a8ae9dbdb4a492543c8151c5214f4582cd05db79464fb67177dd",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 41968,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "rohgau",
+      "title": "Rohga Armour Force",
+      "year": "1991",
+      "canonical": "rohga",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "rohgau",
+        "rohga"
+      ],
+      "asset": "rohgau__conversion.png",
+      "marquee": {
+        "rom": "rohga",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rohga.png",
+        "status": "downloaded",
+        "file": "marquees/rohga.png",
+        "width": 1000.0,
+        "height": 298.0,
+        "sha256": "a0f36e4af13ebb5bc50a7a6e0f0fbc8e1a0bf6370f69f33520d54a3528236cf8",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d3dd7601e92064e59126c5d756f6063a7665e52b22bcc34f52d49adcd6508711",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125298,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "rthun2",
+      "title": "Rolling Thunder 2",
+      "year": "1990",
+      "canonical": "rthun2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "rthun2"
+      ],
+      "asset": "rthun2__conversion.png",
+      "marquee": {
+        "rom": "rthun2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rthun2.png",
+        "status": "downloaded",
+        "file": "marquees/rthun2.png",
+        "width": 500.0,
+        "height": 181.0,
+        "sha256": "50b2be6b14e66e06004b82ac1697a1b8718893b429e5c495a562463a41438c46",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "368172ac73e827ab554e0efde1654ccdbbf0d9f45841cc83c74c85529cf5e8f5",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127604,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "rtypeleo",
+      "title": "R-Type Leo",
+      "year": "1992",
+      "canonical": "rtypeleo",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "rtypeleo"
+      ],
+      "asset": "rtypeleo__conversion.png",
+      "marquee": {
+        "rom": "rtypeleo",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rtypeleo.png",
+        "status": "downloaded",
+        "file": "marquees/rtypeleo.png",
+        "width": 1200.0,
+        "height": 372.0,
+        "sha256": "92315efac39b388a376d901c24d0d6ab1996186e4bc49a8eafdeb5fbe4ddb972",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "dacfec2cbec9ab1adcfad516347e3ecb58dcc7f229904c148eb9c9b70e8b51c2",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126230,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "s1945",
+      "title": "Strikers 1945",
+      "year": "1995",
+      "canonical": "s1945",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "s1945"
+      ],
+      "asset": "s1945__conversion.png",
+      "marquee": {
+        "rom": "s1945",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/s1945.png",
+        "status": "downloaded",
+        "file": "marquees/s1945.png",
+        "width": 1200.0,
+        "height": 395.0,
+        "sha256": "0d6e98f6f036c8febf96a86aa20a8fcf9957e3b017bfae203142ea59f7c68669",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "503a4747fa649ed4e7283499cb5ddf04083c64eb84706ba014e171570853a9c7",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 33292,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "samuraia",
+      "title": "Samurai Aces",
+      "year": "1993",
+      "canonical": "samuraia",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "samuraia"
+      ],
+      "asset": "samuraia__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "1a9691dd9d4202405abf73bcf58d4ff1000bd08fed74a34cb6f3e643539d0621",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132162,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "seganinu",
+      "title": "Sega Ninja",
+      "year": "1985",
+      "canonical": "seganinj",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "seganinu",
+        "seganinj"
+      ],
+      "asset": "seganinu__conversion.png",
+      "marquee": {
+        "rom": "seganinj",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/seganinj.png",
+        "status": "downloaded",
+        "file": "marquees/seganinj.png",
+        "width": 1200.0,
+        "height": 423.0,
+        "sha256": "5aeb8dc17997e6348f512ffa139e903e5055662f40627795a06cde812be7a267",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "cc0dbabf5119846cd76b701b2effb4c54651e9ca5dc77a07184068439c803305",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 42011,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "sf1us",
+      "title": "Street Fighter",
+      "year": "1987",
+      "canonical": "sf1",
+      "shell": "columns",
+      "controls": "six-button",
+      "candidates": [
+        "sf1us",
+        "sf1"
+      ],
+      "asset": "sf1us__conversion.png",
+      "marquee": {
+        "rom": "sf1us",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sf1us.png",
+        "status": "downloaded",
+        "file": "marquees/sf1us.png",
+        "width": 349.0,
+        "height": 91.0,
+        "sha256": "1f53651df350eed098f65840bfd4abea8424ed6cbff0a2f5fef79c2b8bb8374a",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "460eb64c6775874885605e224ef260ca48136f7f167a72be7aa24375489e8a45",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126976,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "sgemf",
+      "title": "Super Gem Fighter Mini Mix",
+      "year": "1997",
+      "canonical": "sgemf",
+      "shell": "sonic",
+      "controls": "six-button",
+      "candidates": [
+        "sgemf"
+      ],
+      "asset": "sgemf__conversion.png",
+      "marquee": {
+        "rom": "sgemf",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sgemf.png",
+        "status": "downloaded",
+        "file": "marquees/sgemf.png",
+        "width": 1200.0,
+        "height": 445.0,
+        "sha256": "e03922623e4ce4412209d4fc6c3823b988af23197bc03ab6e3085c9dc77facbc",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "106512f040d00556adfbf83c5ec9ee0f49757167625bd57794a3c8113c5cb9fa",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 34170,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "shadfrce",
+      "title": "Shadow Force",
+      "year": "1993",
+      "canonical": "shadfrce",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "shadfrce"
+      ],
+      "asset": "shadfrce__conversion.png",
+      "marquee": {
+        "rom": "shadfrce",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shadfrce.png",
+        "status": "downloaded",
+        "file": "marquees/shadfrce.png",
+        "width": 1200.0,
+        "height": 374.0,
+        "sha256": "f4a8bd4cfe4dc6ab81b8e379a0fc47e9480a6307f4db2b8399afcad27277c0db",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "e4e29d786c1042851bdb34dd131e0a9d77fd80a8705bc529eb5a3a1136afdfec",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127553,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "shangonb",
+      "title": "Super Hang-On",
+      "year": "1992",
+      "canonical": "shangon",
+      "shell": "columns",
+      "controls": "handlebar",
+      "candidates": [
+        "shangonb",
+        "shangon"
+      ],
+      "asset": "shangonb__conversion.png",
+      "marquee": {
+        "rom": "shangon",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shangon.png",
+        "status": "downloaded",
+        "file": "marquees/shangon.png",
+        "width": 500.0,
+        "height": 133.0,
+        "sha256": "d34db29be035423523c49dc30efa0ebc59e3921b254240882fec4a9b8a922ab1",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "898b797c39b6ec639329a39c3a89435cb65f3b43cd3323ac443862d37a278719",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124764,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "shdancer",
+      "title": "Shadow Dancer",
+      "year": "1989",
+      "canonical": "shdancer",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "shdancer"
+      ],
+      "asset": "shdancer__conversion.png",
+      "marquee": {
+        "rom": "shdancer",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shdancer.png",
+        "status": "downloaded",
+        "file": "marquees/shdancer.png",
+        "width": 1200.0,
+        "height": 435.0,
+        "sha256": "a56e5554631806e2bd709d4a17f951c7fad87d19f8110855b530561b111a60c4",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "af22f6a628c5505fe7bd4e1f7cb8a946cd476a3300adb57af29976f272d61be4",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 129118,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "slammasu",
+      "title": "Saturday Night Slam Masters",
+      "year": "1993",
+      "canonical": "slammast",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "slammasu",
+        "slammast"
+      ],
+      "asset": "slammasu__conversion.png",
+      "marquee": {
+        "rom": "slammast",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/slammast.png",
+        "status": "downloaded",
+        "file": "marquees/slammast.png",
+        "width": 1200.0,
+        "height": 344.0,
+        "sha256": "e30456d8b3b95a06eb65571983674a3f9a45762a3a63f909a41ebf513f63fea6",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "a2284ddd961c9e04f3707614a8503abcf5cba3227581e2154fe8d8b4b07f9b85",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125389,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "slyspy",
+      "title": "Sly Spy",
+      "year": "1989",
+      "canonical": "slyspy",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "slyspy"
+      ],
+      "asset": "slyspy__conversion.png",
+      "marquee": {
+        "rom": "slyspy",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/slyspy.png",
+        "status": "downloaded",
+        "file": "marquees/slyspy.png",
+        "width": 1200.0,
+        "height": 332.0,
+        "sha256": "d313d0c2dd77e11383fc9776594a3acabf5ff7b1e4f87e95960462b76849a67a",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "2cb83ebf03f5601a652a5e1553e677d24b5fcdbf8a110440cc3e5dc223e8d0e6",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127588,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "solomon",
+      "title": "Solomon's Key",
+      "year": "1986",
+      "canonical": "solomon",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "solomon"
+      ],
+      "asset": "solomon__conversion.png",
+      "marquee": null,
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "3ed9a1b5b562988dcaf44635eb4e6f8a82b9e61ad71f3523a8c0c920486f48a5",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 45214,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "sonson",
+      "title": "Son Son",
+      "year": "1984",
+      "canonical": "sonson",
+      "shell": "frogger",
+      "controls": "single-joystick",
+      "candidates": [
+        "sonson"
+      ],
+      "asset": "sonson__conversion.png",
+      "marquee": {
+        "rom": "sonson",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sonson.png",
+        "status": "downloaded",
+        "file": "marquees/sonson.png",
+        "width": 1200.0,
+        "height": 377.0,
+        "sha256": "d6576238e0dca5f628ea00d1fb3a9a95e6f7a4ed81a28f3cd724460dcb8d11e7",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Early/mid-eighties dedicated-upright geometry reused as an imagined operator conversion.",
+      "outputSha256": "2da46641ab29599305e667ff98e3fd0afe3819fbac63a2254290ed51fe0e6c12",
+      "alphaAudit": {
+        "opaquePixels": 186462,
+        "retainedDarkPixels": 42977,
+        "antialiasedPixels": 1972,
+        "componentsOver8Alpha": [
+          188221
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "stdragon",
+      "title": "Saint Dragon",
+      "year": "1989",
+      "canonical": "stdragon",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "stdragon"
+      ],
+      "asset": "stdragon__conversion.png",
+      "marquee": {
+        "rom": "stdragon",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/stdragon.png",
+        "status": "downloaded",
+        "file": "marquees/stdragon.png",
+        "width": 1200.0,
+        "height": 446.0,
+        "sha256": "f717cec488c0462f7e4727d052a5c99af5fc0e4f09e938a636bace5540831dc7",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "7174bd4f546ae78aba1ac4903cf61d9d2ede4e8a12983ef599798307fb936ffb",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132982,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "stmblade",
+      "title": "Storm Blade",
+      "year": "1996",
+      "canonical": "stmblade",
+      "shell": "sonic",
+      "controls": "dual-three-button",
+      "candidates": [
+        "stmblade"
+      ],
+      "asset": "stmblade__conversion.png",
+      "marquee": {
+        "rom": "stmblade",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/stmblade.png",
+        "status": "downloaded",
+        "file": "marquees/stmblade.png",
+        "width": 1000.0,
+        "height": 250.0,
+        "sha256": "a9d9b6f99e3e74119cc9a563e6e811a89f1ecaf46f902c1c7eb338d852f9fd07",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "5dedf09c8e2b3daed999327358995d58791db76f84ca536fdf3e526eff67cecb",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 33065,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "strider",
+      "title": "Strider",
+      "year": "1989",
+      "canonical": "strider",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "strider"
+      ],
+      "asset": "strider__conversion.png",
+      "marquee": {
+        "rom": "strider",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/strider.png",
+        "status": "downloaded",
+        "file": "marquees/strider.png",
+        "width": 1200.0,
+        "height": 443.0,
+        "sha256": "4079e965f54cd16776e458aa1561efdfc264e6abed7efe6a35b57c9ea09be4c7",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c042f37d53d4444c63008d7b2824eb95a5b0cb91bd442842c22b3624e5773b5c",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 129218,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "truxton2",
+      "title": "Truxton II - Tatsujin II - Tatsujin Oh",
+      "year": "1992",
+      "canonical": "truxton2",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "truxton2"
+      ],
+      "asset": "truxton2__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "8937159c329d469e4009521c32ae6db52985a51fb0bcdc07cf6325329226d1b5",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132195,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "uccops",
+      "title": "Undercover Cops",
+      "year": "1992",
+      "canonical": "uccops",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "uccops"
+      ],
+      "asset": "uccops__conversion.png",
+      "marquee": {
+        "rom": "uccops",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/uccops.png",
+        "status": "downloaded",
+        "file": "marquees/uccops.png",
+        "width": 1200.0,
+        "height": 361.0,
+        "sha256": "ecc98be507d7c296e0c10260d0c62fb84e28712201964fe3bf74934630be76a6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "07e803bdcc0830ae7ade84e9c306a6538c7488f40d44becc40997c35256d6f96",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128594,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "valkyrie",
+      "title": "Valkyrie No Densetsu",
+      "year": "1989",
+      "canonical": "valkyrie",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "valkyrie"
+      ],
+      "asset": "valkyrie__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "c217cd54d4f53c1e549ba9fc51ac76d94779f29150646b6b9e23c77c7f0ef657",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 131955,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "varthu",
+      "title": "Varth - Operation Thunderstorm",
+      "year": "1992",
+      "canonical": "varth",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "varthu",
+        "varth"
+      ],
+      "asset": "varthu__conversion.png",
+      "marquee": {
+        "rom": "varthu",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/varthu.png",
+        "status": "downloaded",
+        "file": "marquees/varthu.png",
+        "width": 500.0,
+        "height": 134.0,
+        "sha256": "aba4b92d1ff27c4737462b5ccb3d532df6bed3b87b3b7674b440931769006800",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "24a4dcf5c83072640ce4c032d732fceda132352af9444afc47d35f9cc6cbc1ee",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124855,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "vball",
+      "title": "U.S. Championship V'ball",
+      "year": "1988",
+      "canonical": "vball",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "vball"
+      ],
+      "asset": "vball__conversion.png",
+      "marquee": {
+        "rom": "vball",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vball.png",
+        "status": "downloaded",
+        "file": "marquees/vball.png",
+        "width": 1200.0,
+        "height": 489.0,
+        "sha256": "7e22c6995a57185b313db69d1aae20c39109f9a18d8ef532d254e1c1d58a4ce6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "9c27e9a1ff7c1b8dfdacbca584b3db44d1e8a96072627aa5d78ab4b2bc3e49b2",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128307,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "vendet2p",
+      "title": "Vendetta",
+      "year": "1991",
+      "canonical": "vendetta",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "vendet2p",
+        "vendetta"
+      ],
+      "asset": "vendet2p__conversion.png",
+      "marquee": {
+        "rom": "vendetta",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vendetta.png",
+        "status": "downloaded",
+        "file": "marquees/vendetta.png",
+        "width": 1200.0,
+        "height": 356.0,
+        "sha256": "48a046751b98209751468435be35dc06f9840b2abac5c2a12eb9d0c5027742a6",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "16572ca1c782aac43eac61e84ee719982995f5f8a5006adcf4a82a69e15f02d4",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 128243,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "volfied",
+      "title": "Volfied",
+      "year": "1989",
+      "canonical": "volfied",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "volfied"
+      ],
+      "asset": "volfied__conversion.png",
+      "marquee": {
+        "rom": "volfied",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/volfied.png",
+        "status": "downloaded",
+        "file": "marquees/volfied.png",
+        "width": 500.0,
+        "height": 211.0,
+        "sha256": "7b5cdb3dff63e757bf45695e9aa1a55cc7d122fda19e40f09378b4f3c4bca07e",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "e89b1965b674ac873e777c4b9a11294c2adce2f03cb152d074230da175543766",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132632,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "vsav2",
+      "title": "Vampire Savior 2: The Lord of Vampire",
+      "year": "1997",
+      "canonical": "vsav2",
+      "shell": "sonic",
+      "controls": "six-button",
+      "candidates": [
+        "vsav2"
+      ],
+      "asset": "vsav2__conversion.png",
+      "marquee": {
+        "rom": "vsav2",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vsav2.png",
+        "status": "downloaded",
+        "file": "marquees/vsav2.png",
+        "width": 1200.0,
+        "height": 854.0,
+        "sha256": "fcb3307b99c7dd7ffdf02ae39db66ef66ad81335b0eaeb69ae11a115fcb9020d",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Mid/late-nineties or later game in a period candy conversion shell.",
+      "outputSha256": "6541a7226876690c03065f86228f51a13c2a8a33f5b0c5bbea3089ebb3f03c72",
+      "alphaAudit": {
+        "opaquePixels": 218662,
+        "retainedDarkPixels": 36871,
+        "antialiasedPixels": 2162,
+        "componentsOver8Alpha": [
+          220507
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "wb3",
+      "title": "Wonder Boy III - Monster Lair",
+      "year": "1988",
+      "canonical": "wb3",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "wb3"
+      ],
+      "asset": "wb3__conversion.png",
+      "marquee": {
+        "rom": "wb3",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wb3.png",
+        "status": "downloaded",
+        "file": "marquees/wb3.png",
+        "width": 1200.0,
+        "height": 343.0,
+        "sha256": "8b48c5343138f48ffbe4179750302a50ab5a1893d83876d1769e5697f1b2c480",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "d6dcfb64fcf685c6084485981393a9dae908f33ca0abd979bf2a2e98343969cd",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 124823,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "wbmlb",
+      "title": "Wonder Boy in Monster Land",
+      "year": "1987",
+      "canonical": "wbml",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "wbmlb",
+        "wbml"
+      ],
+      "asset": "wbmlb__conversion.png",
+      "marquee": {
+        "rom": "wbml",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wbml.png",
+        "status": "downloaded",
+        "file": "marquees/wbml.png",
+        "width": 1200.0,
+        "height": 442.0,
+        "sha256": "b64250db95694eb1a10cd555b445f4366ebb93e872a8e255a8aaf6f13e627b8e",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "446ade5c3967810e9045603b8e0d14f503a45323bd1ef6e338245d6d9d04d7f2",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 127040,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "wildfang",
+      "title": "Wild Fang - Tecmo Knight",
+      "year": "1989",
+      "canonical": "wildfang",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "wildfang"
+      ],
+      "asset": "wildfang__conversion.png",
+      "marquee": {
+        "rom": "wildfang",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wildfang.png",
+        "status": "downloaded",
+        "file": "marquees/wildfang.png",
+        "width": 518.0,
+        "height": 173.0,
+        "sha256": "88227bf29df3b7122c537cee9859e879f7607844a38bd2c4b2543194a63a96ff",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "386b61ade5a475012cce68fbe6b56f1cafaedb6e8476ca3db0f0f8453377aacb",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126110,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "willow",
+      "title": "Willow",
+      "year": "1989",
+      "canonical": "willow",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "willow"
+      ],
+      "asset": "willow__conversion.png",
+      "marquee": {
+        "rom": "willow",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/willow.png",
+        "status": "downloaded",
+        "file": "marquees/willow.png",
+        "width": 500.0,
+        "height": 167.0,
+        "sha256": "13c6c3ccef6d39a042b65a8c4eb8e2c9a2d2995023dc7a32d0401a9a51ddefc6",
+        "relation": "exact-ROM"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "e3395c068d2afd5890d39623fc3f200ab0a646c26afbbbd4c3b37ca357958dff",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 126270,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "wofu",
+      "title": "Warriors of Fate",
+      "year": "1992",
+      "canonical": "wof",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "wofu",
+        "wof"
+      ],
+      "asset": "wofu__conversion.png",
+      "marquee": {
+        "rom": "wof",
+        "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wof.png",
+        "status": "downloaded",
+        "file": "marquees/wof.png",
+        "width": 1200.0,
+        "height": 338.0,
+        "sha256": "0d15079bcfa58ac9495d0898b58aedd24e8e299ab59ad49db00b2e47823069f7",
+        "relation": "verified-metadata-parent-or-canonical-same-title"
+      },
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "1beb6e3b421f59d7914b3b14e9173484f2c1c9f09a547a9363e3c0895dff06d1",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 125055,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "xexex",
+      "title": "Xexex",
+      "year": "1991",
+      "canonical": "xexex",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "xexex"
+      ],
+      "asset": "xexex__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "832823045b127dec660651b2d340297cc12fe1dcde4eac2dd4b5de7987032c84",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132350,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    },
+    {
+      "rom": "xmultipl",
+      "title": "X Multiply",
+      "year": "1989",
+      "canonical": "xmultipl",
+      "shell": "columns",
+      "controls": "dual-three-button",
+      "candidates": [
+        "xmultipl"
+      ],
+      "asset": "xmultipl__conversion.png",
+      "marquee": null,
+      "eraReason": "Late-eighties/early-nineties plain upright conversion/kit geometry; no exact JAMMA wiring claim.",
+      "outputSha256": "31daa06c3394fd033c0103546c42c6e72ab5fc903a630a2ada5273949dcd941a",
+      "alphaAudit": {
+        "opaquePixels": 186508,
+        "retainedDarkPixels": 132210,
+        "antialiasedPixels": 2513,
+        "componentsOver8Alpha": [
+          188678
+        ],
+        "height": 768,
+        "width": 960,
+        "transparentBorder": true
+      },
+      "shellAlphaUnchanged": true,
+      "screenPolicy": "Dark reflective CRT only; no title/cover/gameplay pasted into screen."
+    }
+  ]
+}

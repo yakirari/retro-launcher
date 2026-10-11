@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a reproducible launcher problem (not a security vulnerability).
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For vulnerabilities, follow SECURITY.md instead of posting details here.
+        Do not upload ROMs, credentials, personal library dumps or unredacted logs.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Versions and environment
+      description: Launcher version/commit, Android version, device model, emulator/hub version and input method. No serial numbers.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted screenshots or logs
+      description: Optional; remove account data, tokens, private paths and device identifiers.

@@ -1,0 +1,921 @@
+{
+  "gaps": [
+    {
+      "rom": "1943kai",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/1943kai.png",
+      "notes": "Photo source ROM 1943kai; Front photo ends below controls, with most lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "actfancr",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "aligatun",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "armwaru",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "asterix",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "astorm",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/astorm.png",
+      "notes": "Photo source ROM astorm; Only marquee, monitor, and control deck photographed; lower cabinet absent. Cannot reconstruct a full cabinet from this photo. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "astormbl",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/astorm.png",
+      "notes": "Photo source ROM astorm; Only marquee, monitor, and control deck photographed; lower cabinet absent. Cannot reconstruct a full cabinet from this photo. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "avspirit",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "batcir",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "batrider",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/batrider.png",
+      "notes": "Photo source ROM batrider; Upper-body angled close-up; base outside source photo and black lower contour cannot be reliably recovered. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "bbros",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/bbros.png",
+      "notes": "Photo source ROM bbros; Photo ends beneath controls; most lower front/base absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "biomtoy",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "blswhstl",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "bogeyman",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "bombjack",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/bombjack.png",
+      "notes": "Photo source ROM bombjack; Front close-up terminates at control deck; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "boogwing",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "candance",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "cbuster",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "citycon",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ctribe",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/ctribe.png",
+      "notes": "Photo source ROM ctribe; Front source photo ends beneath controls, excluding lower cabinet. Not a full-cabinet reference. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "cybots",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "cyvern",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ddcrew",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ddsomu",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/ddsom.png",
+      "notes": "Photo source ROM ddsom; Photo ends beneath controls; lower front/base absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "deadconx",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "digdug2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "dogyuun",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "dondokod",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "donpachi",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "drtoppel",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "dw",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "edrandy",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "elvactr",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "endurobl",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/endurobl.png",
+      "notes": "Photo source ROM endurobl; Front close-up excludes most lower body and racing assembly. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "fantzn2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "fantzone",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "funkyjet",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gaiden",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/gaiden.png",
+      "notes": "Photo source ROM gaiden; Front close-up terminates beneath control deck, excluding most lower body. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "galmedes",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gnbarich",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gngt",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/gngt.png",
+      "notes": "Photo source ROM gngt; Upper front close-up; lower body absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "godzilla",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gradius2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "grdians",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "grdius3e",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "growlu",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gunforc2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gunlock",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "gunnail",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "guwange",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "heatbrlu",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "hooku",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/hooku.png",
+      "notes": "Photo source ROM hooku; Upper-body close-up; cabinet base absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "horizon",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "hvysmsh",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "imgfight",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "kodu",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "landmkrp",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ldrun2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ldrun4",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "lethalth",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "lightbr",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "loht",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "macross",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "macross2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "macrossp",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mainev2p",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/mainevt.png",
+      "notes": "Photo source ROM mainevt; Front photo ends directly below control deck; lower body absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "mazinger",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mbombrd",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/slammast.png",
+      "notes": "Photo source ROM slammast; Upper front and controls only; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "megaman2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "metamrph",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/metamrph.png",
+      "notes": "Photo source ROM metamrph; Angled upper-body close-up; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "metmqstr",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mgcrystl",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mmatrix",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "moonwalk",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "moonwlkb",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mooua",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mshvsfj",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/mshvsf.png",
+      "notes": "Photo source ROM mshvsf; Upper-body close-up; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "mtwins",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "mystwaru",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nbbatman",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nemo",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ninjak",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nitrobal",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "noboranb",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nrallyx",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nslasher",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/nslasher.png",
+      "notes": "Photo source ROM nslasher; Photo ends just beneath control deck; base absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "nspirit",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "nwarr",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "outfxies",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "parodius",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "pipedrm",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "punksht2",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/punkshot.png",
+      "notes": "Photo source ROM punkshot; Photo cuts through lower artwork immediately below control deck. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "puyopuy2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "puyopuya",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "ramprt2p",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/ramprt2p.png",
+      "notes": "Photo source ROM ramprt2p; Upper-body close-up, lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "renegade",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/renegade.png",
+      "notes": "Photo source ROM renegade; Marquee/monitor/controls only; no lower cabinet in photo. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "ringdest",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "rocnrope",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/rocnrope.png",
+      "notes": "Photo source ROM rocnrope; Upper/front close-up cuts off lower cabinet. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "rohgau",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "rthun2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "rtypeleo",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/rtypeleo.png",
+      "notes": "Photo source ROM rtypeleo; Monitor and controls only; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "s1945",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/s1945.png",
+      "notes": "Photo source ROM s1945; Photo ends below control deck; most lower body absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "samuraia",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "seganinu",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "sf1us",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "sgemf",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "shadfrce",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "shangonb",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/shangonb.png",
+      "notes": "Photo source ROM shangonb; Photo shows screen and handlebars, but lacks complete lower pedestal/base. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "shdancer",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/shdancer.png",
+      "notes": "Photo source ROM shdancer; Monitor and controls only; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "slammasu",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/slammast.png",
+      "notes": "Photo source ROM slammast; Upper front and controls only; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "slyspy",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/slyspy.png",
+      "notes": "Photo source ROM slyspy; Upper-body close-up; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "solomon",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "sonson",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/sonson.png",
+      "notes": "Photo source ROM sonson; Source ends directly below control deck; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "stdragon",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "stmblade",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "strider",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/strider.png",
+      "notes": "Photo source ROM strider; Photo cuts off lower front below control deck; black remnant cannot supply full cabinet geometry. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "truxton2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "uccops",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "valkyrie",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "varthu",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/varth.png",
+      "notes": "Photo source ROM varth; Monitor and controls only; lower cabinet absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "vball",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "vendet2p",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/vendetta.png",
+      "notes": "Photo source ROM vendetta; Cabinet photo includes printed people overlapping side/front and clipped top; not a clean unobscured full-cabinet reference. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "volfied",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "vsav2",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "wb3",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "wbmlb",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "wildfang",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "willow",
+      "asset": null,
+      "kind": "rejected",
+      "source": "https://adb.arcadeitalia.net/media/mame.current/cabinets/willow.png",
+      "notes": "Photo source ROM willow; Front photo ends directly below controls; lower body absent. Source photo may show operator conversion/restoration; not a factory-original or exact-control-layout claim."
+    },
+    {
+      "rom": "wofu",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "xexex",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    },
+    {
+      "rom": "xmultipl",
+      "asset": null,
+      "kind": "missing",
+      "source": null,
+      "notes": "No located real cabinet photo in source manifest."
+    }
+  ]
+}

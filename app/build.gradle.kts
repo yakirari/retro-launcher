@@ -19,7 +19,7 @@ val nostalgicOverlayMappings = mapOf(
     "n64.png" to "nostalgic_overlay_n64.png",
     "nds.png" to "nostalgic_overlay_nds.png",
     "nes.png" to "nostalgic_overlay_nes.png",
-    "ps1.png" to "nostalgic_overlay_ps1.png",
+    "ps1_full_cover.png" to "nostalgic_overlay_ps1.png",
     "ps2.png" to "nostalgic_overlay_ps2.png",
     "ps3.png" to "nostalgic_overlay_ps3.png",
     "psp.png" to "nostalgic_overlay_psp.png",
@@ -116,6 +116,31 @@ val syncOverlayAssets by tasks.registering {
     }
 }
 
+val prepareArcadeCabinets by tasks.registering(Exec::class) {
+    group = "assets"
+    description = "Prepares consistently framed arcade cabinets without modifying source artwork."
+    val source = rootProject.file("overlay_mame")
+    val generator = rootProject.file("scripts/NormalizeArcadeCabinets.java")
+    val references = rootProject.file("artwork/cabinet-references")
+    val target = layout.projectDirectory.dir("src/main/assets/cabinets_mame").asFile
+    inputs.files(fileTree(source) { include("*.png") })
+    inputs.file(generator)
+    inputs.files(fileTree(references) { include("*.png") })
+    outputs.dir(target)
+    commandLine("${System.getProperty("java.home")}/bin/java", "-Djava.awt.headless=true",
+        generator.absolutePath, source.absolutePath, target.absolutePath, references.absolutePath)
+}
+
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(prepareArcadeCabinets) }
+
+val syncFullArcadeCabinets by tasks.registering(Sync::class) {
+    group = "assets"
+    description = "Packages reviewed full cabinet silhouettes and period-style conversion alternatives."
+    from(rootProject.file("artwork/full-cabinets")) { include("*.png") }
+    into(layout.projectDirectory.dir("src/main/assets/full_cabinets"))
+}
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(syncFullArcadeCabinets) }
+
 val releaseSigningProperties = Properties().apply {
     val propertiesFile = rootProject.file("release-keystore.properties")
     if (propertiesFile.exists()) {
@@ -171,7 +196,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-        // embedded-rpcsx pulls in materialswitch (JitPack), whose metadata is newer than our pinned Kotlin.
         freeCompilerArgs += "-Xskip-metadata-version-check"
     }
 
@@ -218,6 +242,5 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     testImplementation("junit:junit:4.13.2")
-
-    implementation(project(":embedded-rpcsx"))
+    testImplementation("org.json:json:20240303")
 }

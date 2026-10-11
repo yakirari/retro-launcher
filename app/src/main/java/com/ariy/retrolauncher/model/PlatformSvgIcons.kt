@@ -9,6 +9,15 @@ object PlatformSvgIcons {
     // then linking the platform name to the generated R.raw resource below.
     private val resourceByPlatform = mapOf(
         GamePlatforms.ANDROID to R.raw.platform_android,
+        GamePlatforms.EMULATORS to R.raw.platform_digital_pc,
+        "PC (Windows)" to R.raw.platform_digital_pc,
+        "Steam" to R.raw.platform_steam_store,
+        "GOG" to R.raw.platform_gog_store,
+        "Epic Games" to R.raw.platform_epic_store,
+        "Amazon Games" to R.raw.platform_amazon_store,
+        "GameNative" to R.raw.platform_gamenative,
+        "GameHub" to R.raw.platform_gamehub,
+        "GameHub Lite" to R.raw.platform_gamehub_lite,
         "Sega" to R.raw.platform_sega,
         "Nintendo Entertainment System" to R.raw.platform_nintendo_entertainment_system,
         "Super Nintendo" to R.raw.platform_super_nintendo,

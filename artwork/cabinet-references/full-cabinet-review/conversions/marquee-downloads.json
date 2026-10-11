@@ -1,0 +1,1178 @@
+{
+  "aligatun": {
+    "rom": "aligatun",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/aligatun.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "armwaru": {
+    "rom": "armwaru",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/armwaru.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "1943kai": {
+    "rom": "1943kai",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/1943kai.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "astormbl": {
+    "rom": "astormbl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/astormbl.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "aligator": {
+    "rom": "aligator",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/aligator.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "asterix": {
+    "rom": "asterix",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/asterix.png",
+    "status": "downloaded",
+    "file": "marquees/asterix.png",
+    "width": 1200,
+    "height": 335,
+    "sha256": "d613c8384cd4f4dc4e99b4b8780ef36079ab08b9c11ffbf0e262e8ff3bce5295"
+  },
+  "astorm": {
+    "rom": "astorm",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/astorm.png",
+    "status": "downloaded",
+    "file": "marquees/astorm.png",
+    "width": 1200,
+    "height": 355,
+    "sha256": "50a7542570b3b33805e588c413cfdb0f94299d424fcbd38ce5f24c3a232c911f"
+  },
+  "avspirit": {
+    "rom": "avspirit",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/avspirit.png",
+    "status": "downloaded",
+    "file": "marquees/avspirit.png",
+    "width": 500,
+    "height": 117,
+    "sha256": "4be918526b359c191e7ab3feecfab559bfd6b9b63eaf7b38ee7451e109977383"
+  },
+  "batrider": {
+    "rom": "batrider",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/batrider.png",
+    "status": "downloaded",
+    "file": "marquees/batrider.png",
+    "width": 1200,
+    "height": 481,
+    "sha256": "94872cfc7186216c4c4249dea113dee7fd80395591cc729eb7db5b6b49117c30"
+  },
+  "actfancr": {
+    "rom": "actfancr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/actfancr.png",
+    "status": "downloaded",
+    "file": "marquees/actfancr.png",
+    "width": 1200,
+    "height": 453,
+    "sha256": "2cdd26ebd00e63dc935515c232fe031a662c7c3ae32eda788d101c262b65249e"
+  },
+  "biomtoy": {
+    "rom": "biomtoy",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/biomtoy.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "batcir": {
+    "rom": "batcir",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/batcir.png",
+    "status": "downloaded",
+    "file": "marquees/batcir.png",
+    "width": 1200,
+    "height": 506,
+    "sha256": "28e7595d183ef1a411747e27d6c0a50eb20ca4382793668ccd28b8a90263bdd6"
+  },
+  "armwar": {
+    "rom": "armwar",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/armwar.png",
+    "status": "downloaded",
+    "file": "marquees/armwar.png",
+    "width": 1200,
+    "height": 375,
+    "sha256": "611641ebccb615933d553b74ae4cda56695a6b8095870051720dd805032b1e66"
+  },
+  "boogwing": {
+    "rom": "boogwing",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/boogwing.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "bombjack": {
+    "rom": "bombjack",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bombjack.png",
+    "status": "downloaded",
+    "file": "marquees/bombjack.png",
+    "width": 1200,
+    "height": 431,
+    "sha256": "0f55aee807e3e49389383483a1dcd46c3d272332e6076e147d683e38512cf8d7"
+  },
+  "candance": {
+    "rom": "candance",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/candance.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "citycon": {
+    "rom": "citycon",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/citycon.png",
+    "status": "downloaded",
+    "file": "marquees/citycon.png",
+    "width": 500,
+    "height": 135,
+    "sha256": "232998272e49ed4ee681f54292cba2f43cb3b8e60f2b5747bfcd1f39e24510a0"
+  },
+  "bogeyman": {
+    "rom": "bogeyman",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bogeyman.png",
+    "status": "downloaded",
+    "file": "marquees/bogeyman.png",
+    "width": 500,
+    "height": 152,
+    "sha256": "97c526fac0d8c3a39070552f49f827016f785b07b12f6016a5743c3db6a0e06e"
+  },
+  "blswhstl": {
+    "rom": "blswhstl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/blswhstl.png",
+    "status": "downloaded",
+    "file": "marquees/blswhstl.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "b26466ecc6fb8333956927d1db44f442e34d7aa5cb6b64f5676beadaca3ade7a"
+  },
+  "cyvern": {
+    "rom": "cyvern",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/cyvern.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ddsomu": {
+    "rom": "ddsomu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ddsomu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ddcrew": {
+    "rom": "ddcrew",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ddcrew.png",
+    "status": "downloaded",
+    "file": "marquees/ddcrew.png",
+    "width": 500,
+    "height": 143,
+    "sha256": "b6e8bebd9fcd471a8a3c0e16950b9f4a11de261de434f1d543836b43656de369"
+  },
+  "deadconx": {
+    "rom": "deadconx",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/deadconx.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "cbuster": {
+    "rom": "cbuster",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/cbuster.png",
+    "status": "downloaded",
+    "file": "marquees/cbuster.png",
+    "width": 1200,
+    "height": 381,
+    "sha256": "2d59d7d56cfdda22fe1525db480970741f22c3dee5109708bd3f2184f4f247ed"
+  },
+  "ctribe": {
+    "rom": "ctribe",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ctribe.png",
+    "status": "downloaded",
+    "file": "marquees/ctribe.png",
+    "width": 1200,
+    "height": 355,
+    "sha256": "213c3e7459cd2a9386f59583f1b92d1a9c442b081cf8edf1053ee7a5b10a310f"
+  },
+  "cybots": {
+    "rom": "cybots",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/cybots.png",
+    "status": "downloaded",
+    "file": "marquees/cybots.png",
+    "width": 1200,
+    "height": 679,
+    "sha256": "daa3d487b5cd73eb3875647a8f5c4d86974eb1476fe36479df72e790bd82ed22"
+  },
+  "dondokod": {
+    "rom": "dondokod",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/dondokod.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "digdug2": {
+    "rom": "digdug2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/digdug2.png",
+    "status": "downloaded",
+    "file": "marquees/digdug2.png",
+    "width": 500,
+    "height": 171,
+    "sha256": "df04cb6d4dadcf4bb9d31471cac8d0cc46f9c88346e0a2b982f9909efd549ca6"
+  },
+  "drtoppel": {
+    "rom": "drtoppel",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/drtoppel.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "dw": {
+    "rom": "dw",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/dw.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "edrandy": {
+    "rom": "edrandy",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/edrandy.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ddsom": {
+    "rom": "ddsom",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ddsom.png",
+    "status": "downloaded",
+    "file": "marquees/ddsom.png",
+    "width": 1200,
+    "height": 707,
+    "sha256": "10c5cceb7effb4380709df599eab8591136ca97d878e9971cc43821d7630165d"
+  },
+  "endurobl": {
+    "rom": "endurobl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/endurobl.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "bbros": {
+    "rom": "bbros",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/bbros.png",
+    "status": "downloaded",
+    "file": "marquees/bbros.png",
+    "width": 1200,
+    "height": 374,
+    "sha256": "87ae701d34c99ee1903865523f15e7de9a8136f8b216353b540b40a3b5c3224d"
+  },
+  "fantzn2": {
+    "rom": "fantzn2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/fantzn2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "funkyjet": {
+    "rom": "funkyjet",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/funkyjet.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "dogyuun": {
+    "rom": "dogyuun",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/dogyuun.png",
+    "status": "downloaded",
+    "file": "marquees/dogyuun.png",
+    "width": 750,
+    "height": 200,
+    "sha256": "a6ea72424ff4b4ec30244add7645adf1bd4a9ab4528a7e461c946851a6d0ff83"
+  },
+  "galmedes": {
+    "rom": "galmedes",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/galmedes.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "elvactr": {
+    "rom": "elvactr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/elvactr.png",
+    "status": "downloaded",
+    "file": "marquees/elvactr.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "330a61be7c56f65c29834c043709699f05e34b10d356ab0858ab1f7b5555f7db"
+  },
+  "gnbarich": {
+    "rom": "gnbarich",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gnbarich.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "godzilla": {
+    "rom": "godzilla",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/godzilla.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "fantzone": {
+    "rom": "fantzone",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/fantzone.png",
+    "status": "downloaded",
+    "file": "marquees/fantzone.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "db8664fc033f8e7d8d14d81f9c3324ac7ca3ba563fc5ac8dc5e74de074748ae6"
+  },
+  "grdians": {
+    "rom": "grdians",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/grdians.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "gaiden": {
+    "rom": "gaiden",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gaiden.png",
+    "status": "downloaded",
+    "file": "marquees/gaiden.png",
+    "width": 1200,
+    "height": 335,
+    "sha256": "e862cf7fe1c88c9c67d4b6248de39921941837c6399f448c31636a08de2a3f8b"
+  },
+  "donpachi": {
+    "rom": "donpachi",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/donpachi.png",
+    "status": "downloaded",
+    "file": "marquees/donpachi.png",
+    "width": 1200,
+    "height": 627,
+    "sha256": "14df22aa8501922e3bf4625b8ea407063a7ea627aa984aca7b8d06171c7afc07"
+  },
+  "grdius3e": {
+    "rom": "grdius3e",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/grdius3e.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "gunforc2": {
+    "rom": "gunforc2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gunforc2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "gunlock": {
+    "rom": "gunlock",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gunlock.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "growlu": {
+    "rom": "growlu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/growlu.png",
+    "status": "downloaded",
+    "file": "marquees/growlu.png",
+    "width": 500,
+    "height": 208,
+    "sha256": "4325d0b887f1e5ab4f804c0dc41ee6478fcf6f84e57208429e1d68700642b0fa"
+  },
+  "gunnail": {
+    "rom": "gunnail",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gunnail.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "guwange": {
+    "rom": "guwange",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/guwange.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "heatbrlu": {
+    "rom": "heatbrlu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/heatbrlu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "gngt": {
+    "rom": "gngt",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gngt.png",
+    "status": "downloaded",
+    "file": "marquees/gngt.png",
+    "width": 1200,
+    "height": 449,
+    "sha256": "ab9d35b7d0ac418bb28725f6eae4b9d1ed81bfef89210bc9d05aff1b36ad7b3e"
+  },
+  "gradius3": {
+    "rom": "gradius3",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gradius3.png",
+    "status": "downloaded",
+    "file": "marquees/gradius3.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "5b95c4af6d715540a99b0f5c24b19fd60f8c7a178a697b1c3fe0816ed2562e93"
+  },
+  "hooku": {
+    "rom": "hooku",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/hooku.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "horizon": {
+    "rom": "horizon",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/horizon.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "gradius2": {
+    "rom": "gradius2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/gradius2.png",
+    "status": "downloaded",
+    "file": "marquees/gradius2.png",
+    "width": 1200,
+    "height": 309,
+    "sha256": "7f1eabbdc6d4a80e16b79ca08ac7e71d811f62e6010cdcdf4bed800211a834f2"
+  },
+  "hvysmsh": {
+    "rom": "hvysmsh",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/hvysmsh.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "imgfight": {
+    "rom": "imgfight",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/imgfight.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "enduror": {
+    "rom": "enduror",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/enduror.png",
+    "status": "downloaded",
+    "file": "marquees/enduror.png",
+    "width": 1200,
+    "height": 314,
+    "sha256": "bf27472332d20c7beccad7cdfe5512404c76ac1066f9ca17129136bb318e1799"
+  },
+  "kodu": {
+    "rom": "kodu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/kodu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "landmkrp": {
+    "rom": "landmkrp",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/landmkrp.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ldrun4": {
+    "rom": "ldrun4",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ldrun4.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ldrun2": {
+    "rom": "ldrun2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ldrun2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "landmakr": {
+    "rom": "landmakr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/landmakr.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "lethalth": {
+    "rom": "lethalth",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/lethalth.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "heatbrl": {
+    "rom": "heatbrl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/heatbrl.png",
+    "status": "downloaded",
+    "file": "marquees/heatbrl.png",
+    "width": 1200,
+    "height": 358,
+    "sha256": "a3b66bb343b8a2653a6270ffeee149768e9ed8bfc211f3f42c31f153a1bb0d90"
+  },
+  "lightbr": {
+    "rom": "lightbr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/lightbr.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "loht": {
+    "rom": "loht",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/loht.png",
+    "status": "downloaded",
+    "file": "marquees/loht.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "cb6ad37d45b583dc09febe391fc1f59eb06fce691b17c85439af68e42e23222b"
+  },
+  "hook": {
+    "rom": "hook",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/hook.png",
+    "status": "downloaded",
+    "file": "marquees/hook.png",
+    "width": 1200,
+    "height": 368,
+    "sha256": "2421d9e78f08d0fa64981c5bf92603571be16d1a0efd580226b2963a93e21713"
+  },
+  "macross2": {
+    "rom": "macross2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macross2.png",
+    "status": "downloaded",
+    "file": "marquees/macross2.png",
+    "width": 1200,
+    "height": 312,
+    "sha256": "b0ee4eb684ea938e500500ef585302d9163161f5640a1bd2742ccfb7244aff3d"
+  },
+  "mainev2p": {
+    "rom": "mainev2p",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mainev2p.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "mazinger": {
+    "rom": "mazinger",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mazinger.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "megaman2": {
+    "rom": "megaman2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/megaman2.png",
+    "status": "downloaded",
+    "file": "marquees/megaman2.png",
+    "width": 1000,
+    "height": 284,
+    "sha256": "743f7c7200724b14e5abe087811f4435639763508b1e20590fab3009095794c6"
+  },
+  "mbombrd": {
+    "rom": "mbombrd",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mbombrd.png",
+    "status": "downloaded",
+    "file": "marquees/mbombrd.png",
+    "width": 1200,
+    "height": 267,
+    "sha256": "be2639ea65e012f8c27790c4c600bd2b7158ddc43ede4e292724cf75e5e5bb48"
+  },
+  "metmqstr": {
+    "rom": "metmqstr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/metmqstr.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "mainevt": {
+    "rom": "mainevt",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mainevt.png",
+    "status": "downloaded",
+    "file": "marquees/mainevt.png",
+    "width": 1200,
+    "height": 426,
+    "sha256": "38d595e80b839c133076a64ceba4ca3dbb0778089893138da03ccee40c319d07"
+  },
+  "kod": {
+    "rom": "kod",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/kod.png",
+    "status": "downloaded",
+    "file": "marquees/kod.png",
+    "width": 1200,
+    "height": 371,
+    "sha256": "71782df00b0db756b5354d36bb600aec8e9c0061a7cb8cbe1a0c3637c30b41cd"
+  },
+  "mgcrystl": {
+    "rom": "mgcrystl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mgcrystl.png",
+    "status": "downloaded",
+    "file": "marquees/mgcrystl.png",
+    "width": 1200,
+    "height": 343,
+    "sha256": "66523705a4366c84474f266b954eab2b85b3b3585571d6b1edc255bf9ee1942d"
+  },
+  "moonwalk": {
+    "rom": "moonwalk",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moonwalk.png",
+    "status": "downloaded",
+    "file": "marquees/moonwalk.png",
+    "width": 500,
+    "height": 134,
+    "sha256": "d7469bc84f6627861835d89b875b490c9e742087b21d9014703f1f482dadaf5b"
+  },
+  "macross": {
+    "rom": "macross",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macross.png",
+    "status": "downloaded",
+    "file": "marquees/macross.png",
+    "width": 1200,
+    "height": 405,
+    "sha256": "64fd0008c7e2636d59944ace619e24e56ac0e8286c4c8f18072656b241e23f29"
+  },
+  "moonwlkb": {
+    "rom": "moonwlkb",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moonwlkb.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "mooua": {
+    "rom": "mooua",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mooua.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "mmatrix": {
+    "rom": "mmatrix",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mmatrix.png",
+    "status": "downloaded",
+    "file": "marquees/mmatrix.png",
+    "width": 1200,
+    "height": 375,
+    "sha256": "b4aba4da6b5d6396a62dc2fd4501393eafff9075a6761c5295e1aa5884d90a93"
+  },
+  "macrossp": {
+    "rom": "macrossp",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/macrossp.png",
+    "status": "downloaded",
+    "file": "marquees/macrossp.png",
+    "width": 1200,
+    "height": 312,
+    "sha256": "b8de2e1e5d3757ef498db1fce8a3d23329f24c046a46c190e2ef0add1c06bf63"
+  },
+  "moo": {
+    "rom": "moo",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/moo.png",
+    "status": "downloaded",
+    "file": "marquees/moo.png",
+    "width": 500,
+    "height": 186,
+    "sha256": "8f47d1976b50a4bc4732921a0af60ce77eebd91e6140dc97cdaff96811111219"
+  },
+  "mystwaru": {
+    "rom": "mystwaru",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mystwaru.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "metamrph": {
+    "rom": "metamrph",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/metamrph.png",
+    "status": "downloaded",
+    "file": "marquees/metamrph.png",
+    "width": 1200,
+    "height": 433,
+    "sha256": "0c52c27676b8e9a1d19addf866bfae60c4568f836f007c1dcbc73342b5dd7f0c"
+  },
+  "mtwins": {
+    "rom": "mtwins",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mtwins.png",
+    "status": "downloaded",
+    "file": "marquees/mtwins.png",
+    "width": 1200,
+    "height": 346,
+    "sha256": "2ea488c67b37bc3f0fd0e7bde5a0419b6b2c6af49fe50fb30076188ade88be0e"
+  },
+  "ninjak": {
+    "rom": "ninjak",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ninjak.png",
+    "status": "downloaded",
+    "file": "marquees/ninjak.png",
+    "width": 1200,
+    "height": 300,
+    "sha256": "bf84560b6840f279dd24a72290ae185a20338d67a17ad866fc318fe01c46f8ba"
+  },
+  "noboranb": {
+    "rom": "noboranb",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/noboranb.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "nemo": {
+    "rom": "nemo",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nemo.png",
+    "status": "downloaded",
+    "file": "marquees/nemo.png",
+    "width": 1200,
+    "height": 346,
+    "sha256": "399c241992207e8e0339cc3286f8b51cb889cb297900585067635cba029bed5d"
+  },
+  "nrallyx": {
+    "rom": "nrallyx",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nrallyx.png",
+    "status": "downloaded",
+    "file": "marquees/nrallyx.png",
+    "width": 1024,
+    "height": 341,
+    "sha256": "0cce688d21bf04c17dea08d070e093fcdcd923c37ede5bab264f2507e09b864d"
+  },
+  "mystwarr": {
+    "rom": "mystwarr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mystwarr.png",
+    "status": "downloaded",
+    "file": "marquees/mystwarr.png",
+    "width": 1200,
+    "height": 359,
+    "sha256": "f899f8c16ea1bc02cc0d8229769bfa1b11746222c786c87743f160c6104d067f"
+  },
+  "nslasher": {
+    "rom": "nslasher",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nslasher.png",
+    "status": "downloaded",
+    "file": "marquees/nslasher.png",
+    "width": 500,
+    "height": 146,
+    "sha256": "79d533ded1cc562729932077ecfdbe9233b5da4f5c87a4786314165d726d4c93"
+  },
+  "outfxies": {
+    "rom": "outfxies",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/outfxies.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "nitrobal": {
+    "rom": "nitrobal",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nitrobal.png",
+    "status": "downloaded",
+    "file": "marquees/nitrobal.png",
+    "width": 1200,
+    "height": 369,
+    "sha256": "450ad1624865f8e83ba669b28df333215f3491ef32c7e0e2e73c02cb24a1d325"
+  },
+  "pipedrm": {
+    "rom": "pipedrm",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/pipedrm.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "punksht2": {
+    "rom": "punksht2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/punksht2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "punkshot": {
+    "rom": "punkshot",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/punkshot.png",
+    "status": "downloaded",
+    "file": "marquees/punkshot.png",
+    "width": 1200,
+    "height": 300,
+    "sha256": "50de79fcf697f0f4236619795c2705999736311acaa68f759190e73063416d7e"
+  },
+  "puyopuy2": {
+    "rom": "puyopuy2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/puyopuy2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "parodius": {
+    "rom": "parodius",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/parodius.png",
+    "status": "downloaded",
+    "file": "marquees/parodius.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "380394d08d8c7c3164e9ab0d2098f8ab71cf472182517b3e8430599a73e8378b"
+  },
+  "nbbatman": {
+    "rom": "nbbatman",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nbbatman.png",
+    "status": "downloaded",
+    "file": "marquees/nbbatman.png",
+    "width": 1200,
+    "height": 366,
+    "sha256": "7a5f64dca915d15bf8a954f1e2f523fa76bbbe4b6d51cffac3e9ad1ee0f77433"
+  },
+  "puyopuya": {
+    "rom": "puyopuya",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/puyopuya.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ramprt2p": {
+    "rom": "ramprt2p",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ramprt2p.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "puyopuyo": {
+    "rom": "puyopuyo",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/puyopuyo.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "ringdest": {
+    "rom": "ringdest",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/ringdest.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "nwarr": {
+    "rom": "nwarr",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nwarr.png",
+    "status": "downloaded",
+    "file": "marquees/nwarr.png",
+    "width": 1200,
+    "height": 679,
+    "sha256": "44ed6d10bde6d17143d286aa93d223ac69af8cc1ab807d821c68443b6763fefe"
+  },
+  "rohgau": {
+    "rom": "rohgau",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rohgau.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "rocnrope": {
+    "rom": "rocnrope",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rocnrope.png",
+    "status": "downloaded",
+    "file": "marquees/rocnrope.png",
+    "width": 1200,
+    "height": 416,
+    "sha256": "791350ae8fbe2706265f03b94d7292fdd93551b97c4bbfa968137f40c02d27c9"
+  },
+  "rthun2": {
+    "rom": "rthun2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rthun2.png",
+    "status": "downloaded",
+    "file": "marquees/rthun2.png",
+    "width": 500,
+    "height": 181,
+    "sha256": "50b2be6b14e66e06004b82ac1697a1b8718893b429e5c495a562463a41438c46"
+  },
+  "rampart": {
+    "rom": "rampart",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rampart.png",
+    "status": "downloaded",
+    "file": "marquees/rampart.png",
+    "width": 1200,
+    "height": 437,
+    "sha256": "e0940dcc49c0ae91831d1794898c147cc31ad7ff07cab07d2e4bf022c77c0757"
+  },
+  "mshvsfj": {
+    "rom": "mshvsfj",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/mshvsfj.png",
+    "status": "downloaded",
+    "file": "marquees/mshvsfj.png",
+    "width": 1200,
+    "height": 854,
+    "sha256": "2a11e65be88c6b1dc82649a86c289f13b5c8dd5b782e139a595eb146975ab41c"
+  },
+  "rohga": {
+    "rom": "rohga",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rohga.png",
+    "status": "downloaded",
+    "file": "marquees/rohga.png",
+    "width": 1000,
+    "height": 298,
+    "sha256": "a0f36e4af13ebb5bc50a7a6e0f0fbc8e1a0bf6370f69f33520d54a3528236cf8"
+  },
+  "samuraia": {
+    "rom": "samuraia",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/samuraia.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "seganinu": {
+    "rom": "seganinu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/seganinu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "nspirit": {
+    "rom": "nspirit",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/nspirit.png",
+    "status": "downloaded",
+    "file": "marquees/nspirit.png",
+    "width": 3150,
+    "height": 1050,
+    "sha256": "c71fee24b68d6d354071d0c1459057f61cfc038af626d7f7b4d8d0416cc9922c"
+  },
+  "sf1us": {
+    "rom": "sf1us",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sf1us.png",
+    "status": "downloaded",
+    "file": "marquees/sf1us.png",
+    "width": 349,
+    "height": 91,
+    "sha256": "1f53651df350eed098f65840bfd4abea8424ed6cbff0a2f5fef79c2b8bb8374a"
+  },
+  "rtypeleo": {
+    "rom": "rtypeleo",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/rtypeleo.png",
+    "status": "downloaded",
+    "file": "marquees/rtypeleo.png",
+    "width": 1200,
+    "height": 372,
+    "sha256": "92315efac39b388a376d901c24d0d6ab1996186e4bc49a8eafdeb5fbe4ddb972"
+  },
+  "renegade": {
+    "rom": "renegade",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/renegade.png",
+    "status": "downloaded",
+    "file": "marquees/renegade.png",
+    "width": 1200,
+    "height": 391,
+    "sha256": "8717a1ac14b9b224374d1c1f6c6616d8f89e4aedca8361bf242cbc5c13d6ea50"
+  },
+  "shangonb": {
+    "rom": "shangonb",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shangonb.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "shangon": {
+    "rom": "shangon",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shangon.png",
+    "status": "downloaded",
+    "file": "marquees/shangon.png",
+    "width": 500,
+    "height": 133,
+    "sha256": "d34db29be035423523c49dc30efa0ebc59e3921b254240882fec4a9b8a922ab1"
+  },
+  "slammasu": {
+    "rom": "slammasu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/slammasu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "sgemf": {
+    "rom": "sgemf",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sgemf.png",
+    "status": "downloaded",
+    "file": "marquees/sgemf.png",
+    "width": 1200,
+    "height": 445,
+    "sha256": "e03922623e4ce4412209d4fc6c3823b988af23197bc03ab6e3085c9dc77facbc"
+  },
+  "shadfrce": {
+    "rom": "shadfrce",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shadfrce.png",
+    "status": "downloaded",
+    "file": "marquees/shadfrce.png",
+    "width": 1200,
+    "height": 374,
+    "sha256": "f4a8bd4cfe4dc6ab81b8e379a0fc47e9480a6307f4db2b8399afcad27277c0db"
+  },
+  "solomon": {
+    "rom": "solomon",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/solomon.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "seganinj": {
+    "rom": "seganinj",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/seganinj.png",
+    "status": "downloaded",
+    "file": "marquees/seganinj.png",
+    "width": 1200,
+    "height": 423,
+    "sha256": "5aeb8dc17997e6348f512ffa139e903e5055662f40627795a06cde812be7a267"
+  },
+  "s1945": {
+    "rom": "s1945",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/s1945.png",
+    "status": "downloaded",
+    "file": "marquees/s1945.png",
+    "width": 1200,
+    "height": 395,
+    "sha256": "0d6e98f6f036c8febf96a86aa20a8fcf9957e3b017bfae203142ea59f7c68669"
+  },
+  "slyspy": {
+    "rom": "slyspy",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/slyspy.png",
+    "status": "downloaded",
+    "file": "marquees/slyspy.png",
+    "width": 1200,
+    "height": 332,
+    "sha256": "d313d0c2dd77e11383fc9776594a3acabf5ff7b1e4f87e95960462b76849a67a"
+  },
+  "stmblade": {
+    "rom": "stmblade",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/stmblade.png",
+    "status": "downloaded",
+    "file": "marquees/stmblade.png",
+    "width": 1000,
+    "height": 250,
+    "sha256": "a9d9b6f99e3e74119cc9a563e6e811a89f1ecaf46f902c1c7eb338d852f9fd07"
+  },
+  "truxton2": {
+    "rom": "truxton2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/truxton2.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "slammast": {
+    "rom": "slammast",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/slammast.png",
+    "status": "downloaded",
+    "file": "marquees/slammast.png",
+    "width": 1200,
+    "height": 344,
+    "sha256": "e30456d8b3b95a06eb65571983674a3f9a45762a3a63f909a41ebf513f63fea6"
+  },
+  "strider": {
+    "rom": "strider",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/strider.png",
+    "status": "downloaded",
+    "file": "marquees/strider.png",
+    "width": 1200,
+    "height": 443,
+    "sha256": "4079e965f54cd16776e458aa1561efdfc264e6abed7efe6a35b57c9ea09be4c7"
+  },
+  "sonson": {
+    "rom": "sonson",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/sonson.png",
+    "status": "downloaded",
+    "file": "marquees/sonson.png",
+    "width": 1200,
+    "height": 377,
+    "sha256": "d6576238e0dca5f628ea00d1fb3a9a95e6f7a4ed81a28f3cd724460dcb8d11e7"
+  },
+  "valkyrie": {
+    "rom": "valkyrie",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/valkyrie.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "varthu": {
+    "rom": "varthu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/varthu.png",
+    "status": "downloaded",
+    "file": "marquees/varthu.png",
+    "width": 500,
+    "height": 134,
+    "sha256": "aba4b92d1ff27c4737462b5ccb3d532df6bed3b87b3b7674b440931769006800"
+  },
+  "vendet2p": {
+    "rom": "vendet2p",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vendet2p.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "volfied": {
+    "rom": "volfied",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/volfied.png",
+    "status": "downloaded",
+    "file": "marquees/volfied.png",
+    "width": 500,
+    "height": 211,
+    "sha256": "7b5cdb3dff63e757bf45695e9aa1a55cc7d122fda19e40f09378b4f3c4bca07e"
+  },
+  "stdragon": {
+    "rom": "stdragon",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/stdragon.png",
+    "status": "downloaded",
+    "file": "marquees/stdragon.png",
+    "width": 1200,
+    "height": 446,
+    "sha256": "f717cec488c0462f7e4727d052a5c99af5fc0e4f09e938a636bace5540831dc7"
+  },
+  "uccops": {
+    "rom": "uccops",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/uccops.png",
+    "status": "downloaded",
+    "file": "marquees/uccops.png",
+    "width": 1200,
+    "height": 361,
+    "sha256": "ecc98be507d7c296e0c10260d0c62fb84e28712201964fe3bf74934630be76a6"
+  },
+  "wbmlb": {
+    "rom": "wbmlb",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wbmlb.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "wb3": {
+    "rom": "wb3",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wb3.png",
+    "status": "downloaded",
+    "file": "marquees/wb3.png",
+    "width": 1200,
+    "height": 343,
+    "sha256": "8b48c5343138f48ffbe4179750302a50ab5a1893d83876d1769e5697f1b2c480"
+  },
+  "vball": {
+    "rom": "vball",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vball.png",
+    "status": "downloaded",
+    "file": "marquees/vball.png",
+    "width": 1200,
+    "height": 489,
+    "sha256": "7e22c6995a57185b313db69d1aae20c39109f9a18d8ef532d254e1c1d58a4ce6"
+  },
+  "shdancer": {
+    "rom": "shdancer",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/shdancer.png",
+    "status": "downloaded",
+    "file": "marquees/shdancer.png",
+    "width": 1200,
+    "height": 435,
+    "sha256": "a56e5554631806e2bd709d4a17f951c7fad87d19f8110855b530561b111a60c4"
+  },
+  "wofu": {
+    "rom": "wofu",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wofu.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "vendetta": {
+    "rom": "vendetta",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vendetta.png",
+    "status": "downloaded",
+    "file": "marquees/vendetta.png",
+    "width": 1200,
+    "height": 356,
+    "sha256": "48a046751b98209751468435be35dc06f9840b2abac5c2a12eb9d0c5027742a6"
+  },
+  "xexex": {
+    "rom": "xexex",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/xexex.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "willow": {
+    "rom": "willow",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/willow.png",
+    "status": "downloaded",
+    "file": "marquees/willow.png",
+    "width": 500,
+    "height": 167,
+    "sha256": "13c6c3ccef6d39a042b65a8c4eb8e2c9a2d2995023dc7a32d0401a9a51ddefc6"
+  },
+  "vsav2": {
+    "rom": "vsav2",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/vsav2.png",
+    "status": "downloaded",
+    "file": "marquees/vsav2.png",
+    "width": 1200,
+    "height": 854,
+    "sha256": "fcb3307b99c7dd7ffdf02ae39db66ef66ad81335b0eaeb69ae11a115fcb9020d"
+  },
+  "xmultipl": {
+    "rom": "xmultipl",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/xmultipl.png",
+    "status": "unavailable",
+    "httpStatus": 404
+  },
+  "wildfang": {
+    "rom": "wildfang",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wildfang.png",
+    "status": "downloaded",
+    "file": "marquees/wildfang.png",
+    "width": 518,
+    "height": 173,
+    "sha256": "88227bf29df3b7122c537cee9859e879f7607844a38bd2c4b2543194a63a96ff"
+  },
+  "wbml": {
+    "rom": "wbml",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wbml.png",
+    "status": "downloaded",
+    "file": "marquees/wbml.png",
+    "width": 1200,
+    "height": 442,
+    "sha256": "b64250db95694eb1a10cd555b445f4366ebb93e872a8e255a8aaf6f13e627b8e"
+  },
+  "wof": {
+    "rom": "wof",
+    "url": "https://adb.arcadeitalia.net/media/mame.current/marquees/wof.png",
+    "status": "downloaded",
+    "file": "marquees/wof.png",
+    "width": 1200,
+    "height": 338,
+    "sha256": "0d15079bcfa58ac9495d0898b58aedd24e8e299ab59ad49db00b2e47823069f7"
+  }
+}

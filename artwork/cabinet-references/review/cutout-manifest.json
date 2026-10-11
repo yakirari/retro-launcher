@@ -1,0 +1,346 @@
+{
+  "policy": "Explicit continuous-upright row-interior silhouette restoration; preserve original RGB, no black-key on prepared alpha images.",
+  "rejected": {
+    "aliensyn": "Near-black side wall loses exterior contour",
+    "looping": "Nonzero opaque scan backdrop",
+    "rallyx": "Nonzero opaque scan backdrop",
+    "kchamp": "Connected scan-frame rectangle",
+    "missile": "Horizontal scan-frame baseline",
+    "pacland": "Horizontal scan-frame baseline"
+  },
+  "images": [
+    {
+      "rom": "1944",
+      "source": "downloads/1944.png",
+      "sourceSha256": "e1642fa8531e7d0fedfc5f352aa9e448733be1141eee19932c4c38dbdec44445",
+      "prepared": "1944.png",
+      "preparedSha256": "0fb54876c39dbd5739b767f80194491c3f057818d7be46b4a70c2242ffa0c6e4",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "720",
+      "source": "downloads/720.png",
+      "sourceSha256": "568f4faa1741132c6665f525d01831c6e6c3cd64bb5a449f80d21bb5b810bb1a",
+      "prepared": "720.png",
+      "preparedSha256": "26483752ce18a7d36260bef91a9a97519fd3d734f9ec21d0ba9b89797e04aeaf",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "altbeast",
+      "source": "downloads/altbeast.png",
+      "sourceSha256": "63fdf8117a0b40771815b4cb57395da4a490ad300bbc58f31b7eecc8ff8a7d18",
+      "prepared": "altbeast.png",
+      "preparedSha256": "855814736b373b4d155dba1db614e9cd721275abb2c9042bd0e90e965f870ef9",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "atetris",
+      "source": "downloads/atetris.png",
+      "sourceSha256": "36a3f90a265ef0d5487937bff9cd421334971960ed28710645975d069e634701",
+      "prepared": "atetris.png",
+      "preparedSha256": "185d1fea19a54e9b4f31086eb783a783888286b015adf27d59c9166c65d5bf77",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "bionicc",
+      "source": "downloads/bionicc.png",
+      "sourceSha256": "e6c19d5ec3efc15be9c4fede7d04870c5ea0cab94d1f0744bc1a0fb1c26870b1",
+      "prepared": "bionicc.png",
+      "preparedSha256": "7245fd73f223e57d48f0361d6b223322d37eaccedfb3c0a2da4b382a179ab669",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "bnj",
+      "source": "downloads/bnj.png",
+      "sourceSha256": "ef491b350ff65758d92bd6343c6e4050a32a257932b6b9fd7253c62fda2ba60d",
+      "prepared": "bnj.png",
+      "preparedSha256": "4d13794c0934977219b70951749aa6d72313c3cd11bc1bd8a1a4003103a9fbf4",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "bubbles",
+      "source": "downloads/bubbles.png",
+      "sourceSha256": "67ee768a148c150382582c8129c5319007677b0d9bcd2c59a17bc977003429f4",
+      "prepared": "bubbles.png",
+      "preparedSha256": "afec2a3099710f4f5377356f641496c557b851d1ee70bda68aab16d207f9b955",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "bublbobl",
+      "source": "downloads/bublbobl.png",
+      "sourceSha256": "cfaddbb1c1a9b4b9618f2071fd504071b1bd0ab4697b9bcd66a6a2c122580547",
+      "prepared": "bublbobl.png",
+      "preparedSha256": "124d208574ca74cb081511c3788a3218a731eb69a78e36cacf12c53253645cbf",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "bzone",
+      "source": "downloads/bzone.png",
+      "sourceSha256": "020750ed6784beb063e9053afe4c87f29d3f81cef48c4a1fb4adfe46e519b3af",
+      "prepared": "bzone.png",
+      "preparedSha256": "ec88e3dde13f80474a1e23cfc1618a531f73387c8363e565b953e250a04ca6d0",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "captcomm",
+      "source": "downloads/captcomm.png",
+      "sourceSha256": "725de087864efd8cfb8dca67e8a21060b8958e70d7cba6408f6008f77423a51e",
+      "prepared": "captcomm.png",
+      "preparedSha256": "235a9f5d2ae6fea09d3481f54c838637b4feb5541b418da264d2de49fc581c34",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "ccastles",
+      "source": "downloads/ccastles.png",
+      "sourceSha256": "a296eb3a0207118708969dca2eb8e00dce63bcd5f84c8684358abaabfbe1a46e",
+      "prepared": "ccastles.png",
+      "preparedSha256": "2dc5c03e007a9887e3540426cf1f6b979528646def00705ca793885eae4cc33f",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "circusc",
+      "source": "downloads/circusc.png",
+      "sourceSha256": "202b95498e69416542cfac6db180af63bea7ba027d2e52981758ca67cc7c1ab3",
+      "prepared": "circusc.png",
+      "preparedSha256": "e76b77c33c8589d632f05671edc4fe4975eea4ca316c3ab04b0c98d08f34acb3",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "commando",
+      "source": "downloads/commando.png",
+      "sourceSha256": "8d0e720cba7faf5570226330791ea90499476b97fce5ebcfd5efe772cb8d90d4",
+      "prepared": "commando.png",
+      "preparedSha256": "9c30eccbd87467d7fd8414ee7eb78195d0f62ac67a92a268ab8e9fa313fd49af",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "congo",
+      "source": "downloads/congo.png",
+      "sourceSha256": "41572e3e5d795d21b92f2975e731f00fee77ca225347ca8ffa8600ac18ea58f4",
+      "prepared": "congo.png",
+      "preparedSha256": "dd2dcacfca7a573bff24b1f5538f705f00a1b4d2a93ab792253d3309dea0d54a",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "dkongjr",
+      "source": "downloads/dkongjr.png",
+      "sourceSha256": "8a5f5249eb82aacb480af49fed5ff336fe211969b42875949dc29329b7997866",
+      "prepared": "dkongjr.png",
+      "preparedSha256": "82e3a07496ecefa4edc197b163750208fd7fb90780095479fab19ee8a6b21f30",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "docastle",
+      "source": "downloads/docastle.png",
+      "sourceSha256": "f98338c22e2dbb1c60ed2a9aa85ed75c237ea45a12e96b4996534f76404ca02f",
+      "prepared": "docastle.png",
+      "preparedSha256": "206c937681e2b42fc43601c1f5cb77e77430731e92191d367aa3b3d0d3b1f0c1",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "elevator",
+      "source": "downloads/elevator.png",
+      "sourceSha256": "686165abab1ef61fced9597c4e5622057bf2de3c57b63e06f7ed23f6f9129e0a",
+      "prepared": "elevator.png",
+      "preparedSha256": "7cb95f184f2c7e2293fc247626240c70c6e4478b55bdf4d11bbd29d438ed5ebd",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "gijoeu",
+      "source": "downloads/gijoeu.png",
+      "sourceSha256": "1472f87b660c5b185fb67ea384a6f91fdd4288ea2236a20922557b19ef1ff2f8",
+      "prepared": "gijoeu.png",
+      "preparedSha256": "228c0f7b9917c0ee91a03fecea59d58bdb55808d25ff82e67688e7a6e1763034",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "gorf",
+      "source": "downloads/gorf.png",
+      "sourceSha256": "3749998a104e470642ab128f90eb45ea7e353d929a4d4f4cb134e12819671926",
+      "prepared": "gorf.png",
+      "preparedSha256": "765f063e22a3fb595f1a8351c6b5a15a6385da7d79f23003e93492b95eb7bb21",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "kangaroo",
+      "source": "downloads/kangaroo.png",
+      "sourceSha256": "d74006db0edb6e5d3fe20a4f0b08ec10ef23acb667cbceac5fb7b87453f86a85",
+      "prepared": "kangaroo.png",
+      "preparedSha256": "7fadcdf579e9cfc6b6af271d620c0cb59e8b8fa537f2cb6cbbd536ce34dc89ab",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "mrdo",
+      "source": "downloads/mrdo.png",
+      "sourceSha256": "4727841eb3e82dbe37974d607e1615739ea1ce15c10200c7c4878b0326da897c",
+      "prepared": "mrdo.png",
+      "preparedSha256": "a1438b0c3d10dd7724b7cbc0cf654abdc74b0ac6f0974e06b2759d81669c68dc",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "nbajam",
+      "source": "downloads/nbajam.png",
+      "sourceSha256": "43a1612f5d03520e75edb5c20378224a1cec8f0b1b1ca28f34e8a7409369d64e",
+      "prepared": "nbajam.png",
+      "preparedSha256": "365a7af2f3c14c32de2bdb2f1de8448667c2b4709ad40f18b438b7953226f5b3",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "nbajamte",
+      "source": "downloads/nbajamte.png",
+      "sourceSha256": "20b99d11c97c52e3e8eae883c18a2b8e730bafa584b693536b2d767125fe8feb",
+      "prepared": "nbajamte.png",
+      "preparedSha256": "49a62e58c502c89f6fea35185cd63c9d2ca1cd5dda636de91532878cadfda74b",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "nibbler",
+      "source": "downloads/nibbler.png",
+      "sourceSha256": "2208ad25273d221796bcce108a075f770262eb65c5eb970eaf5869b5f468f21e",
+      "prepared": "nibbler.png",
+      "preparedSha256": "5e0db9e51f41c7e70a2f001f24d6bb2168d6afe34c4c9f61ffe223f2de9e5b7a",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "pengo",
+      "source": "downloads/pengo.png",
+      "sourceSha256": "025602f06a44f03f0e8f116fd2125282712c054050bf569dd7f255cd140e8d4a",
+      "prepared": "pengo.png",
+      "preparedSha256": "673cc4d71d41212f3a12abcc1013e3b1dac915a163b8347dcacb55ef2e503768",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "pooyan",
+      "source": "downloads/pooyan.png",
+      "sourceSha256": "b2c0760764d04890350f3476da898bffe3a8bc0c1bd36f9b58c80f72bd7dbc35",
+      "prepared": "pooyan.png",
+      "preparedSha256": "c07baa36dc29f66574f536d8c5c7ce6c74a50f553f49925fbc618814fc4a1968",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "qix",
+      "source": "downloads/qix.png",
+      "sourceSha256": "266e93e42ca5286f0b8d2de69b4eaefa6d2c1b447db6cd6b5c3f933c780e84a8",
+      "prepared": "qix.png",
+      "preparedSha256": "0638fe099322ab2eb2d620705b0f755634a1c42223b6ecc26aa2997c83a1fdd4",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "robotron",
+      "source": "downloads/robotron.png",
+      "sourceSha256": "bc4ca773535ccca7136ae1e4d6b6a8a180f398ce450bc035ad859bbabeadf47b",
+      "prepared": "robotron.png",
+      "preparedSha256": "94694404e423bb9ee243f90a3db23a6d81cf9efa7b5e085943de8bd116af43ca",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "shollow",
+      "source": "downloads/shollow.png",
+      "sourceSha256": "2dfbf2fbba62786c60073b894d2e3a9734d354589ebf69988fd5fda3b318e564",
+      "prepared": "shollow.png",
+      "preparedSha256": "c58b07137433b7ba487641abd4e3af2d574ae55dfa73376184062ac0b16bef98",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "superpac",
+      "source": "downloads/superpac.png",
+      "sourceSha256": "172dfb31caec9bc1957a68dc3505d2e8e9a6de5ad25c6ef96a7940830cfbd93b",
+      "prepared": "superpac.png",
+      "preparedSha256": "aa08091ef83482d6e0a8211ec469fbaf08a3a60815368bc3ffda849fc9a03c26",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "timeplt",
+      "source": "downloads/timeplt.png",
+      "sourceSha256": "3b41232accbb384a982a02adbfba506427e91043f3d3c1d6ed7b14f1eabcfea8",
+      "prepared": "timeplt.png",
+      "preparedSha256": "24ad74e02619573f98d188aead71bc6a43193d328cb885a358411a90809bab55",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "toobin",
+      "source": "downloads/toobin.png",
+      "sourceSha256": "657cae34a13dd15c52d4c725da8f3f823d5099654d28d4cb64b8429d5916d7a0",
+      "prepared": "toobin.png",
+      "preparedSha256": "fe5e7cd258b392635d2907eef1f105a776ada04e4b55e4e0b51678062fde689d",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "trackfld",
+      "source": "downloads/trackfld.png",
+      "sourceSha256": "b1e4c17f3b36ddf196e0592e235b522d2d4e7893bf562ac3b6533074c497d7dd",
+      "prepared": "trackfld.png",
+      "preparedSha256": "48b60c8f0eeea4402302387ef691abb58aa9234f51b2d42ad9337bb162ddbe93",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "vf",
+      "source": "downloads/vf.png",
+      "sourceSha256": "b723f32a4473a1630ff5a946207ea68762ea05406dd12527faf9b9bf06b378fe",
+      "prepared": "vf.png",
+      "preparedSha256": "d004e3c4a895214502c83442e9976bea069f353a272fbefdb7c01336969377cd",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "wow",
+      "source": "downloads/wow.png",
+      "sourceSha256": "5e71f84d798983cbb23ed0a1e5915bcdafd66634052a27d1d50e4404605dda67",
+      "prepared": "wow.png",
+      "preparedSha256": "50eb61363df131f084660c9ae5ee6938a9faf12f5cbffad74ac235c13c75d097",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "xevious",
+      "source": "downloads/xevious.png",
+      "sourceSha256": "5373b4244c56770f6f203c43aac34dde2be4c3720637cea0a0347e3c26af1961",
+      "prepared": "xevious.png",
+      "preparedSha256": "89626b2d409530e227c6b141041e6e281a52d8d8dd3a40438cebd9c8c5ef8877",
+      "threshold": 2,
+      "solidRowInterior": true
+    },
+    {
+      "rom": "zaxxon",
+      "source": "downloads/zaxxon.png",
+      "sourceSha256": "216b229cd3f6fcae87f67789a2644f1359dc3bb119e2c7e6e4ce3528c99599f6",
+      "prepared": "zaxxon.png",
+      "preparedSha256": "064a0878796e2a16a0d8e4311e04552adb9eaa8ad7494e6b201e29fe0900caaa",
+      "threshold": 2,
+      "solidRowInterior": true
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+[
+  {
+    "rom": "1942",
+    "title": "1942",
+    "clones": []
+  },
+  {
+    "rom": "1943",
+    "title": "1943: The Battle of Midway",
+    "clones": []
+  },
+  {
+    "rom": "arkanoid",
+    "title": "Arkanoid",
+    "clones": []
+  },
+  {
+    "rom": "asteroid",
+    "title": "Asteroids",
+    "clones": [
+      "asteroid1",
+      "asteroid2"
+    ]
+  },
+  {
+    "rom": "btime",
+    "title": "BurgerTime",
+    "clones": [
+      "btime2",
+      "btime3"
+    ]
+  },
+  {
+    "rom": "centiped",
+    "title": "Centipede",
+    "clones": [
+      "centiped1",
+      "centiped2"
+    ]
+  },
+  {
+    "rom": "contra",
+    "title": "Contra",
+    "clones": []
+  },
+  {
+    "rom": "ddonpach",
+    "title": "DoDonPachi",
+    "clones": []
+  },
+  {
+    "rom": "ddragon",
+    "title": "Double Dragon",
+    "clones": [
+      "ddragonu"
+    ]
+  },
+  {
+    "rom": "defender",
+    "title": "Defender",
+    "clones": [
+      "defendg",
+      "defenderg",
+      "defenderb",
+      "defenderw"
+    ]
+  },
+  {
+    "rom": "digdug",
+    "title": "Dig Dug",
+    "clones": [
+      "digdug1"
+    ]
+  },
+  {
+    "rom": "dkong",
+    "title": "Donkey Kong",
+    "clones": [
+      "dkongjo",
+      "dkongjo1"
+    ]
+  },
+  {
+    "rom": "dkong3",
+    "title": "Donkey Kong 3",
+    "clones": []
+  },
+  {
+    "rom": "ffight",
+    "title": "Final Fight",
+    "clones": [
+      "ffightu",
+      "ffightj"
+    ]
+  },
+  {
+    "rom": "frogger",
+    "title": "Frogger",
+    "clones": []
+  },
+  {
+    "rom": "galaga",
+    "title": "Galaga",
+    "clones": [
+      "galagao",
+      "galagamw"
+    ]
+  },
+  {
+    "rom": "galaxian",
+    "title": "Galaxian",
+    "clones": []
+  },
+  {
+    "rom": "ghouls",
+    "title": "Ghouls ’n Ghosts",
+    "clones": [
+      "ghoulsu"
+    ]
+  },
+  {
+    "rom": "gng",
+    "title": "Ghosts ’n Goblins",
+    "clones": [
+      "gnga",
+      "gngt"
+    ]
+  },
+  {
+    "rom": "goldnaxe",
+    "title": "Golden Axe",
+    "clones": [
+      "goldnaxe1",
+      "goldnaxe2",
+      "goldnaxe3"
+    ]
+  },
+  {
+    "rom": "invaders",
+    "title": "Space Invaders",
+    "clones": []
+  },
+  {
+    "rom": "joust",
+    "title": "Joust",
+    "clones": []
+  },
+  {
+    "rom": "mario",
+    "title": "Mario Bros.",
+    "clones": []
+  },
+  {
+    "rom": "mk2",
+    "title": "Mortal Kombat II",
+    "clones": []
+  },
+  {
+    "rom": "mslug",
+    "title": "Metal Slug",
+    "clones": []
+  },
+  {
+    "rom": "mspacman",
+    "title": "Ms. Pac-Man",
+    "clones": []
+  },
+  {
+    "rom": "mvsc",
+    "title": "Marvel vs. Capcom: Clash of Super Heroes",
+    "clones": [
+      "mvscu",
+      "mvscj"
+    ]
+  },
+  {
+    "rom": "outrun",
+    "title": "Out Run",
+    "clones": [
+      "outrunb"
+    ]
+  },
+  {
+    "rom": "pacman",
+    "title": "Pac-Man",
+    "clones": [
+      "pacmanf"
+    ]
+  },
+  {
+    "rom": "paperboy",
+    "title": "Paperboy",
+    "clones": []
+  },
+  {
+    "rom": "qbert",
+    "title": "Q*bert",
+    "clones": []
+  },
+  {
+    "rom": "rtype",
+    "title": "R-Type",
+    "clones": []
+  },
+  {
+    "rom": "rtype2",
+    "title": "R-Type II",
+    "clones": []
+  },
+  {
+    "rom": "sf2",
+    "title": "Street Fighter II: The World Warrior",
+    "clones": [
+      "sf2u",
+      "sf2j"
+    ]
+  },
+  {
+    "rom": "shinobi",
+    "title": "Shinobi",
+    "clones": []
+  },
+  {
+    "rom": "starwars",
+    "title": "Star Wars",
+    "clones": []
+  },
+  {
+    "rom": "tapper",
+    "title": "Tapper",
+    "clones": []
+  },
+  {
+    "rom": "tekken3",
+    "title": "Tekken 3",
+    "clones": []
+  },
+  {
+    "rom": "tmnt",
+    "title": "Teenage Mutant Ninja Turtles",
+    "clones": [
+      "tmntu",
+      "tmntj"
+    ]
+  },
+  {
+    "rom": "tmnt2",
+    "title": "Teenage Mutant Ninja Turtles: Turtles in Time",
+    "clones": [
+      "tmnt22p"
+    ]
+  },
+  {
+    "rom": "tron",
+    "title": "TRON",
+    "clones": []
+  },
+  {
+    "rom": "xmen",
+    "title": "X-Men",
+    "clones": [
+      "xmen2p"
+    ]
+  }
+]
