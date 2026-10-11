@@ -111,4 +111,28 @@ class LibrarySetupDialogTest {
         compose.onNodeWithText("Skip platform").assertIsDisplayed()
         compose.onNodeWithText("Cancel scan").assertIsDisplayed()
     }
+
+    @Test fun initialScummVmSetupOffersRegisteredPickerBulkConfigAndSafeSkip() {
+        var pickerOpened = false
+        var configOpened = false
+        var skipped = false
+        compose.setContent {
+            CompactDialogTestViewport {
+                MaterialTheme {
+                    LibrarySetupDialog(firstRun = true,
+                        progress = LibraryScanProgress(running = true, stage = LibraryScanStage.LINKING_SCUMMVM,
+                            platform = "ScummVM", scummVmSetupRequired = true), hasRoot = true,
+                        isDefaultLauncher = true, installedCount = 1, sharedGameCount = 0,
+                        onChooseRoot = {}, onScan = {}, onCancel = {}, onChooseEmulator = {},
+                        onSetHome = {}, onDismiss = {},
+                        onChooseScummVmGame = { pickerOpened = true },
+                        onImportScummVmConfig = { configOpened = true }, onSkipScummVm = { skipped = true })
+                }
+            }
+        }
+        compose.onNodeWithText("Choose registered game").performScrollTo().performClick()
+        compose.onNodeWithText("Import ScummVM config").performScrollTo().performClick()
+        compose.onNodeWithText("Skip platform").assertIsDisplayed().performClick()
+        compose.runOnIdle { assertTrue(pickerOpened && configOpened && skipped) }
+    }
 }

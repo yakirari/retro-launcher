@@ -169,6 +169,30 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     internal val libraryScan: StateFlow<LibraryScanProgress> = _libraryScan.asStateFlow()
     private var libraryScanJob: Job? = null
     private var pendingLibraryEmulator: kotlinx.coroutines.CompletableDeferred<GameSystemEmulatorOption?>? = null
+    private var pendingLibraryScummVm: kotlinx.coroutines.CompletableDeferred<List<GameEntry>>? = null
+
+    internal fun completeLibraryScummVm(entries: List<GameEntry>) {
+        if (!canWrite()) return
+        pendingLibraryScummVm?.complete(entries)
+    }
+
+    private suspend fun awaitLibraryScummVm(): List<GameEntry> {
+        val answer = kotlinx.coroutines.CompletableDeferred<List<GameEntry>>()
+        try {
+            withContext(Dispatchers.Main.immediate) {
+                pendingLibraryScummVm = answer
+                _libraryScan.update { it.copy(stage = LibraryScanStage.LINKING_SCUMMVM, scummVmSetupRequired = true) }
+            }
+            return answer.await()
+        } finally {
+            withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main.immediate) {
+                if (pendingLibraryScummVm === answer) {
+                    pendingLibraryScummVm = null
+                    _libraryScan.update { it.copy(stage = LibraryScanStage.SCANNING, scummVmSetupRequired = false) }
+                }
+            }
+        }
+    }
 
     internal fun chooseLibraryEmulator(key: String?) {
         val choice = _libraryScan.value.emulatorChoice ?: return
@@ -368,7 +392,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                     try {
                         var lastGameUpdate = 0L
                         val batch = LibraryScanner.scan(app, root, platform, packages, _games.value,
-                            scannedArcadeFolders, ::awaitLibraryEmulator) { title ->
+                            scannedArcadeFolders, ::awaitLibraryEmulator, ::awaitLibraryScummVm) { title ->
                             val now = android.os.SystemClock.elapsedRealtime()
                             if (now - lastGameUpdate >= 100L) {
                                 _libraryScan.update { it.copy(currentGame = title) }
@@ -464,6 +488,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             title = option.title,
             subtitle = option.sourceLabel,
             platform = com.ariy.retrolauncher.model.PcGameStores.forShortcut(option)
+                ?: "ScummVM".takeIf { option.packageName == ScummVmGames.PACKAGE }
                 ?: inferPlatformFromIntentDataUri(inferredIntentDataUri),
             imageUri = runCatching { installedTargets.importShortcutIcon(
                 packageName = option.packageName,

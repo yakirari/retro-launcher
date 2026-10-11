@@ -41,7 +41,9 @@ internal fun LibrarySetupDialog(
     isDefaultLauncher: Boolean, installedCount: Int, sharedGameCount: Int,
     onChooseRoot: () -> Unit, onScan: () -> Unit, onCancel: () -> Unit,
     onChooseEmulator: (String?) -> Unit,
-    onSetHome: () -> Unit, onDismiss: () -> Unit
+    onSetHome: () -> Unit, onDismiss: () -> Unit,
+    onChooseScummVmGame: () -> Unit = {}, onImportScummVmConfig: () -> Unit = {},
+    onSkipScummVm: () -> Unit = {}
 ) {
     var showDetails by remember { mutableStateOf(false) }
     var elapsed by remember { mutableIntStateOf(0) }
@@ -57,7 +59,7 @@ internal fun LibrarySetupDialog(
     AdaptiveLauncherDialog(onDismissRequest = onDismiss) {
         val compact = LocalCompactLauncherDialog.current
         // A new emulator prompt must not inherit a scroll position deep in scan details.
-        val scrollState = key(choice?.folder) { rememberScrollState() }
+        val scrollState = key(choice?.folder, progress.scummVmSetupRequired) { rememberScrollState() }
         Surface(color = Color(0xFF111927), shape = RoundedCornerShape(24.dp)) {
             Column(Modifier.fillMaxSize().padding(if (compact) 8.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 10.dp)) {
@@ -72,6 +74,15 @@ internal fun LibrarySetupDialog(
                 Column(Modifier.weight(1f).fillMaxWidth().testTag("library-setup-content")
                     .verticalScroll(scrollState),
                     verticalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 12.dp)) {
+                    if (progress.scummVmSetupRequired) {
+                        Text("Link your registered ScummVM games", color = Color.White)
+                        Text("ScummVM's private game list needs its own picker or an exported config. Folder names alone cannot create working launch targets.",
+                            color = muted, style = MaterialTheme.typography.bodySmall)
+                        Button(onClick = onChooseScummVmGame, modifier = Modifier.fillMaxWidth()) { Text("Choose registered game") }
+                        OutlinedButton(onClick = onImportScummVmConfig, modifier = Modifier.fillMaxWidth()) { Text("Import ScummVM config") }
+                        Text("Import the existing scummvm.ini to add all registered games in one batch. Choosing one game adds only that game.",
+                            color = muted, style = MaterialTheme.typography.bodySmall)
+                    }
                     if (choice != null) {
                         Text(if (choice.options.size == 1)
                             "Choose the emulator for ${choice.folder}; each game is added only once."
@@ -129,7 +140,7 @@ internal fun LibrarySetupDialog(
                             color = muted, style = MaterialTheme.typography.bodySmall)
                         Text("No ROMs? Skip for now and use installed apps or shared hub games.", color = muted,
                             style = MaterialTheme.typography.bodySmall)
-                    } else if (choice == null) {
+                    } else if (choice == null && !progress.scummVmSetupRequired) {
                         Text("Your library is being built. You can cancel safely — games already added are kept.", color = muted,
                             style = MaterialTheme.typography.bodyMedium)
                     }
@@ -150,6 +161,8 @@ internal fun LibrarySetupDialog(
                         OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancel scan") }
                         if (choice != null) {
                             Button(onClick = { onChooseEmulator(null) }, modifier = Modifier.weight(1f)) { Text("Skip platform") }
+                        } else if (progress.scummVmSetupRequired) {
+                            Button(onClick = onSkipScummVm, modifier = Modifier.weight(1f)) { Text("Skip platform") }
                         } else {
                             Button(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("View library") }
                         }

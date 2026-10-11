@@ -4,7 +4,20 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
-No additional changes beyond the first-preview draft below.
+No additional changes beyond 0.1.1 below.
+
+## 0.1.1 — Experimental preview — 2026-10-11
+
+- Android version code increased to 2 for an in-place upgrade from the 0.1.0 preview.
+- Keep Eden Optimized selectable alongside Eden even when both share a package/launch contract.
+- Fix circular platform navigation skipping a backward-selected platform during worker preparation.
+- Automatically import public ScummVM game shortcuts and open its registered-game picker during
+	first setup when no linked targets are available; offer exported config import and safe skip.
+- Move Reset launcher into the scrolling General settings and remove the oversized fixed warning;
+	the explicit confirmation dialog and data-loss warning remain unchanged.
+
+Validation: 196 JVM tests passed; app and instrumentation-test APKs compiled. See the
+[0.1.1 release notes](docs/releases/0.1.1.md) for download/signing information and remaining limitations.
 
 ## 0.1.0 — First preview (draft)
 

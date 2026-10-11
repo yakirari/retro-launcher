@@ -33,6 +33,8 @@ Upgraded installations must select the intended scan root once rather than silen
 previously normalized authorization ancestor.
 
 Automatic emulator selection offers matching installed **standalone and named RetroArch core presets**.
+Eden and Eden Optimized remain distinct choices even when they use the same installed package and
+launch contract; selecting the Optimized preset does not install a different emulator build.
 An existing configured standalone package can be reused; otherwise the scan pauses for confirmation,
 even when only one emulator is available. RetroArch always requires an explicit system/core choice;
 install that core inside RetroArch and use a compatible ROM set. A generic **Arcade** folder can offer MAME or Final Burn Neo;
@@ -44,9 +46,13 @@ select the displayed system/core and install that core inside RetroArch; automat
 guesses private core availability. Installing a supported standalone emulator and rescanning is
 also supported.
 
-ScummVM imports config-linked folder targets only. Unlinked folders are reported, not registered
+ScummVM folder scans import config-linked or verified published registered targets. Unlinked folders are reported, not registered
 silently: register/authorize them inside ScummVM and use **Add → Games → ScummVM → Choose registered
 game**, or import an exported configuration. Private registered lists are not generally enumerable.
+Automatic setup now also imports Android-published ScummVM game shortcuts. If no usable registered
+targets or shared shortcuts are available on first setup, it opens ScummVM's registered-game picker
+without requiring a manually added first tile. Setup also offers **Import ScummVM config** for bulk
+import or **Skip platform**. Choosing one game does not reveal the rest of ScummVM's private list.
 
 Artwork autofill starts after the import batch, uses the existing bounded background queue, and
 preserves custom artwork. Offline lookup failures do not remove imported tiles or shortcut icons.
@@ -107,6 +113,8 @@ as Home, then create it again. Do not uninstall the game. See [integration troub
 - In galleries, controller left/right moves between games, up/down changes filters, and the
   activation button launches the focused game. Device/controller mappings can vary.
 - Large galleries extend automatically in 48-item pages; no Next-page button is needed.
+- Platform cycling wraps in both directions. A platform being prepared in the background is not
+  skipped merely because its loading snapshot is temporarily empty.
 - **Player One Lounge** (formerly Basement 7) is the default wallpaper when none has been selected.
   Backgrounds have descriptive scene names in Options; saved selections, including None, are preserved.
 - On short landscape screens, dialogs use compact spacing and keep help, tabs and detailed progress
@@ -140,7 +148,7 @@ Removing a tile is a library operation, not a request to delete its ROM or unins
 
 ### Reset launcher
 
-Open **Options → Reset launcher** in the global destructive section. Nothing is cleared until
+Open **Options → General → Reset launcher** at the bottom of the scrolling settings. Nothing is cleared until
 you explicitly confirm **Reset launcher** in the warning dialog. **Cancel** is the initial
 keyboard/controller choice; Back or tapping outside the confirmation cancels without resetting.
 

@@ -38,6 +38,14 @@ Complete signing and redistribution review before publishing an APK, then add it
 signature/upgrade verification and actual device test results. Version 0.1.0/code 1 is retained
 for this first release preparation; subsequent application releases must increase the version code.
 
+## 0.1.1 experimental preview
+
+[0.1.1 notes](releases/0.1.1.md) accompany the experimental prerelease requested by the maintainer,
+with a debug-signed APK, SHA256SUMS and licensing notices. Version code 2 upgrades the same-key
+0.1.0 development installation. This is not a production-signing certification, a successful lint
+or device UI test, or a clearance of unresolved third-party redistribution rights. Retain the
+explicit preview limitations and notices; production signing and artwork review remain unfinished.
+
 ## Release procedure
 
 1. Review the commit/diff and update [CHANGELOG.md](../CHANGELOG.md).

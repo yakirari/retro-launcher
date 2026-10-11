@@ -13,11 +13,19 @@ internal object LibrarySetupPolicy {
     fun isSharedHubPackage(packageName: String): Boolean =
         packageName == "app.gamenative" || packageName in PcGameStores.hubPackages
 
+    fun isAutoImportShortcutPackage(packageName: String): Boolean =
+        isSharedHubPackage(packageName) || packageName == com.ariy.retrolauncher.launch.ScummVmGames.PACKAGE
+
+    fun needsScummVmLink(importableCount: Int, games: List<GameEntry>): Boolean = importableCount == 0 &&
+        games.none { it.platform == "ScummVM" && !it.needsLaunchSetup &&
+            (it.sourceType == GameSourceType.SHORTCUT ||
+                com.ariy.retrolauncher.launch.ScummVmGames.registeredTarget(it.extrasJson) != null) }
+
     fun missingHubShortcuts(options: List<InstalledShortcutOption>, games: List<GameEntry>): List<InstalledShortcutOption> {
         val existing = games.flatMap { it.allTargets() }
             .filter { it.sourceType == GameSourceType.SHORTCUT }
             .map { Triple(it.packageName, it.shortcutId, it.userSerial) }.toSet()
-        return options.filter { isSharedHubPackage(it.packageName) &&
+        return options.filter { isAutoImportShortcutPackage(it.packageName) &&
             (it.packageName != "app.gamenative" || com.ariy.retrolauncher.launch.GameNativeScan.isPublishedGameShortcut(it)) }
             .distinctBy { Triple(it.packageName, it.shortcutId, it.userSerial) }
             .filterNot { Triple(it.packageName, it.shortcutId, it.userSerial) in existing }
@@ -30,16 +38,16 @@ internal object LibrarySetupPolicy {
     ): List<GameSystemEmulatorOption> = options.filter {
         it.platform in platforms &&
             templates[it.templateIndex].packageName in installedPackages
-    }.distinctBy { Triple(it.platform, templates[it.templateIndex].packageName, it.retroArchSystemId) }
+    }.distinctBy { Triple(it.platform, it.templateIndex, it.retroArchSystemId) }
         .sortedWith(compareBy({ it.platform }, { templates[it.templateIndex].label }))
 
     suspend fun chooseStandalone(
         choices: List<GameSystemEmulatorOption>,
         templates: List<com.ariy.retrolauncher.launch.CustomIntentTemplate>, preferredPackage: String?,
         ask: suspend () -> GameSystemEmulatorOption?
-    ): GameSystemEmulatorOption? = choices.firstOrNull {
+    ): GameSystemEmulatorOption? = choices.filter {
         it.retroArchSystemId == null && templates[it.templateIndex].packageName == preferredPackage
-    } ?: if (choices.isNotEmpty()) ask()?.takeIf { it in choices } else null
+    }.singleOrNull() ?: if (choices.isNotEmpty()) ask()?.takeIf { it in choices } else null
 
     fun selectStandalone(
         options: List<GameSystemEmulatorOption>, templates: List<com.ariy.retrolauncher.launch.CustomIntentTemplate>,
@@ -54,7 +62,7 @@ internal object LibrarySetupPolicy {
 
 internal data class LibraryEmulatorChoice(val folder: String, val options: List<GameSystemEmulatorOption>)
 
-internal enum class LibraryScanStage { CHECKING_FOLDER, FINDING_EMULATORS, SCANNING, CHOOSING_EMULATOR, ADDING }
+internal enum class LibraryScanStage { CHECKING_FOLDER, FINDING_EMULATORS, SCANNING, CHOOSING_EMULATOR, LINKING_SCUMMVM, ADDING }
 
 internal data class LibraryScanProgress(
     val running: Boolean = false,
@@ -63,6 +71,7 @@ internal data class LibraryScanProgress(
     val platform: String = "",
     val currentGame: String = "",
     val emulatorChoice: LibraryEmulatorChoice? = null,
+    val scummVmSetupRequired: Boolean = false,
     val completedPlatforms: Int = 0,
     val totalPlatforms: Int = 0,
     val discovered: Int = 0,
@@ -80,9 +89,10 @@ internal data class LibraryScanProgress(
         stage == LibraryScanStage.CHECKING_FOLDER -> "Checking ROM folder access…"
         stage == LibraryScanStage.FINDING_EMULATORS -> "Finding installed emulators…"
         stage == LibraryScanStage.CHOOSING_EMULATOR -> "Choose an emulator for $platform"
+        stage == LibraryScanStage.LINKING_SCUMMVM -> "Link registered ScummVM games"
         stage == LibraryScanStage.ADDING -> "Adding $platform…"
         else -> "Scanning $platform…"
     }
 
-    fun finished(cancelled: Boolean = false) = copy(running = false, cancelled = cancelled, emulatorChoice = null)
+    fun finished(cancelled: Boolean = false) = copy(running = false, cancelled = cancelled, emulatorChoice = null, scummVmSetupRequired = false)
 }

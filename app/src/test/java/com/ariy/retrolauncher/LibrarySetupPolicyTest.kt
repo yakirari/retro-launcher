@@ -4,6 +4,7 @@ import com.ariy.retrolauncher.launch.CustomIntentTemplate
 import com.ariy.retrolauncher.launch.CustomIntentTemplates
 import com.ariy.retrolauncher.launch.InstalledShortcutOption
 import com.ariy.retrolauncher.model.GameEntry
+import com.ariy.retrolauncher.model.GamePlatforms
 import com.ariy.retrolauncher.model.GameSourceType
 import com.ariy.retrolauncher.model.toJsonString
 import org.junit.Assert.*
@@ -94,6 +95,44 @@ class LibrarySetupPolicyTest {
         assertEquals(setOf("Game Boy", "Game Boy Color"), platforms("com.explusalpha.GbcEmu"))
         assertEquals(setOf("Neo Geo Pocket", "Neo Geo Pocket Color"), platforms("com.explusalpha.NgpEmu"))
         assertTrue(platforms("com.explusalpha.MdEmu").containsAll(listOf("Sega Master System", "Sega CD", "Sega 32X")))
+    }
+
+    @Test fun edenOptimizedRemainsSelectableEvenWithSameInstalledPackage() = kotlinx.coroutines.runBlocking {
+        val templates = CustomIntentTemplates.all
+        val options = LibrarySetupPolicy.standaloneChoices(buildGameSystemEmulatorOptions(templates), templates,
+            setOf("Nintendo Switch"), setOf("dev.eden.eden_emulator"))
+        assertEquals(setOf("Eden preset", "Eden optimized preset"), options.map { templates[it.templateIndex].label }.toSet())
+        assertEquals(2, options.map { it.key }.toSet().size)
+        val optimized = options.single { templates[it.templateIndex].label == "Eden optimized preset" }
+        var prompted = false
+        assertEquals(optimized, LibrarySetupPolicy.chooseStandalone(options, templates, "dev.eden.eden_emulator") {
+            prompted = true
+            optimized
+        })
+        assertTrue(prompted)
+    }
+
+    @Test fun scummVmInitialSetupNeedsPickerWithoutAssumingFirstGameExposesFullLibrary() {
+        val launcher = GameEntry(title = "ScummVM", platform = GamePlatforms.EMULATORS,
+            sourceType = GameSourceType.ACTIVITY, packageName = "org.scummvm.scummvm")
+        assertTrue(LibrarySetupPolicy.needsScummVmLink(0, listOf(launcher)))
+        assertFalse(LibrarySetupPolicy.needsScummVmLink(2, emptyList()))
+        val registered = GameEntry(title = "My adventure", platform = "ScummVM",
+            sourceType = GameSourceType.CUSTOM_INTENT, packageName = "org.scummvm.scummvm",
+            extrasJson = com.ariy.retrolauncher.launch.ScummVmGames.extrasForTarget("my-adventure"))
+        assertFalse(LibrarySetupPolicy.needsScummVmLink(0, listOf(registered)))
+        assertTrue(LibrarySetupPolicy.needsScummVmLink(0, listOf(registered.copy(needsLaunchSetup = true))))
+        val waiting = LibraryScanProgress(running = true, stage = LibraryScanStage.LINKING_SCUMMVM, scummVmSetupRequired = true)
+        assertEquals("Link registered ScummVM games", waiting.statusText())
+        assertFalse(waiting.finished(true).scummVmSetupRequired)
+    }
+
+    @Test fun scummVmPublishedShortcutsImportBeforeAnyManualGameAndDeduplicateByProfile() {
+        val one = shortcut("one", pkg = "org.scummvm.scummvm")
+        val work = one.copy(userSerial = 10)
+        assertEquals(listOf(one, work), LibrarySetupPolicy.missingHubShortcuts(listOf(one, one, work), emptyList()))
+        assertEquals(listOf(work), LibrarySetupPolicy.missingHubShortcuts(listOf(one, work), listOf(game(one))))
+        assertFalse(LibrarySetupPolicy.isAutoImportShortcutPackage("unverified.adventure.app"))
     }
 
     private fun shortcut(id: String, profile: Long = 0, pkg: String = "app.gamenative") = InstalledShortcutOption(

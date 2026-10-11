@@ -1084,10 +1084,10 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
             viewModel.setGenreFilter(selectedFilter)
         }
     }
-    LaunchedEffect(effectiveGenreFilter, games.size, visibleGamesWithRecommendation.size, swipeCycleFilters) {
-        if (games.isEmpty()) return@LaunchedEffect
-        if (visibleGamesWithRecommendation.isNotEmpty()) return@LaunchedEffect
-        if (effectiveGenreFilter.equals(GameFilters.ALL, ignoreCase = true)) return@LaunchedEffect
+    LaunchedEffect(effectiveGenreFilter, games.size, preparedGames.ready, visibleGamesWithRecommendation.size, swipeCycleFilters) {
+        if (!com.ariy.retrolauncher.ui.FilterNavigation.shouldSkipEmpty(
+                preparedGames.ready, visibleGamesWithRecommendation.size, games.size,
+                effectiveGenreFilter.equals(GameFilters.ALL, ignoreCase = true))) return@LaunchedEffect
         val nextFilter = nextFilterForSwipe(effectiveGenreFilter, swipeCycleFilters)
             ?.takeUnless { it.equals(effectiveGenreFilter, ignoreCase = true) }
             ?: return@LaunchedEffect
@@ -1148,6 +1148,50 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
         if (libraryScan.emulatorChoice != null) setupOpen = true
     }
 
+    val setupScope = rememberCoroutineScope()
+    var setupScummVmPickerLaunched by rememberSaveable { mutableStateOf(false) }
+    val setupScummVmPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (!viewModel.acceptsSession(session) || !libraryScan.scummVmSetupRequired) return@rememberLauncherForActivityResult
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val entry = com.ariy.retrolauncher.launch.scummVmEntryFromPicker(result.data)
+            if (entry != null) viewModel.completeLibraryScummVm(listOf(entry))
+            else viewModel.setStatus("ScummVM did not return a valid registered game. Choose again, import its config, or skip this platform.")
+        }
+    }
+    val setupScummVmConfigPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (!viewModel.acceptsSession(session) || !libraryScan.scummVmSetupRequired || uri == null) return@rememberLauncherForActivityResult
+        setupScope.launch {
+            try {
+                val entries = withContext(Dispatchers.IO) {
+                    val text = context.contentResolver.openInputStream(uri)?.use { input ->
+                        val bytes = input.readNBytes(2 * 1024 * 1024 + 1)
+                        require(bytes.size <= 2 * 1024 * 1024) { "ScummVM config is too large" }
+                        String(bytes, Charsets.UTF_8)
+                    } ?: error("Could not read ScummVM config")
+                    com.ariy.retrolauncher.launch.scummVmEntriesFromConfig(text)
+                }
+                if (viewModel.acceptsSession(session) && libraryScan.scummVmSetupRequired) {
+                    if (entries.isNotEmpty()) viewModel.completeLibraryScummVm(entries)
+                    else viewModel.setStatus("No registered games found. Export ScummVM's existing scummvm.ini after adding games.")
+                }
+            } catch (error: CancellationException) { throw error
+            } catch (error: Exception) { viewModel.setStatus("ScummVM config import failed: ${error.message}") }
+        }
+    }
+    val openSetupScummVmPicker: () -> Unit = {
+        runCatching { setupScummVmPicker.launch(Intent(Intent.ACTION_CREATE_SHORTCUT).setComponent(
+            ComponentName("org.scummvm.scummvm", "org.scummvm.scummvm.ShortcutCreatorActivity")))
+        }.onFailure { viewModel.setStatus("Cannot open ScummVM's registered-game picker: ${it.message}. Import an exported config or skip this platform.") }
+    }
+    LaunchedEffect(libraryScan.scummVmSetupRequired) {
+        if (!libraryScan.scummVmSetupRequired) setupScummVmPickerLaunched = false
+        else if (!setupScummVmPickerLaunched) {
+            setupScummVmPickerLaunched = true
+            setupOpen = true
+            openSetupScummVmPicker()
+        }
+    }
+
     if (!setupCompleted || setupOpen) {
         com.ariy.retrolauncher.ui.LibrarySetupDialog(
             firstRun = !setupCompleted, progress = libraryScan, hasRoot = viewModel.hasSelectedRomRoot(),
@@ -1160,6 +1204,9 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
             onChooseRoot = { setupOpen = true; romFolderPicker.launch(null) },
             onScan = viewModel::scanLibrary, onCancel = viewModel::cancelLibraryScan,
             onChooseEmulator = viewModel::chooseLibraryEmulator,
+            onChooseScummVmGame = openSetupScummVmPicker,
+            onImportScummVmConfig = { setupScummVmConfigPicker.launch(arrayOf("*/*")) },
+            onSkipScummVm = { viewModel.completeLibraryScummVm(emptyList()) },
             onSetHome = {
                 runCatching { context.startActivity(Intent(android.provider.Settings.ACTION_HOME_SETTINGS)) }
                     .onFailure { viewModel.setStatus("Open Android Settings → Default apps → Home app and select Retro Launcher.") }
@@ -2488,16 +2535,14 @@ private fun OptionsDialog(
                             }
                         )
 
+                        HorizontalDivider(color = Color(0xFF293548))
+                        OutlinedButton(
+                            onClick = { confirmReset = true },
+                            border = BorderStroke(1.dp, Color(0xFFB42318)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Reset launcher", color = Color(0xFFFDA29B)) }
                     }
                 }
-
-                HorizontalDivider(color = Color(0xFFB42318))
-                Text("Destructive action · All launcher data", color = Color(0xFFFDA29B), style = MaterialTheme.typography.titleSmall)
-                OutlinedButton(
-                    onClick = { confirmReset = true },
-                    border = BorderStroke(1.dp, Color(0xFFB42318)),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Reset launcher", color = Color(0xFFFDA29B)) }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
@@ -4333,17 +4378,11 @@ private fun rememberRecommendationGrayscaleFilter(): ColorMatrix {
 }
 
 private fun nextFilterForSwipe(currentFilter: String, options: List<String>): String? {
-    if (options.isEmpty()) return null
-    val currentIndex = options.indexOfFirst { it.equals(currentFilter, ignoreCase = true) }
-    val nextIndex = if (currentIndex == -1) 0 else (currentIndex + 1) % options.size
-    return options.getOrNull(nextIndex)
+    return com.ariy.retrolauncher.ui.FilterNavigation.adjacent(currentFilter, options, 1)
 }
 
 private fun previousFilterForSwipe(currentFilter: String, options: List<String>): String? {
-    if (options.isEmpty()) return null
-    val currentIndex = options.indexOfFirst { it.equals(currentFilter, ignoreCase = true) }
-    val previousIndex = if (currentIndex == -1) options.lastIndex else (currentIndex - 1 + options.size) % options.size
-    return options.getOrNull(previousIndex)
+    return com.ariy.retrolauncher.ui.FilterNavigation.adjacent(currentFilter, options, -1)
 }
 
 private fun orderedFilterOptions(
@@ -8045,7 +8084,7 @@ internal fun buildGameSystemEmulatorOptions(
                 val systemLabel = templateSystemLabel(template)
                 listOf(
                     GameSystemEmulatorOption(
-                        key = "${template.packageName.ifBlank { "template-$index" }}:${systemLabel.systemId()}",
+                        key = "${template.packageName.ifBlank { "template-$index" }}:${systemLabel.systemId()}:${template.label.systemId()}",
                         templateIndex = index,
                         systemId = canonicalSystemId(systemLabel, platform),
                         systemLabel = systemLabel,

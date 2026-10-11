@@ -689,7 +689,8 @@ object GameRecommendations {
         context: Context,
         authorizedRomTreeUri: String?,
         games: List<GameEntry>,
-        cancellationCheck: () -> Unit = {}
+        cancellationCheck: () -> Unit = {},
+        allowUnrecognizedRootFallback: Boolean = true
     ): List<ScummVmScanCandidate> {
         if (authorizedRomTreeUri.isNullOrBlank()) return emptyList()
         val source = sources.firstOrNull { it.platform.equals("ScummVM", ignoreCase = true) }
@@ -699,6 +700,7 @@ object GameRecommendations {
             authorizedRomTreeUri = authorizedRomTreeUri,
             subfolderHint = source.romFolderHint,
             platform = source.platform,
+            allowUnrecognizedRootFallback = allowUnrecognizedRootFallback,
             cancellationCheck = cancellationCheck
         ) ?: return emptyList()
         val documents = listRomDocuments(context, directory, cancellationCheck)

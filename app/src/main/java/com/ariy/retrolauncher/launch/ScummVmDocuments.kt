@@ -1,11 +1,38 @@
 package com.ariy.retrolauncher.launch
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherApps
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import com.ariy.retrolauncher.listRomDocuments
+import com.ariy.retrolauncher.model.GameEntry
+import com.ariy.retrolauncher.model.GameSourceType
+
+/** Accept only the public registered-game result returned by ScummVM's own picker. */
+internal fun scummVmEntryFromPicker(data: Intent?, collection: String? = null): GameEntry? {
+    @Suppress("DEPRECATION")
+    val launch = data?.getParcelableExtra<Intent>(Intent.EXTRA_SHORTCUT_INTENT) ?: return null
+    val uri = launch.data ?: return null
+    val target = uri.schemeSpecificPart ?: return null
+    if (uri.scheme != "scummvm" || !ScummVmGames.validTarget(target) ||
+        (launch.component?.packageName ?: launch.`package`) != ScummVmGames.PACKAGE) return null
+    return GameEntry(title = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME)
+        ?: ScummVmGames.title(target) ?: target,
+        platform = "ScummVM", genre = collection, sourceType = GameSourceType.CUSTOM_INTENT,
+        packageName = ScummVmGames.PACKAGE, intentAction = Intent.ACTION_MAIN,
+        intentDataUri = uri.toString(), extrasJson = ScummVmGames.extrasForTarget(target))
+}
+
+internal fun scummVmEntriesFromConfig(text: String, collection: String? = null): List<GameEntry> =
+    ScummVmGames.parseConfig(text).map { registered ->
+        GameEntry(title = registered.title, platform = "ScummVM", genre = collection,
+            sourceType = GameSourceType.CUSTOM_INTENT, packageName = ScummVmGames.PACKAGE,
+            intentAction = Intent.ACTION_MAIN,
+            intentDataUri = Uri.fromParts("scummvm", registered.target, null).toString(),
+            extrasJson = ScummVmGames.extrasForTarget(registered.target))
+    }
 
 /** Use the document URI's selected child, not fromTreeUri (which silently reads the tree root). */
 internal fun scummVmFolder(context: Context, uri: Uri): DocumentFile? {

@@ -24,10 +24,51 @@ internal object LibraryScanner {
         context: Context, root: String, platform: String, installedPackages: Set<String>, games: List<GameEntry>,
         scannedArcadeFolders: MutableSet<String>,
         chooseEmulator: suspend (LibraryEmulatorChoice) -> GameSystemEmulatorOption?,
+        linkScummVm: suspend () -> List<GameEntry> = { emptyList() },
         onReadingGame: (String) -> Unit = {}
     ): PlatformLibraryBatch {
         val job = currentCoroutineContext()
         val check = RomScanCancellationCheck(job)
+        if (platform == "ScummVM") {
+            if (ScummVmGames.PACKAGE !in installedPackages) return PlatformLibraryBatch(emptyList(), 0)
+            val candidates = GameRecommendations.scanImportableScummVmFolders(
+                context, root, emptyList(), check, allowUnrecognizedRootFallback = false)
+            val linked = candidates.filter { !it.registeredTarget.isNullOrBlank() }
+            // Android may redact shortcut intents. Keep their exact opaque IDs/profile,
+            // rather than inventing a registered target from their titles or folder names.
+            val shared = com.ariy.retrolauncher.launch.InstalledTargets(context.applicationContext as android.app.Application)
+                .loadShortcuts(ScummVmGames.PACKAGE).map { shortcut ->
+                    GameEntry(title = shortcut.title, subtitle = "ScummVM", platform = platform,
+                        sourceType = GameSourceType.SHORTCUT, packageName = shortcut.packageName,
+                        shortcutId = shortcut.shortcutId, userSerial = shortcut.userSerial)
+                }
+            val templates = CustomIntentTemplates.all
+            val choices = LibrarySetupPolicy.standaloneChoices(buildGameSystemEmulatorOptions(templates),
+                templates, setOf(platform), installedPackages)
+            val preferred = games.firstOrNull { it.platform == platform && !it.needsLaunchSetup }?.packageName
+            val option = LibrarySetupPolicy.chooseStandalone(choices, templates, preferred) {
+                chooseEmulator(LibraryEmulatorChoice("ScummVM", choices))
+            } ?: return PlatformLibraryBatch(emptyList(), candidates.size, candidates.size,
+                "ScummVM skipped — no emulator selected.", deferred = true)
+            val draft = resolveEmulatorSelectionDraft(templates, option) ?: return PlatformLibraryBatch(emptyList(), 0)
+            val entries = linked.map { candidate ->
+                check()
+                onReadingGame(candidate.title)
+                GameEntry(title = candidate.title, subtitle = draft.subtitle, platform = platform,
+                    sourceType = GameSourceType.CUSTOM_INTENT, packageName = draft.packageName,
+                    activityName = draft.activityName.ifBlank { null }, intentAction = draft.action,
+                    intentDataUri = candidate.folderUri, authorizedTreeUri = root,
+                    extrasJson = ScummVmGames.extrasForTarget(requireNotNull(candidate.registeredTarget), draft.extras))
+            } + shared
+            // First setup opens ScummVM's own registered-game interface automatically.
+            // Its private full list is not readable; an exported config is the bulk path.
+            val selected = if (LibrarySetupPolicy.needsScummVmLink(entries.size, games)) linkScummVm() else emptyList()
+            val unlinked = candidates.size - linked.size
+            return PlatformLibraryBatch(entries + selected, candidates.size + shared.size + selected.size,
+                unlinked, if (unlinked > 0 || (entries + selected).isEmpty())
+                    "ScummVM folders need registered targets. Use the ScummVM game picker or import its exported config in setup; selecting one game does not expose the private full library." else null,
+                deferred = (entries + selected).isEmpty())
+        }
         // Auto-discovery must not classify a sibling platform's .bin/.iso/.zip files
         // as every other platform when the manual picker resolver falls back to root.
         val directory = resolvePreferredRomFolder(context, root, preferredRomFolderHintForPlatform(platform), platform,
@@ -90,15 +131,6 @@ internal object LibraryScanner {
         // Pass no library snapshot to discovery: repeat scans still discover every candidate.
         // Identity-based merge happens against fresh state on the main thread at commit time.
         val batch = when (platform) {
-            "ScummVM" -> {
-                val candidates = GameRecommendations.scanImportableScummVmFolders(context, root, emptyList(), check)
-                val linked = candidates.filter { !it.registeredTarget.isNullOrBlank() }
-                val entries = linked.map { entry(it.title, it.folderUri, it.registeredTarget) }
-                val unlinked = candidates.size - linked.size
-                PlatformLibraryBatch(entries, candidates.size, unlinked, if (unlinked > 0)
-                    "$unlinked ScummVM folders were not linked. Register and authorize games inside ScummVM, then use Add games → ScummVM → Choose registered game or import an exported scummvm.ini. Private folders are not silently registered."
-                else null)
-            }
             "MAME Arcade" -> {
                 val candidates = GameRecommendations.scanImportableMameRoms(context, root, emptyList(), check)
                 PlatformLibraryBatch(candidates.map { entry(it.title, it.romUri) }, candidates.size)
