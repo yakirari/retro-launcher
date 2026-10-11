@@ -3,6 +3,20 @@
 An Android Home launcher for retro and PC game libraries, with controller navigation,
 platform galleries, nostalgic cartridge/case templates, ROM scanning, and Android game shortcuts.
 
+## Device demo
+
+[![Animated preview of Retro Launcher's platform galleries](vids/gallery-preview.gif)](vids/retro-launcher-demo.mp4)
+
+**[Watch or download the full demo](https://github.com/yakirari/retro-launcher/raw/refs/heads/main/vids/retro-launcher-demo.mp4)**
+· [Gallery screenshots](vids/gallery-screenshots.jpg)
+
+Recorded on an RG477M: approximately 39 seconds, 1280×960, 30 fps, no audio. Shows gallery
+browsing and a game-launch handoff into a separately installed PC hub, not completed gameplay
+or a performance benchmark. The animated preview is shortened and played at 2× speed;
+the full MP4 retains the original timing. [Media details](vids/README.md).
+
+## Requirements
+
 **Requirements:** Android 13 or newer. Emulators and PC game hubs are installed separately.
 Retro Launcher does not include emulator engines, ROMs, BIOS files, firmware, or games.
 
