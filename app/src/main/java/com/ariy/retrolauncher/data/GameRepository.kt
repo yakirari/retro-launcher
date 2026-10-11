@@ -42,10 +42,17 @@ class GameRepository(context: Context) {
     }
 
     fun saveGames(games: List<GameEntry>) {
-        val payload = JSONArray().apply {
-            games.forEach { put(it.toJson()) }
-        }
-        prefs.edit().putString(KEY_GAMES, payload.toString()).apply()
+        saveSerializedGames(serializeGames(games))
+    }
+
+    // Bulk imports prepare this on a worker; applying the prepared string preserves
+    // main-thread commit order without serializing thousands of tiles on the UI thread.
+    fun serializeGames(games: List<GameEntry>): String = JSONArray().apply {
+        games.forEach { put(it.toJson()) }
+    }.toString()
+
+    fun saveSerializedGames(payload: String) {
+        prefs.edit().putString(KEY_GAMES, payload).apply()
     }
 
     fun saveGamesSync(games: List<GameEntry>): Boolean {

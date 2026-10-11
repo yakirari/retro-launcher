@@ -472,7 +472,7 @@ private fun normalizeLauncherBackground(
 ): String {
     val normalized = raw?.trim().orEmpty()
     return when {
-        normalized.isBlank() -> LAUNCHER_BACKGROUND_NONE
+        normalized.isBlank() -> com.ariy.retrolauncher.ui.LauncherBackgrounds.defaultFor(availableBackgrounds)
         normalized.equals(LAUNCHER_BACKGROUND_NONE, ignoreCase = true) -> LAUNCHER_BACKGROUND_NONE
         normalized.equals(LAUNCHER_BACKGROUND_CUSTOM, ignoreCase = true) && hasCustomBackground ->
             LAUNCHER_BACKGROUND_CUSTOM
@@ -580,9 +580,7 @@ private fun Modifier.glossyTileOverlay(enabled: Boolean): Modifier =
     }
 
 private fun launcherBackgroundLabel(assetName: String): String =
-    assetName.substringBeforeLast('.')
-        .replace(Regex("([A-Za-z])([0-9])"), "$1 $2")
-        .uppercase()
+    com.ariy.retrolauncher.ui.LauncherBackgrounds.label(assetName)
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<LauncherViewModel>()
@@ -914,7 +912,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
     var launcherBackground by rememberSaveable(launcherBackgroundOptions) {
         mutableStateOf(
             normalizeLauncherBackground(
-                prefs.getString(LAUNCHER_BACKGROUND_PREF_KEY, LAUNCHER_BACKGROUND_NONE),
+                prefs.getString(LAUNCHER_BACKGROUND_PREF_KEY, null),
                 launcherBackgroundOptions,
                 hasCustomBackground = !prefs.getString(LAUNCHER_BACKGROUND_CUSTOM_URI_PREF_KEY, null).isNullOrBlank()
             )
@@ -1146,6 +1144,10 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
         }
     }
 
+    LaunchedEffect(libraryScan.emulatorChoice) {
+        if (libraryScan.emulatorChoice != null) setupOpen = true
+    }
+
     if (!setupCompleted || setupOpen) {
         com.ariy.retrolauncher.ui.LibrarySetupDialog(
             firstRun = !setupCompleted, progress = libraryScan, hasRoot = viewModel.hasSelectedRomRoot(),
@@ -1157,6 +1159,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
             } },
             onChooseRoot = { setupOpen = true; romFolderPicker.launch(null) },
             onScan = viewModel::scanLibrary, onCancel = viewModel::cancelLibraryScan,
+            onChooseEmulator = viewModel::chooseLibraryEmulator,
             onSetHome = {
                 runCatching { context.startActivity(Intent(android.provider.Settings.ACTION_HOME_SETTINGS)) }
                     .onFailure { viewModel.setStatus("Open Android Settings → Default apps → Home app and select Retro Launcher.") }
@@ -1783,6 +1786,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                         ?: addDialogPlatformFilter
                     if (viewModel.acceptsSession(session)) viewModel.addCustomEntries(entries, refreshPlatform)
                     addDialogOpen = false
+                    setupOpen = true
                     addDialogInitialTab = 0
                     addDialogPlatformFilter = null
                     addDialogInitialCollection = null
@@ -2265,11 +2269,15 @@ private fun OptionsDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(if (com.ariy.retrolauncher.ui.LocalCompactLauncherDialog.current) 8.dp else 16.dp)
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text("Options", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                Column(
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                 androidx.compose.material3.TabRow(
                     selectedTabIndex = if (generalTab) 0 else 1,
                     containerColor = Color(0xFF111927),
@@ -2287,12 +2295,6 @@ private fun OptionsDialog(
                     )
                 }
                 HorizontalDivider(color = Color(0xFF293548))
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
                     if (!generalTab) {
                         Text("Platform", color = Color.White, style = MaterialTheme.typography.titleSmall)
                         Text(
@@ -2371,9 +2373,10 @@ private fun OptionsDialog(
                             OutlinedButton(onClick = onConfigureRomFolder) { Text("Choose ROM folder") }
                         }
                         Text("Background", color = Color.White, style = MaterialTheme.typography.titleSmall)
-                        Row(
-                            modifier = Modifier.horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             FilterChip(
                                 selected = launcherBackground == LAUNCHER_BACKGROUND_NONE,
@@ -2540,11 +2543,14 @@ private fun FiltersDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(if (com.ariy.retrolauncher.ui.LocalCompactLauncherDialog.current) 8.dp else 16.dp)
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text("Filters", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                Column(
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                ) {
                 if (recommendationFiltersLoading) {
                     Surface(
                         shape = RoundedCornerShape(999.dp),
@@ -2569,11 +2575,6 @@ private fun FiltersDialog(
                         }
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
                     Text("Default sorting", color = Color.White, style = MaterialTheme.typography.titleSmall)
                     Text(
                         "Played games always come first. This order applies within played and unplayed groups, across all platforms. Unknown years go last in each group.",
@@ -7411,12 +7412,13 @@ private fun AddGameDialog(
             color = Color(0xFF111927),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            val compact = com.ariy.retrolauncher.ui.LocalCompactLauncherDialog.current
+            Column(modifier = Modifier.fillMaxSize().padding(if (compact) 8.dp else 16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("Add games", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.weight(1f))
                     TextButton(onClick = onDismiss) { Text("Close") }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(if (compact) 0.dp else 8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("Shortcuts", "Android", "Games").forEachIndexed { index, label ->
                         FilterChip(
@@ -7426,7 +7428,7 @@ private fun AddGameDialog(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(if (compact) 2.dp else 12.dp))
                 Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when (tab) {
                     0 -> ShortcutPicker(
@@ -8773,16 +8775,15 @@ private fun CustomIntentEditor(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        Column(
+            modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(editorScroll),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             stepLabels.forEachIndexed { index, label ->
                 FilterChip(selected = step == index, onClick = { step = index }, label = { Text(label) })
             }
         }
-
-        Column(
-            modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(editorScroll),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
         when {
             step == 0 -> {
                 HelpCard(
@@ -9974,7 +9975,7 @@ private fun EditGameDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(if (com.ariy.retrolauncher.ui.LocalCompactLauncherDialog.current) 8.dp else 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -9982,6 +9983,10 @@ private fun EditGameDialog(
                     TextButton(onClick = onDelete) { Text("Delete", color = Color(0xFFFDA29B)) }
                     TextButton(onClick = onDismiss) { Text("Cancel") }
                 }
+                Column(
+                    modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(editScroll),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -9991,10 +9996,6 @@ private fun EditGameDialog(
                     }
                 }
 
-                Column(
-                    modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(editScroll),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
                 if (game.needsLaunchSetup) {
                     com.ariy.retrolauncher.ui.GameLaunchSetupChoices(game) { draft ->
                         packageName = draft.packageName

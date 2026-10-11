@@ -15,7 +15,7 @@ change the default Home app in Android settings.
 ## First run and automatic library setup
 
 On a new installation, the adaptive welcome screen offers **Choose ROM folder** and
-**Skip / I have no ROMs**. Installed known emulators and hubs appear without waiting for game
+**Skip for now**. Installed known emulators and hubs appear without waiting for game
 shortcut enumeration or artwork downloads. Existing installations are not forced through welcome;
 an explicit completion flag is independent of whether the library is empty.
 
@@ -25,19 +25,24 @@ background scan visits supported scanners sequentially. It scans the **exact sel
 broader normalized permission ancestor. Games are committed in small batches; custom titles, covers,
 collections, play history and alternate targets are retained. Repeated scans are additive, not resets.
 
-**Options → General → Scan library / Setup** shows progress, discovered/imported/skipped counts,
-unconfigured tiles and platform errors. Cancel keeps committed games; retry is safe. Closing the
+**Options → General → Scan library / Setup** shows the current scan phase, platform, game,
+elapsed time and discovered/imported counts. Optional details show skipped platforms and errors.
+Cancel keeps committed games; retry is safe. Closing the
 screen or rotating does not cancel the scan. A process restart stops the scan; retry from Options.
 Upgraded installations must select the intended scan root once rather than silently scan their
 previously normalized authorization ancestor.
 
-Automatic emulator selection uses a matching installed **standalone preset**, preferring an existing
-configured platform entry's launch package when available; ties use package-name/key order. It does
-not guess RetroArch core availability in private storage. Without a verified standalone preset,
-supported ROMs still become **Needs emulator setup** tiles and cannot launch a generic intent.
-Use the tile menu → **Edit** to select one of the installed system-specific presets, then **Save**.
-For RetroArch, explicitly select the displayed system/core and install that core inside RetroArch.
-Installing a supported standalone emulator and rescanning also repairs these entries.
+Automatic emulator selection offers matching installed **standalone and named RetroArch core presets**.
+An existing configured standalone package can be reused; otherwise the scan pauses for confirmation,
+even when only one emulator is available. RetroArch always requires an explicit system/core choice;
+install that core inside RetroArch and use a compatible ROM set. A generic **Arcade** folder can offer MAME or Final Burn Neo;
+the same folder is imported only once. Separate MAME and Final Burn ROM sets remain separate.
+**Skip platform** imports no games from that folder. Platforms without a supported installed
+emulator preset are also skipped, rather than creating unusable tiles. Use **Add → Games** later
+to choose the platform, emulator and ROMs through the normal setup flow. For RetroArch, explicitly
+select the displayed system/core and install that core inside RetroArch; automatic setup never
+guesses private core availability. Installing a supported standalone emulator and rescanning is
+also supported.
 
 ScummVM imports config-linked folder targets only. Unlinked folders are reported, not registered
 silently: register/authorize them inside ScummVM and use **Add → Games → ScummVM → Choose registered
@@ -61,6 +66,8 @@ Emulators may still need separate file grants, BIOS files and internal configura
 
 Scanning varies by platform. If no scan is available, use a published shortcut or manual intent
 with a verified contract. Both launcher and emulator may need separate access to the same files.
+Large manual imports also show a cancellable progress screen and commit small batches. Library
+merging and serialization run off the UI thread; cancellation retains completed batches.
 
 ## Android games and standalone launchers
 
@@ -100,6 +107,10 @@ as Home, then create it again. Do not uninstall the game. See [integration troub
 - In galleries, controller left/right moves between games, up/down changes filters, and the
   activation button launches the focused game. Device/controller mappings can vary.
 - Large galleries extend automatically in 48-item pages; no Next-page button is needed.
+- **Player One Lounge** (formerly Basement 7) is the default wallpaper when none has been selected.
+  Backgrounds have descriptive scene names in Options; saved selections, including None, are preserved.
+- On short landscape screens, dialogs use compact spacing and keep help, tabs and detailed progress
+  inside the scrolling area where possible, leaving only essential actions fixed.
 - **Options → General** offers two global presets: **Grid** (static Gridstalgic layout) and
   **Shelf** (Shelfstalgic layout). Each independently remembers a tile count of **1, 2, 3, 4 or 8**.
 - The default is **Grid, 2 tiles, transparent tile backgrounds**. On first use of these simplified

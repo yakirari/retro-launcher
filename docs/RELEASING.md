@@ -28,6 +28,15 @@
 GitHub Releases is the planned artifact channel. No release availability or missing artwork permission
 is implied by this checklist. A public security mailbox is not configured.
 
+## First release draft
+
+[0.1.0 — First preview](releases/0.1.0.md) is prepared for a GitHub draft prerelease.
+The repository is public, but a draft remains maintainer-only until published. Do not attach the
+local debug-signed APK as a production release or treat repository visibility as artwork clearance.
+Complete signing and redistribution review before publishing an APK, then add its checksum,
+signature/upgrade verification and actual device test results. Version 0.1.0/code 1 is retained
+for this first release preparation; subsequent application releases must increase the version code.
+
 ## Release procedure
 
 1. Review the commit/diff and update [CHANGELOG.md](../CHANGELOG.md).

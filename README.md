@@ -51,6 +51,7 @@ Keep another Home launcher installed so you can switch back during testing.
 | Maintainers | [Architecture and data-safety invariants](docs/ARCHITECTURE.md) |
 | Contributors | [Contribution workflow](CONTRIBUTING.md) |
 | Release maintainers | [Publication and release checklist](docs/RELEASING.md) |
+| First preview | [0.1.0 release notes and known limitations](docs/releases/0.1.0.md) |
 | Repository administrators | [Hosting, security settings and audit scope](docs/HOSTING.md) |
 | Security reporters | [Security reporting policy](SECURITY.md) |
 | Asset contributors | [Licensing scope and third-party notices](THIRD_PARTY_NOTICES.md) |

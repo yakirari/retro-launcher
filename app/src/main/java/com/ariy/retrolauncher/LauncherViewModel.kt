@@ -168,6 +168,31 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val _libraryScan = MutableStateFlow(LibraryScanProgress())
     internal val libraryScan: StateFlow<LibraryScanProgress> = _libraryScan.asStateFlow()
     private var libraryScanJob: Job? = null
+    private var pendingLibraryEmulator: kotlinx.coroutines.CompletableDeferred<GameSystemEmulatorOption?>? = null
+
+    internal fun chooseLibraryEmulator(key: String?) {
+        val choice = _libraryScan.value.emulatorChoice ?: return
+        val option = if (key == null) null else choice.options.firstOrNull { it.key == key } ?: return
+        pendingLibraryEmulator?.complete(option)
+    }
+
+    private suspend fun awaitLibraryEmulator(choice: LibraryEmulatorChoice): GameSystemEmulatorOption? {
+        val answer = kotlinx.coroutines.CompletableDeferred<GameSystemEmulatorOption?>()
+        try {
+            withContext(Dispatchers.Main.immediate) {
+                pendingLibraryEmulator = answer
+                _libraryScan.update { it.copy(stage = LibraryScanStage.CHOOSING_EMULATOR, emulatorChoice = choice) }
+            }
+            return answer.await()
+        } finally {
+            withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main.immediate) {
+                if (pendingLibraryEmulator === answer) {
+                    pendingLibraryEmulator = null
+                    _libraryScan.update { it.copy(stage = LibraryScanStage.SCANNING, emulatorChoice = null) }
+                }
+            }
+        }
+    }
     private var installedRefreshJob: Job? = null
     @Volatile private var installedRefreshRequested = false
     @Volatile private var importSharedGamesRequested = false
@@ -331,42 +356,44 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 // a successful empty scan when platform discovery cannot read the root.
                 val scanContext = currentCoroutineContext()
                 listRomDocuments(app, directory, RomScanCancellationCheck(scanContext))
+                _libraryScan.update { it.copy(stage = LibraryScanStage.FINDING_EMULATORS) }
                 // Only current-profile packages can safely be used for custom emulator intents.
                 val packages = CustomIntentTemplates.all.map { it.packageName }.filter { packageName ->
                     runCatching { app.packageManager.getApplicationInfo(packageName, 0) }.isSuccess
                 }.toSet()
+                val scannedArcadeFolders = mutableSetOf<String>()
                 for (platform in LibraryScanner.platforms) {
                     currentCoroutineContext().ensureActive()
-                    _libraryScan.update { it.copy(platform = platform) }
+                    _libraryScan.update { it.copy(platform = platform, stage = LibraryScanStage.SCANNING, currentGame = "") }
                     try {
-                        val batch = LibraryScanner.scan(app, root, platform, packages, _games.value)
+                        var lastGameUpdate = 0L
+                        val batch = LibraryScanner.scan(app, root, platform, packages, _games.value,
+                            scannedArcadeFolders, ::awaitLibraryEmulator) { title ->
+                            val now = android.os.SystemClock.elapsedRealtime()
+                            if (now - lastGameUpdate >= 100L) {
+                                _libraryScan.update { it.copy(currentGame = title) }
+                                lastGameUpdate = now
+                            }
+                        }
                         currentCoroutineContext().ensureActive()
-                        _libraryScan.update { it.copy(discovered = it.discovered + batch.skipped,
+                        _libraryScan.update { it.copy(discovered = it.discovered + batch.discovered,
+                            stage = LibraryScanStage.ADDING,
                             skipped = it.skipped + batch.skipped,
+                            deferredPlatforms = if (batch.deferred) it.deferredPlatforms + platform else it.deferredPlatforms,
                             messages = (it.messages + listOfNotNull(batch.notice)).takeLast(64)) }
                         for (chunk in batch.entries.chunked(64)) {
                             currentCoroutineContext().ensureActive()
-                            withContext(Dispatchers.Main.immediate) {
-                                val current = _games.value.toMutableList()
-                                var imported = 0
-                                var duplicates = 0
-                                var unconfigured = 0
-                                chunk.forEach { entry ->
-                                    val result = upsertOrMergeInPlace(current, entry, entry.primaryTarget(), ::resolvePlatform)
-                                    if (result.outcome == UpsertOutcome.DUPLICATE) duplicates++ else {
-                                        imported++
-                                        artworkIds += result.gameId
-                                    }
-                                    if (current.firstOrNull { it.id == result.gameId }?.needsLaunchSetup == true) unconfigured++
-                                }
-                                if (current != _games.value) persistGames(current)
-                                _libraryScan.update { it.copy(
-                                    discovered = it.discovered + chunk.size,
-                                    imported = it.imported + imported, skipped = it.skipped + duplicates,
-                                    unconfigured = it.unconfigured + unconfigured
-                                ) }
-                            }
-                            kotlinx.coroutines.yield()
+                            val committed = commitImportChunk(chunk)
+                            val changed = committed.results.filter { it.outcome != UpsertOutcome.DUPLICATE }
+                            artworkIds += changed.map { it.gameId }
+                            val unconfiguredIds = committed.games.filter { it.needsLaunchSetup }.map { it.id }.toSet()
+                            _libraryScan.update { it.copy(
+                                currentGame = chunk.last().title,
+                                imported = it.imported + changed.size,
+                                skipped = it.skipped + committed.results.size - changed.size,
+                                unconfigured = it.unconfigured + committed.results.count { result -> result.gameId in unconfiguredIds }
+                            ) }
+                            delay(16) // Let a frame/progress update render between durable batches.
                         }
                     } catch (error: CancellationException) { throw error
                     } catch (error: Exception) {
@@ -389,9 +416,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 // preserve custom artwork and never gate completion on network availability.
                 withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main.immediate) {
                     if (!canWrite()) return@withContext
-                    artworkIds.forEach { id -> _games.value.firstOrNull { it.id == id }?.let {
-                        autoFillArtworkIfMissing(it.id, it.title)
-                    } }
+                    enqueueImportedArtwork(artworkIds)
                     scheduleSwitchDuplicateReconciliation()
                 }
             }
@@ -552,69 +577,96 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun addCustomEntries(entries: List<GameEntry>, refreshPlatform: String? = null) {
+        if (!canWrite()) return
+        if (libraryScanJob?.isActive == true) {
+            setStatus("A library import is running. Wait for it or cancel it before scanning another platform.")
+            return
+        }
         if (entries.isEmpty()) {
             val platformLabel = refreshPlatform?.takeIf { it.isNotBlank() } ?: "titles"
             setStatus("No new $platformLabel were found in the ROM folder.")
             return
         }
 
-        val current = _games.value.toMutableList()
-        val results = buildList {
-            entries.forEach { entry ->
-                val normalizedEntry = entry.copy(
-                    genre = normalizeCollection(entry.genre),
-                    platform = resolvePlatform(entry)
-                )
-                val result = upsertOrMergeInPlace(
-                    current = current,
-                    entry = normalizedEntry,
-                    target = LaunchTarget(
-                        sourceType = normalizedEntry.sourceType,
-                        label = normalizedEntry.subtitle,
-                        packageName = normalizedEntry.packageName,
-                        activityName = normalizedEntry.activityName,
-                        shortcutId = normalizedEntry.shortcutId,
-                        userSerial = normalizedEntry.userSerial,
-                        intentAction = normalizedEntry.intentAction,
-                        intentDataUri = normalizedEntry.intentDataUri,
-                        mimeType = normalizedEntry.mimeType,
-                        categoriesCsv = normalizedEntry.categoriesCsv,
-                        extrasJson = normalizedEntry.extrasJson
-                    ),
-                    resolveEntryPlatform = ::resolvePlatform
-                )
-                if (result.outcome != UpsertOutcome.DUPLICATE) {
-                    add(result)
+        val platform = refreshPlatform ?: entries.first().platform.orEmpty()
+        _libraryScan.value = LibraryScanProgress(running = true, stage = LibraryScanStage.ADDING,
+            platform = platform, totalPlatforms = 1, discovered = entries.size)
+        libraryScanJob = launchWorker(Dispatchers.IO) {
+            val artworkIds = linkedSetOf<String>()
+            var added = 0
+            var merged = 0
+            try {
+                for (chunk in entries.chunked(64)) {
+                    val committed = commitImportChunk(chunk)
+                    val results = committed.results
+                    added += results.count { it.outcome == UpsertOutcome.ADDED }
+                    merged += results.count { it.outcome == UpsertOutcome.MERGED }
+                    artworkIds += results.filter { it.outcome != UpsertOutcome.DUPLICATE }.map { it.gameId }
+                    _libraryScan.update { it.copy(currentGame = chunk.last().title,
+                        imported = added + merged, skipped = it.skipped + results.count { result -> result.outcome == UpsertOutcome.DUPLICATE }) }
+                    setStatus("Adding $platform: ${added + merged} added / updated, ${_libraryScan.value.skipped} already present…")
+                    delay(16)
+                }
+                _libraryScan.update { it.finished().copy(completedPlatforms = 1) }
+                setStatus("Added $added titles and updated $merged existing tiles.")
+            } catch (error: CancellationException) {
+                _libraryScan.update { it.finished(cancelled = true) }
+                setStatus("Import cancelled. Already added games are kept.")
+                throw error
+            } catch (error: Exception) {
+                _libraryScan.update { it.finished().copy(errors = 1) }
+                setStatus("Import failed; already added games are kept. ${error.message ?: error.javaClass.simpleName}")
+            } finally {
+                withContext(kotlinx.coroutines.NonCancellable + Dispatchers.Main.immediate) {
+                    if (canWrite()) {
+                        enqueueImportedArtwork(artworkIds)
+                        scheduleSwitchDuplicateReconciliation()
+                    }
                 }
             }
         }
+    }
 
-        if (results.isEmpty()) {
-            val platformLabel = refreshPlatform?.takeIf { it.isNotBlank() } ?: "titles"
-            setStatus("No new $platformLabel were found in the ROM folder.")
-            return
-        }
-
-        persistGames(current)
-        scheduleSwitchDuplicateReconciliation()
-        results
-            .distinctBy { it.gameId }
-            .forEach { result -> autoFillArtworkIfMissing(result.gameId, result.title) }
-
-        val addedCount = results.count { it.outcome == UpsertOutcome.ADDED }
-        val mergedCount = results.count { it.outcome == UpsertOutcome.MERGED }
-        val statusParts = buildList {
-            if (addedCount > 0) {
-                add(if (addedCount == 1) "added 1 title" else "added $addedCount titles")
+    /** Never overwrite edits/artwork arriving while an import is being prepared. */
+    private suspend fun commitImportChunk(entries: List<GameEntry>): PreparedGameImport {
+        while (true) {
+            currentCoroutineContext().ensureActive()
+            val snapshot = _games.value
+            val prepared = withContext(Dispatchers.Default) {
+                val job = currentCoroutineContext()
+                val batch = prepareGameImport(snapshot, entries,
+                    normalize = { it.copy(genre = normalizeCollection(it.genre), platform = resolvePlatform(it)) },
+                    resolveEntryPlatform = ::resolvePlatform, checkpoint = { job.ensureActive() })
+                val unique = dedupeArcadeGameEntries(batch.games).map(ScummVmGames::repairTitle)
+                    .map(com.ariy.retrolauncher.model.PcGameStores::classify)
+                batch.copy(games = unique) to repository.serializeGames(unique)
             }
-            if (mergedCount > 0) {
-                add(if (mergedCount == 1) "updated 1 existing tile" else "updated $mergedCount existing tiles")
+            val committed = withContext(Dispatchers.Main.immediate) {
+                currentCoroutineContext().ensureActive()
+                if (!canWrite()) throw CancellationException("Launcher reset")
+                if (_games.value !== snapshot) false else {
+                    repository.saveSerializedGames(prepared.second)
+                    _games.value = prepared.first.games
+                    true
+                }
+            }
+            if (committed) return prepared.first
+            kotlinx.coroutines.yield()
+        }
+    }
+
+    /** One worker drains imported IDs; no hundreds-of-coroutines/pending-state burst. */
+    private fun enqueueImportedArtwork(ids: Set<String>) {
+        if (ids.isEmpty()) return
+        launchWorker(Dispatchers.IO) {
+            val imported = _games.value.associateBy { it.id }
+            ids.forEach { id ->
+                currentCoroutineContext().ensureActive()
+                imported[id]?.let { game ->
+                    autoFillArtworkIfMissingInternal(game.id, game.title, publishLoadingState = false, cacheSuggestions = false)
+                }
             }
         }
-        setStatus(
-            statusParts.joinToString(separator = " and ", postfix = ".")
-                .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-        )
     }
 
     fun fillMissingArtworkForPlatform(platform: String?, refreshAll: Boolean = false) {
@@ -1048,7 +1100,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         if (synchronously) {
             repository.saveGamesSync(uniqueGames)
         } else {
-            repository.saveGames(uniqueGames)
+            launchWorker(Dispatchers.Default) {
+                val payload = repository.serializeGames(uniqueGames)
+                withContext(Dispatchers.Main.immediate) {
+                    // A newer edit/import owns persistence if this snapshot is stale.
+                    if (canWrite() && _games.value === uniqueGames) repository.saveSerializedGames(payload)
+                }
+            }
         }
     }
 

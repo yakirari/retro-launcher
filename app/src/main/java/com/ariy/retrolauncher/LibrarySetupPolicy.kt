@@ -23,7 +23,24 @@ internal object LibrarySetupPolicy {
             .filterNot { Triple(it.packageName, it.shortcutId, it.userSerial) in existing }
     }
 
-    /** Existing configured package first, otherwise stable package/key order. No core guesses. */
+    /** Named core presets are choices, never evidence that a private core is installed. */
+    fun standaloneChoices(
+        options: List<GameSystemEmulatorOption>, templates: List<com.ariy.retrolauncher.launch.CustomIntentTemplate>,
+        platforms: Set<String>, installedPackages: Set<String>
+    ): List<GameSystemEmulatorOption> = options.filter {
+        it.platform in platforms &&
+            templates[it.templateIndex].packageName in installedPackages
+    }.distinctBy { Triple(it.platform, templates[it.templateIndex].packageName, it.retroArchSystemId) }
+        .sortedWith(compareBy({ it.platform }, { templates[it.templateIndex].label }))
+
+    suspend fun chooseStandalone(
+        choices: List<GameSystemEmulatorOption>,
+        templates: List<com.ariy.retrolauncher.launch.CustomIntentTemplate>, preferredPackage: String?,
+        ask: suspend () -> GameSystemEmulatorOption?
+    ): GameSystemEmulatorOption? = choices.firstOrNull {
+        it.retroArchSystemId == null && templates[it.templateIndex].packageName == preferredPackage
+    } ?: if (choices.isNotEmpty()) ask()?.takeIf { it in choices } else null
+
     fun selectStandalone(
         options: List<GameSystemEmulatorOption>, templates: List<com.ariy.retrolauncher.launch.CustomIntentTemplate>,
         platform: String, installedPackages: Set<String>, preferredPackage: String?
@@ -35,10 +52,17 @@ internal object LibrarySetupPolicy {
     }.thenBy { templates[it.templateIndex].packageName }.thenBy { it.key }).firstOrNull()
 }
 
+internal data class LibraryEmulatorChoice(val folder: String, val options: List<GameSystemEmulatorOption>)
+
+internal enum class LibraryScanStage { CHECKING_FOLDER, FINDING_EMULATORS, SCANNING, CHOOSING_EMULATOR, ADDING }
+
 internal data class LibraryScanProgress(
     val running: Boolean = false,
     val cancelled: Boolean = false,
+    val stage: LibraryScanStage = LibraryScanStage.CHECKING_FOLDER,
     val platform: String = "",
+    val currentGame: String = "",
+    val emulatorChoice: LibraryEmulatorChoice? = null,
     val completedPlatforms: Int = 0,
     val totalPlatforms: Int = 0,
     val discovered: Int = 0,
@@ -46,7 +70,19 @@ internal data class LibraryScanProgress(
     val skipped: Int = 0,
     val unconfigured: Int = 0,
     val errors: Int = 0,
+    val deferredPlatforms: List<String> = emptyList(),
     val messages: List<String> = emptyList()
 ) {
-    fun finished(cancelled: Boolean = false) = copy(running = false, cancelled = cancelled)
+    fun statusText(): String = when {
+        !running && cancelled -> "Scan cancelled — games kept"
+        !running && errors > 0 -> "Scan finished with errors"
+        !running -> "Library ready"
+        stage == LibraryScanStage.CHECKING_FOLDER -> "Checking ROM folder access…"
+        stage == LibraryScanStage.FINDING_EMULATORS -> "Finding installed emulators…"
+        stage == LibraryScanStage.CHOOSING_EMULATOR -> "Choose an emulator for $platform"
+        stage == LibraryScanStage.ADDING -> "Adding $platform…"
+        else -> "Scanning $platform…"
+    }
+
+    fun finished(cancelled: Boolean = false) = copy(running = false, cancelled = cancelled, emulatorChoice = null)
 }

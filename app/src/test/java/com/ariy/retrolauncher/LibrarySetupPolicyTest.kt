@@ -30,6 +30,51 @@ class LibrarySetupPolicyTest {
         platform = platform, romFolderHint = "snes", pickerKind = GamePickerKind.FILE, retroArchSystemId = core
     )
 
+    @Test fun emulatorChoicesIncludeExplicitArcadeCoresWithoutDuplicatingPresets() {
+        val templates = listOf(CustomIntentTemplate("MAME", "", packageName = "mame"),
+            CustomIntentTemplate("Final Burn", "", packageName = "fbneo"),
+            CustomIntentTemplate("RetroArch", "", packageName = "retroarch"))
+        val mame = option(0, platform = "MAME Arcade")
+        val fbneo = option(1, platform = "Final Burn Neo")
+        val core = option(2, "mame", "MAME Arcade")
+        val options = listOf(mame, mame.copy(key = "duplicate"), fbneo, core)
+        assertEquals(setOf(mame, fbneo, core), LibrarySetupPolicy.standaloneChoices(options, templates,
+            setOf("MAME Arcade", "Final Burn Neo"), setOf("mame", "fbneo", "retroarch")).toSet())
+        assertEquals(listOf(mame), LibrarySetupPolicy.standaloneChoices(options, templates,
+            setOf("MAME Arcade"), setOf("mame", "fbneo")))
+        assertTrue(LibrarySetupPolicy.standaloneChoices(options, templates, setOf("MAME Arcade"), emptySet()).isEmpty())
+    }
+
+    @Test fun progressDescribesPreparationScanningImportAndErrorCompletion() {
+        val progress = LibraryScanProgress(running = true)
+        assertEquals("Checking ROM folder access…", progress.statusText())
+        assertEquals("Finding installed emulators…", progress.copy(stage = LibraryScanStage.FINDING_EMULATORS).statusText())
+        assertEquals("Scanning MAME Arcade…", progress.copy(stage = LibraryScanStage.SCANNING, platform = "MAME Arcade").statusText())
+        assertEquals("Adding MAME Arcade…", progress.copy(stage = LibraryScanStage.ADDING, platform = "MAME Arcade").statusText())
+        assertEquals("Library ready", progress.finished().statusText())
+        assertEquals("Scan finished with errors", progress.copy(errors = 1).finished().statusText())
+        assertEquals("Scan cancelled — games kept", progress.finished(true).statusText())
+    }
+
+    @Test fun setupPromptsForUnconfiguredEmulatorsEvenSingleChoiceAndRespectsSkip() = kotlinx.coroutines.runBlocking {
+        val templates = listOf(CustomIntentTemplate("A", "", packageName = "a"), CustomIntentTemplate("B", "", packageName = "b"))
+        val a = option(0)
+        val b = option(1)
+        var prompts = 0
+        assertNull(LibrarySetupPolicy.chooseStandalone(listOf(a, b), templates, null) { prompts++; null })
+        assertEquals(1, prompts)
+        assertNull(LibrarySetupPolicy.chooseStandalone(emptyList(), templates, null) { error("Must not prompt") })
+        assertEquals(a, LibrarySetupPolicy.chooseStandalone(listOf(a), templates, null) { prompts++; a })
+        assertEquals(2, prompts)
+        assertNull(LibrarySetupPolicy.chooseStandalone(listOf(a), templates, null) { null })
+        assertEquals(b, LibrarySetupPolicy.chooseStandalone(listOf(a, b), templates, null) { b })
+        assertEquals(b, LibrarySetupPolicy.chooseStandalone(listOf(a, b), templates, "b") { error("Reuse configured target") })
+        assertNull(LibrarySetupPolicy.chooseStandalone(listOf(a, b), templates, null) { option(2) })
+        val core = option(0, "mame", "MAME Arcade")
+        assertEquals(core, LibrarySetupPolicy.chooseStandalone(listOf(core), templates, "a") { prompts++; core })
+        assertEquals(3, prompts) // Existing package does not silently choose a private core.
+    }
+
     @Test fun standaloneSelectionIsStableHonorsExistingPreferenceAndNeverGuessesRetroArchCore() {
         val templates = listOf(CustomIntentTemplate("B", "", packageName = "b"),
             CustomIntentTemplate("A", "", packageName = "a"), CustomIntentTemplate("RA", "", packageName = "com.retroarch"))

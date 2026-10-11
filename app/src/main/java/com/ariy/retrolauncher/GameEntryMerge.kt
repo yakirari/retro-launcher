@@ -10,6 +10,24 @@ internal data class UpsertResult(val outcome: UpsertOutcome, val gameId: String,
 
 internal enum class UpsertOutcome { ADDED, MERGED, DUPLICATE }
 
+internal data class PreparedGameImport(val games: List<GameEntry>, val results: List<UpsertResult>)
+
+/** Pure worker-side preparation. The caller must recheck its snapshot before committing. */
+internal fun prepareGameImport(
+    snapshot: List<GameEntry>, entries: List<GameEntry>,
+    normalize: (GameEntry) -> GameEntry = { it },
+    resolveEntryPlatform: (GameEntry) -> String? = { GamePlatforms.normalizeOrNull(it.platform) },
+    checkpoint: () -> Unit = {}
+): PreparedGameImport {
+    val current = snapshot.toMutableList()
+    val results = entries.map { entry ->
+        checkpoint()
+        val normalized = normalize(entry)
+        upsertOrMergeInPlace(current, normalized, normalized.primaryTarget(), resolveEntryPlatform)
+    }
+    return PreparedGameImport(current, results)
+}
+
 /** Additive imports preserve existing tiles, metadata, ordering, and launch targets. */
 internal fun upsertOrMergeInPlace(
     current: MutableList<GameEntry>,

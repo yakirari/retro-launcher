@@ -1,10 +1,25 @@
 # Changelog
 
-This summarizes the development state; it does not imply tagged public releases exist.
+Release preparation and development history. A draft is not a published APK release.
 
 ## Unreleased
 
+No additional changes beyond the first-preview draft below.
+
+## 0.1.0 — First preview (draft)
+
+Prepared 2026-10-11. See the [first release page](docs/releases/0.1.0.md) for requirements,
+validation, known limitations and publication blockers.
+
 ### User-facing
+- MAME setup includes explicit installed RetroArch core presets and prompts for an unconfigured
+	single emulator too; skipping a platform imports no games from its folder.
+- Manual and automatic imports prepare merges/deduplication/serialization off the UI thread in
+	small durable batches, with cancellable progress and a bounded artwork drain afterward.
+- Compact short-landscape modals move detailed progress, help and navigation rows into scrollable
+	content where possible, leaving more usable space for choices and forms.
+- Player One Lounge (formerly Basement 7) is the unset-preference default wallpaper. Every bundled
+	background has a descriptive scene name; existing saved choices are preserved.
 - Options now includes a prominent **Reset launcher** destructive section with an explicit,
   Cancel-focused confirmation. Reset stops/drains background jobs, clears library/history/custom
   metadata, private artwork/cache, all settings and saved folder/image grants, then returns to welcome
@@ -14,9 +29,10 @@ This summarizes the development state; it does not imply tagged public releases 
 - Adaptive first-run welcome with optional skip, Home setup and one-root automatic ROM scanning.
 	Sequential cancellable scans survive rotation, preserve existing library data, report progress/errors,
 	and can be retried through Options → Scan library / Setup. Existing users are not forced into welcome.
-- ROMs without a verified standalone launch preset are imported as non-launchable Needs emulator setup
-	tiles with an explicit preset/system/core repair path; RetroArch cores are not guessed. Unlinked
-	ScummVM folders are reported with registered-game/config instructions rather than silently registered.
+- Platforms without a supported installed emulator preset are skipped with manual-add guidance;
+	private RetroArch core availability is not guessed. Existing Needs emulator setup tiles retain
+	an explicit preset/system/core repair path. Unlinked ScummVM folders are reported with
+	registered-game/config instructions rather than silently registered.
 - Installed emulator/hub tiles appear before slower shortcut/icon tasks. Accessible shortcuts from
 	verified GameNative/GameHub/GameHub Lite packages auto-import on refresh, retaining profile identity;
 	private libraries and pins belonging only to another Home launcher remain inaccessible.
@@ -47,6 +63,9 @@ This summarizes the development state; it does not imply tagged public releases 
 - Redacted developer device/storage identifiers and made the conversion script's JDK selection portable.
 - Added GitHub build/test workflow, issue/PR templates, maintainer links and hosting/security setup checklist.
 
-## 0.1.0 — development version
+### Validation
 
-Current application version in Gradle; no public release date is asserted.
+- 190 JVM tests passed; debug app and instrumentation-test APKs compiled.
+- Upgrade installation and application launch succeeded on RG477M with no inspected crash entries.
+- Device visual/instrumentation checks, gameplay and performance measurements remain unverified.
+- No production signing key configured; third-party artwork redistribution review remains pending.
