@@ -60,10 +60,14 @@ object ArtworkSuggestionService {
         yield(duckCandidates.take(18))
 
         val bingCandidates = fetchBingFallbackCandidates(query)
+            .filterNot { isPhysicalProductSearchResult(it.title) }
+            .filter { isRelevantArtworkTitle(query, it.title) }
             .distinctBy(ArtworkCandidate::imageUrl)
         yield(bingCandidates.take(6))
 
         yield(fetchGoogleFallbackCandidates(query)
+            .filterNot { isPhysicalProductSearchResult(it.title) }
+            .filter { isRelevantArtworkTitle(query, it.title) }
             .distinctBy(ArtworkCandidate::imageUrl)
             .take(6))
     }
@@ -161,7 +165,7 @@ object ArtworkSuggestionService {
             repeat(results.length()) { index ->
                 val result = runCatching { results.getJSONObject(index) }.getOrNull() ?: return@repeat
                 val imageUrl = result.optString("image").ifBlank { null } ?: return@repeat
-                val title = result.optString("title").ifBlank { query }
+                val title = result.optString("title").takeIf(String::isNotBlank) ?: return@repeat
                 add(
                     ArtworkCandidate(
                         title = title,
@@ -193,37 +197,47 @@ object ArtworkSuggestionService {
         val encoded = URLEncoder.encode(query, Charsets.UTF_8.name())
         val searchUrl = "https://www.bing.com/images/search?q=$encoded&form=HDRSC2"
         val html = getHtml(searchUrl) ?: return emptyList()
-        val imageUrls = extractImageUrlsFromHtml(html)
-        return buildList {
-            imageUrls.take(6).forEach { imageUrl ->
-                add(
-                    ArtworkCandidate(
-                        title = query,
-                        source = "Bing Images",
-                        imageUrl = imageUrl
-                    )
-                )
-            }
-        }
+        return titledBingCandidates(html)
     }
 
     private fun fetchGoogleFallbackCandidates(query: String): List<ArtworkCandidate> {
         val encoded = URLEncoder.encode(query, Charsets.UTF_8.name())
         val searchUrl = "https://www.google.com/search?tbm=isch&q=$encoded"
         val html = getHtml(searchUrl) ?: return emptyList()
-        val imageUrls = extractImageUrlsFromHtml(html)
-        return buildList {
-            imageUrls.take(6).forEach { imageUrl ->
-                add(
-                    ArtworkCandidate(
-                        title = query,
-                        source = "Google Images",
-                        imageUrl = imageUrl
-                    )
-                )
-            }
-        }
+        return titledImageCandidates(html, "Google Images")
     }
+
+    /** Bind URL and title from the same result. Never use the query as evidence of a match. */
+    internal fun titledBingCandidates(html: String): List<ArtworkCandidate> =
+        Regex("""(?is)<a\b[^>]*>""").findAll(html).mapNotNull { match ->
+            val metadata = htmlAttribute(match.value, "m") ?: return@mapNotNull null
+            val json = runCatching { JSONObject(decodeHtmlAttribute(metadata)) }.getOrNull() ?: return@mapNotNull null
+            val title = json.optString("t").trim().takeIf(String::isNotBlank) ?: return@mapNotNull null
+            val url = cleanImageCandidate(json.optString("murl")) ?: return@mapNotNull null
+            ArtworkCandidate(title, "Bing Images", url)
+        }.distinctBy(ArtworkCandidate::imageUrl).toList()
+
+    // Google markup changes often. Only consume a URL when its own image tag supplies
+    // a real title; opaque script URLs without result metadata are deliberately ignored.
+    internal fun titledImageCandidates(html: String, source: String): List<ArtworkCandidate> =
+        Regex("""(?is)<img\b[^>]*>""").findAll(html).mapNotNull { match ->
+            val title = htmlAttribute(match.value, "alt")?.let(::decodeHtmlAttribute)?.trim()
+                ?.takeIf { it.isNotBlank() && !it.equals("image", true) } ?: return@mapNotNull null
+            val url = htmlAttribute(match.value, "src")?.let(::decodeHtmlAttribute)
+                ?.let(::cleanImageCandidate) ?: return@mapNotNull null
+            ArtworkCandidate(title, source, url)
+        }.distinctBy(ArtworkCandidate::imageUrl).toList()
+
+    private fun htmlAttribute(tag: String, name: String): String? =
+        Regex("""(?is)\s${Regex.escape(name)}\s*=\s*(["'])(.*?)\1""").find(tag)?.groupValues?.get(2)
+
+    private fun decodeHtmlAttribute(value: String): String = value
+        .replace("&quot;", "\"").replace("&#34;", "\"")
+        .replace("&#39;", "'").replace("&apos;", "'")
+        .replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+
+    internal fun isWebCandidate(candidate: ArtworkCandidate): Boolean =
+        candidate.source in setOf("DuckDuckGo Images", "Bing Images", "Google Images")
 
     private fun getJson(url: String, referer: String): JSONObject? = runCatching {
         openConnection(url, referer)
@@ -260,7 +274,7 @@ object ArtworkSuggestionService {
             return null
         }
 
-        val extension = candidate.substringAfterLast('.', "").substringBefore('?', "").lowercase()
+        val extension = candidate.substringBefore('?').substringBefore('#').substringAfterLast('.', "").lowercase()
         if (extension !in setOf("jpg", "jpeg", "png", "webp", "gif", "avif")) {
             return null
         }

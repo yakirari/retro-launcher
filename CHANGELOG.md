@@ -4,7 +4,22 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
-No additional changes beyond 0.1.1 below.
+No additional changes beyond 0.1.2 below.
+
+## 0.1.2 — Experimental preview — 2026-10-11
+
+- Android version code increased to 3 for an in-place same-key upgrade.
+- Require real, relevant web-result titles for artwork fallback; ignore untitled raw image URLs
+	instead of presenting the search query as proof of a match.
+- Prefer web result relevance over tile aspect ratio, and keep download fallback batches from
+	replacing the primary Find images suggestions/cache.
+- Use current/edited titles consistently for catalog and web searches; preserve subtitles and
+	meaningful dots instead of misreading them as URI prefixes or arbitrary file extensions.
+- Correct plain image URL validation (URLs without query parameters were being rejected).
+
+Validation: 201 JVM tests passed; app and instrumentation-test APKs compiled. Existing saved
+artwork is preserved; use Find images to replace an incorrect cover. See the
+[0.1.2 release notes](docs/releases/0.1.2.md) for signing and testing limitations.
 
 ## 0.1.1 — Experimental preview — 2026-10-11
 

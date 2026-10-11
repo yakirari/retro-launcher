@@ -52,7 +52,8 @@ fun GameEntry.artworkSearchQueries(
     val switchSpecificQueries = buildList {
         if (platform.equals("Nintendo Switch", ignoreCase = true) || platform.equals("Switch", ignoreCase = true)) {
             val rawFileName = fileName?.trim()?.takeIf { it.isNotBlank() }
-            val switchBase = switchArtworkSearchName(rawFileName)
+            val switchBase = baseTitle.takeIf { it.isNotBlank() }
+                ?: switchArtworkSearchName(rawFileName)
                 ?.let { normalizedArtworkTitle(it, stripFileExtension = true) }
                 ?.takeIf { it.isNotBlank() }
                 ?: baseTitle
@@ -177,8 +178,8 @@ private fun GameEntry.supportsAndroidAppIconArtworkQuery(): Boolean =
 fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): String? {
     val trimmed = raw?.trim().orEmpty()
     val normalizedInput = stripUriPathNoise(trimmed)
-    val baseName = if (stripFileExtension && normalizedInput.contains('.')) {
-        stripUriPathNoise(normalizedInput.substringBeforeLast('.', normalizedInput).trim())
+    val baseName = if (stripFileExtension) {
+        normalizedInput.replace(Regex("""(?i)\.(?:nsp|xci|nsz|xcz|iso|cso|chd|cue|bin|pbp|zip|7z|nes|sfc|smc|gba|gbc|gb|nds|3ds|cia|n64|z64|v64|rom|exe|lnk|url|png|jpe?g|webp)$"""), "")
     } else {
         normalizedInput
     }
@@ -204,7 +205,7 @@ private fun stripUriPathNoise(raw: String?): String {
     if (value.isBlank()) return ""
     val trimmedPath = value
         .substringAfterLast('/')
-        .substringAfterLast(':')
+        .substringAfterLast('\\')
         .trim()
     return trimmedPath.ifBlank { value }
 }

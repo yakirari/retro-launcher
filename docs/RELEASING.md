@@ -48,6 +48,9 @@ explicit preview limitations and notices; production signing and artwork review 
 
 ## Release procedure
 
+[0.1.2 notes](releases/0.1.2.md) document the artwork-matching preview (version code 3), using
+the same debug key and retaining the production-signing, live-provider and artwork-rights limitations.
+
 1. Review the commit/diff and update [CHANGELOG.md](../CHANGELOG.md).
 2. Increase `versionCode` and set `versionName` in [app/build.gradle.kts](../app/build.gradle.kts).
 3. Run JVM tests/debug assembly and lint/relevant instrumented tests; record failures honestly.

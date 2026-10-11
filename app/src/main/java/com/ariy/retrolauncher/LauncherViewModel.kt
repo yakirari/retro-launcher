@@ -1217,9 +1217,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val latest = _games.value.firstOrNull { it.id == id } ?: return@withPermit
                 if (!replaceExistingArtwork && !latest.imageUri.isNullOrBlank()) return@withPermit
                 artworkRetryAfterMillis[id] = SystemClock.elapsedRealtime() + 5 * 60_000L
-                val queryKey = artworkSuggestionQueryKey(id, title)
+                val searchTitle = latest.title
+                val queryKey = artworkSuggestionQueryKey(id, searchTitle)
                 val suggestions = (if (cacheSuggestions) cachedArtworkSuggestions(id, queryKey) else null)
-                    ?: fetchArtworkSuggestionsFor(id, title).also { fetched ->
+                    ?: fetchArtworkSuggestionsFor(id, searchTitle).also { fetched ->
                         if (cacheSuggestions) {
                             cacheArtworkSuggestions(id, queryKey, fetched)
                         }
@@ -1227,7 +1228,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 if (cacheSuggestions) {
                     _artworkSuggestions.update { it + (id to suggestions) }
                 }
-                val savedUri = downloadArtworkWithFallback(latest, title, suggestions, fileName = "$id-autofill")
+                val savedUri = downloadArtworkWithFallback(latest, searchTitle, suggestions, fileName = "$id-autofill")
                 if (!savedUri.isNullOrBlank()) {
                     updateGamesFromBackground { games ->
                         games.map { game ->
@@ -1310,7 +1311,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private fun fetchArtworkSuggestionsFor(id: String, fallbackTitle: String): List<ArtworkCandidate> {
         val game = _games.value.firstOrNull { it.id == id } ?: return emptyList()
-        return ArtworkSuggestionService.fetchCandidateBatches(game, game.artworkSearchQueries(fallbackTitle))
+        val searchGame = game.copy(title = fallbackTitle.ifBlank { game.title })
+        return ArtworkSuggestionService.fetchCandidateBatches(searchGame, searchGame.artworkSearchQueries(searchGame.title))
             .firstOrNull { it.isNotEmpty() }.orEmpty().distinctBy(ArtworkCandidate::imageUrl).take(24)
     }
 
@@ -1321,24 +1323,27 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         fileName: String
     ): String? {
         val coroutineContext = currentCoroutineContext()
+        val searchGame = game.copy(title = title.ifBlank { game.title })
         val batches = sequence {
             yield(suggestions)
-            yieldAll(ArtworkSuggestionService.fetchCandidateBatches(game, game.artworkSearchQueries(title)))
+            yieldAll(ArtworkSuggestionService.fetchCandidateBatches(searchGame, searchGame.artworkSearchQueries(searchGame.title)))
         }
         return firstSuccessfulArtworkBatch(batches) { candidates ->
             coroutineContext.ensureActive()
-            importedIconStore.downloadBestAspectImage(
+            // Web results are ranked matches, not interchangeable editions from an exact
+            // catalog. Do not replace the first valid match with a lower-ranked image
+            // merely because its shape fits the tile better.
+            val saved = if (candidates.any(ArtworkSuggestionService::isWebCandidate)) {
+                importedIconStore.downloadFirstAvailableImage(fileName, candidates.map(ArtworkCandidate::imageUrl),
+                    maxAttempts = 6, cancellationCheck = { coroutineContext.ensureActive() })
+            } else importedIconStore.downloadBestAspectImage(
                 fileName = fileName,
                 imageUrls = candidates.map(ArtworkCandidate::imageUrl),
                 targetAspectRatio = preferredArtworkAspectRatio(game.platform),
                 cancellationCheck = { coroutineContext.ensureActive() }
-            ).also { savedUri ->
-                if (savedUri != null) {
-                    val queryKey = game.artworkSearchQueries(title).joinToString(separator = "\u001f")
-                    cacheArtworkSuggestions(game.id, queryKey, candidates)
-                    _artworkSuggestions.update { it + (game.id to candidates) }
-                }
-            }
+            )
+            // A download fallback must not replace the primary Find images results/cache.
+            saved
         }
     }
 

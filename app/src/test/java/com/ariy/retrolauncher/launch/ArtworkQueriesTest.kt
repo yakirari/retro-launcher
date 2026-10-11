@@ -7,6 +7,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ArtworkQueriesTest {
+    @Test fun subtitlesAndDottedTitlesAreNotMisreadAsUriSchemesOrExtensions() {
+        assertEquals("Zelda: Tears of the Kingdom", normalizedArtworkTitle("Zelda: Tears of the Kingdom.nsp", true))
+        assertEquals("S T A L K E R", normalizedArtworkTitle("S.T.A.L.K.E.R.", true))
+        assertEquals("Dr Mario", normalizedArtworkTitle("Dr. Mario", true))
+        assertEquals("Zelda: Tears of the Kingdom", normalizedArtworkTitle("content://games/switch/Zelda: Tears of the Kingdom.nsp", true))
+    }
+
+    @Test fun editedSearchTitleTakesPriorityOverTheOldRomFilename() {
+        val entry = GameEntry(title = "Old title", platform = "Nintendo Switch",
+            sourceType = GameSourceType.CUSTOM_INTENT, intentDataUri = "content://games/Old%20title.nsp")
+        val queries = entry.artworkSearchQueries("Animal Well")
+        assertTrue(queries.first().startsWith("Animal Well "))
+        assertTrue(queries.none { it.contains("Old title") })
+    }
     @Test
     fun switchArtworkQueriesPreferGameArtworkOverPackaging() {
         val entry = GameEntry(

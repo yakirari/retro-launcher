@@ -44,7 +44,8 @@ class ImportedIconStore(private val context: Context) {
     fun downloadFirstAvailableImage(
         fileName: String,
         imageUrls: Iterable<String>,
-        maxAttempts: Int = 12
+        maxAttempts: Int = 12,
+        cancellationCheck: () -> Unit = {}
     ): String? {
         if (maxAttempts <= 0) return null
         return imageUrls
@@ -53,7 +54,14 @@ class ImportedIconStore(private val context: Context) {
             .filter(String::isNotBlank)
             .distinct()
             .take(maxAttempts)
-            .firstNotNullOfOrNull { imageUrl -> downloadImage(fileName, imageUrl) }
+            .firstNotNullOfOrNull { imageUrl ->
+                cancellationCheck()
+                val bitmap = downloadBitmap(imageUrl, cancellationCheck) ?: return@firstNotNullOfOrNull null
+                try {
+                    cancellationCheck()
+                    saveBitmap(fileName, bitmap)
+                } finally { bitmap.recycle() }
+            }
     }
 
     fun downloadBestAspectImage(

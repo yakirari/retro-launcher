@@ -1,9 +1,44 @@
 package com.ariy.retrolauncher.launch
 
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ArtworkSuggestionServiceTest {
+  @Test fun bingMetadataBindsEachImageToItsOwnTitleAndRejectsUntitledUrls() {
+    val html = """
+      <a m='{&quot;murl&quot;:&quot;https://example.org/wrong.png&quot;,&quot;t&quot;:&quot;Unrelated game artwork&quot;}'></a>
+      <a m='{&quot;murl&quot;:&quot;https://example.org/right.png&quot;,&quot;t&quot;:&quot;Animal Well official game artwork&quot;}'></a>
+      <a m='{&quot;murl&quot;:&quot;https://example.org/right.jpg?size=large&amp;v=1&quot;,&quot;t&quot;:&quot;Animal Well cover art&quot;}'></a>
+      <a m='{&quot;murl&quot;:&quot;https://example.org/no-title.png&quot;}'></a>
+      <script>"murl":"https://example.org/random-banner.png"</script>
+    """.trimIndent()
+    val parsed = ArtworkSuggestionService.titledBingCandidates(html)
+    assertEquals(3, parsed.size)
+    val relevant = parsed.filter { ArtworkSuggestionService.isRelevantArtworkTitle("Animal Well game artwork", it.title) }
+    assertEquals(listOf("https://example.org/right.png", "https://example.org/right.jpg?size=large&v=1"), relevant.map { it.imageUrl })
+    assertEquals("Animal Well official game artwork", relevant.first().title)
+  }
+
+  @Test fun googleImagesMustHaveRelevantAltMetadataNotJustAnImageUrl() {
+    val html = """
+      <img src="https://example.org/random.png" />
+      <img alt="Unrelated game" src="https://example.org/unrelated.jpg" />
+      <img alt="Animal Well cover art" src="https://example.org/animal.jpg" />
+      <img alt="Animal Well cover art" src="data:image/jpeg;base64,noise" />
+      <img alt="Image" src="https://example.org/generic.png" />
+    """.trimIndent()
+    val relevant = ArtworkSuggestionService.titledImageCandidates(html, "Google Images")
+      .filter { ArtworkSuggestionService.isRelevantArtworkTitle("Animal Well cover art", it.title) }
+    assertEquals(listOf("https://example.org/animal.jpg"), relevant.map { it.imageUrl })
+    assertTrue(ArtworkSuggestionService.titledBingCandidates("<img src='https://example.org/random.png'>").isEmpty())
+  }
+
+  @Test fun onlyWebResultsUseRankedSelectionInsteadOfShapeSelection() {
+    assertTrue(ArtworkSuggestionService.isWebCandidate(ArtworkCandidate("Animal Well", "Bing Images", "https://example.org/art.png")))
+    assertTrue(!ArtworkSuggestionService.isWebCandidate(ArtworkCandidate("Animal Well", "Steam Store · exact title · portrait", "https://example.org/art.png")))
+    assertTrue(!ArtworkSuggestionService.isWebCandidate(ArtworkCandidate("Animal Well", "Libretro box-art catalog", "https://example.org/art.png")))
+  }
   @Test
   fun negativeSearchTermsAreNotRequiredInResultTitles() {
     for (title in listOf("Ato", "Animal Well", "Cyber Protocol", "198X")) {
