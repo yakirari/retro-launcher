@@ -6,6 +6,11 @@ platform galleries, nostalgic cartridge/case templates, ROM scanning, and Androi
 **Requirements:** Android 13 or newer. Emulators and PC game hubs are installed separately.
 Retro Launcher does not include emulator engines, ROMs, BIOS files, firmware, or games.
 
+**Install and configure your emulators before scanning.** Retro Launcher is a front end for
+already-installed apps, not an emulator installer. Confirm each game runs inside its emulator
+first, including any required cores, BIOS/firmware and storage permissions. A platform with no
+supported installed emulator is skipped during setup; install/configure it, then scan again.
+
 > **Licensing:** original launcher code and author-created artwork are MIT-licensed. Third-party cabinet
 > references retain their source terms. Asset redistribution review is still required before
 > publishing this repository or an APK. See [third-party notices](THIRD_PARTY_NOTICES.md) and the
@@ -33,13 +38,66 @@ name is not a guarantee that every game will boot.
 1. Install an APK from a trusted maintainer-published release **if one is available**, or
    [build a debug APK](docs/DEVELOPMENT.md). Check [GitHub Releases](https://github.com/yakirari/retro-launcher/releases)
    for published artifacts; documentation does not imply a release already exists.
-2. Open Retro Launcher and choose it in Android's **default Home app** settings.
-3. Choose your ROM root in welcome to import supported platform folders automatically, or skip
-   for installed apps/shared hub games. Install/configure emulators separately; repair marked
-   unconfigured tiles or retry **Options → Scan library / Setup** afterward.
-4. Follow the [user guide](docs/USER_GUIDE.md) and [integration guide](docs/INTEGRATIONS.md).
+2. Install/configure the emulators or PC hubs you intend to use. Test your games in those apps;
+   install required RetroArch cores inside RetroArch, not inside Retro Launcher.
+3. Open Retro Launcher and choose it in Android's **default Home app** settings. Keep it as Home
+   when creating game shortcuts so Android can share them with this launcher.
+4. For ROM-based emulators, choose your ROM root in welcome (for example, a root containing
+   `nes`, `snes`, `psp`, `switch` or `mame` folders). Confirm the installed emulator/core for each
+   platform, or skip it. You can also **Skip for now** and configure the library later.
+5. For **GameNative, GameHub and GameHub Lite**, open the hub's own UI and create a home-screen
+   shortcut for each game, then tap **Allow** in Retro Launcher. Installing a hub alone adds its
+   app tile, not its private game library. For **ScummVM**, register games inside ScummVM first,
+   then use its registered-game picker, exported configuration or available game shortcuts.
+6. After installing an emulator, adding ROMs, changing folders, or skipping initial setup, run
+   **Options → General → Scan library / Setup**. Choose a ROM root if none is saved, then start
+   the scan. Repeated scans add missing games and preserve existing library metadata.
+7. Follow the [user guide](docs/USER_GUIDE.md) and [integration guide](docs/INTEGRATIONS.md).
 
 Keep another Home launcher installed so you can switch back during testing.
+
+## Supported emulators and hubs
+
+These are the built-in launch presets/integrations, **not bundled emulators or a guarantee of
+compatibility with every build/game**. Modified packages may need a manual launch target.
+
+| Emulator / integration | Platforms / workflow |
+| --- | --- |
+| Dolphin, Dolphin MMJR2 | Nintendo GameCube and Wii |
+| Eden, Eden Optimized | Nintendo Switch; separate presets using the same package/contract |
+| Citra, Azahar | Nintendo 3DS |
+| PPSSPP | PSP |
+| DuckStation | PlayStation 1 |
+| NetherSX2 / compatible AetherSX2 package | PlayStation 2 |
+| Vita3K | PS Vita preset; no automatic bulk folder scanner |
+| NES.emu | NES |
+| Snes9x EX+ | Super Nintendo |
+| Mupen64Plus AE | Nintendo 64 |
+| DraStic | Nintendo DS |
+| Redream, Flycast | Dreamcast |
+| MD.emu | Sega Genesis/Mega Drive and related Sega system choices |
+| PCE.emu | PC Engine / TurboGrafx-16 |
+| Neo.emu | Neo Geo |
+| GBC.emu, GBA.emu | Game Boy / Game Boy Color, and Game Boy Advance respectively |
+| NGP.emu | Neo Geo Pocket / Color |
+| RetroArch, RetroArch64 | Named system/core choices, including MAME 2003-Plus and FinalBurn Neo; cores must be installed separately |
+| ScummVM | Registered adventure-game targets; picker/config/shortcut linking |
+| GameNative, GameHub, GameHub Lite | PC game shortcuts published from the hub's own UI |
+
+See [integration details and RetroArch core choices](docs/INTEGRATIONS.md#supported-emulator-presets)
+for scope and limitations. Other installed Android apps can be added as app tiles; that does not
+establish per-game emulator support.
+
+### Scan library versus shortcut refresh
+
+**Scan library / Setup** searches your selected ROM folder; it does not install emulators,
+register games inside them, or read a hub's private database. It is not a continuous filesystem
+watcher: issue another scan after adding ROMs or installing a previously missing emulator.
+
+**Hub shortcuts** are a separate path. Create them inside GameNative/GameHub/GameHub Lite while
+Retro Launcher is Home. Accessible shared shortcuts are imported on return to Home/target refresh;
+if missing, use **Add → Shortcuts → Shortcut setup → Refresh** and the appropriate Import control.
+Rescanning a ROM folder cannot discover hub games that have not been shared as shortcuts.
 
 ## Documentation
 

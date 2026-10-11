@@ -14,6 +14,12 @@ change the default Home app in Android settings.
 
 ## First run and automatic library setup
 
+**Before scanning, install and configure your emulators.** Retro Launcher assumes they already
+exist on the device: it neither downloads emulator apps nor installs cores, BIOS/firmware or games.
+Open each emulator, authorize its game folders, complete its setup and test a game there first.
+See the [supported emulator list](../README.md#supported-emulators-and-hubs) and
+[core/integration details](INTEGRATIONS.md#supported-emulator-presets).
+
 On a new installation, the adaptive welcome screen offers **Choose ROM folder** and
 **Skip for now**. Installed known emulators and hubs appear without waiting for game
 shortcut enumeration or artwork downloads. Existing installations are not forced through welcome;
@@ -60,6 +66,29 @@ Retry missing covers when online; the Artwork tab's explicit refresh can replace
 Discovery covers supported formats/recognized folders, not every possible emulator format or layout.
 Recognized DOS/Vita folders without a supported bulk scanner are reported with manual-add guidance.
 Emulators may still need separate file grants, BIOS files and internal configuration.
+
+### When to scan again
+
+ROM folder scanning is explicit, not a continuous background folder watcher. Run
+**Options → General → Scan library / Setup** after:
+
+- Installing/configuring an emulator for a platform that was skipped because it was missing.
+- Installing a required RetroArch core or deciding to import a previously skipped platform.
+- Adding ROMs to your selected root or restoring access to a reinserted SD card.
+- Skipping welcome setup and deciding to import ROMs later.
+
+Choose a ROM root if none is saved; use the folder-selection control again if your library moved.
+Start/retry the scan, answer emulator/core prompts and wait for import to finish. Cancellation
+keeps completed batches; rescanning preserves existing titles, covers, targets and play history.
+It does not delete stale tiles or prove that a game launches correctly. Test imported tiles;
+use **Add → Games** for unsupported bulk-scanner paths or to configure an individual target.
+
+**Hub games do not come from the ROM scan.** After installing games in GameNative/GameHub/GameHub
+Lite, create their home-screen shortcuts in that app's UI while Retro Launcher is the default Home
+app, and approve **Allow**. Return to Home for shared-shortcut refresh, or use
+**Add → Shortcuts → Shortcut setup → Refresh** and the appropriate Import control. A ROM rescan
+cannot discover a game that the hub has not published. ScummVM likewise needs registration in its
+own UI before its picker/config/shortcuts can provide launchable targets.
 
 ## Add emulated games
 
