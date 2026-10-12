@@ -48,6 +48,9 @@ explicit preview limitations and notices; production signing and artwork review 
 
 ## Release procedure
 
+[0.1.3 notes](releases/0.1.3.md) include a trace-confirmed gallery crash fix, stable Shelf sizing
+and emulator icons (version code 4). UI/stress testing and production signing remain incomplete.
+
 [0.1.2 notes](releases/0.1.2.md) document the artwork-matching preview (version code 3), using
 the same debug key and retaining the production-signing, live-provider and artwork-rights limitations.
 

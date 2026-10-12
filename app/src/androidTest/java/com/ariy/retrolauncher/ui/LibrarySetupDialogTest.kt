@@ -66,6 +66,10 @@ class LibrarySetupDialogTest {
         show(LibraryScanProgress(running = true, stage = LibraryScanStage.CHOOSING_EMULATOR,
             platform = "Nintendo GameCube", totalPlatforms = 24,
             emulatorChoice = LibraryEmulatorChoice("GameCube", options))) { skipped = it == null }
+        options.forEach { option ->
+            compose.onNodeWithTag("emulator-icon-${CustomIntentTemplates.all[option.templateIndex].packageName}",
+                useUnmergedTree = true).assertIsDisplayed()
+        }
         compose.onNodeWithText("Skip platform").assertIsDisplayed().performClick()
         compose.runOnIdle { assertTrue(skipped) }
     }

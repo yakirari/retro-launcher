@@ -2779,7 +2779,7 @@ private fun GameGallery(
             loadedCount = com.ariy.retrolauncher.ui.GalleryPaging.nextCount(games.size, loadedCount, lastVisible)
         }
     }
-    val focusedIndex by remember {
+    val rawFocusedIndex by remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val center = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
@@ -2789,6 +2789,7 @@ private fun GameGallery(
                 ?: listState.firstVisibleItemIndex
         }
     }
+    val focusedIndex = rawFocusedIndex.coerceIn(0, games.lastIndex.coerceAtLeast(0))
     val recommendationId = recommendationTile?.entry?.id
     val recommendationAddId = recommendationAddTile?.entry?.id
     val recommendationPreview = rememberRecommendationPreviewBitmap(recommendationTile?.recommendation?.previewAssetPath)
@@ -2936,9 +2937,9 @@ private fun GameGallery(
             if (games.isEmpty()) {
                 emptyList()
             } else {
-                val start = (focusedIndex - GALLERY_ARTWORK_PREFETCH_BEHIND).coerceAtLeast(0)
-                val end = (focusedIndex + GALLERY_ARTWORK_PREFETCH_AHEAD + 1).coerceAtMost(games.size)
-                games.subList(start, end).mapNotNull { game ->
+                val range = com.ariy.retrolauncher.ui.GalleryPaging.artworkPrefetchRange(
+                    games.size, focusedIndex, GALLERY_ARTWORK_PREFETCH_BEHIND, GALLERY_ARTWORK_PREFETCH_AHEAD)
+                games.subList(range.first, range.last + 1).mapNotNull { game ->
                     val artworkUri = game.imageUri?.takeIf(String::isNotBlank) ?: return@mapNotNull null
                     val overlayPlatform = filterOverlayPlatform ?: game.platform
                     val overlaySpec = if (nostalgicMode) {
@@ -3017,24 +3018,10 @@ private fun GameGallery(
         } else {
             nostalgicItemWidth
         }
-        val shelfstalgicMaxItemWidth = responsiveGalleryWidth(
-            maxWidth.value, maxHeight.value, 0.94f, fittedOverlayAspectRatio
-        ).dp
-        val shelfstalgicFocusedItemWidth = (
-            maxWidth * shelfstalgicFocusWidthFraction(tileSizeColumns)
-            ).coerceIn(
-                minOf(180.dp, shelfstalgicMaxItemWidth),
-                shelfstalgicMaxItemWidth
-            )
-        val shelfstalgicCompactItemWidth = (
-            maxWidth * shelfstalgicCompactWidthFraction(tileSizeColumns)
-            ).coerceIn(
-                minOf(120.dp, shelfstalgicFocusedItemWidth * 0.82f),
-                shelfstalgicFocusedItemWidth * 0.82f
-            )
-        val shelfstalgicSlotWidth = (shelfstalgicCompactItemWidth * 0.74f)
-            .coerceAtLeast(minOf(88.dp, shelfstalgicCompactItemWidth))
-            .coerceAtMost(shelfstalgicCompactItemWidth)
+        val shelfstalgicSlotWidth = com.ariy.retrolauncher.ui.shelfSlotWidth(
+            maxWidth.value, maxHeight.value, tileSizeColumns).dp
+        val shelfstalgicArtworkHeight = com.ariy.retrolauncher.ui.shelfArtworkHeight(
+            maxHeight.value, tileSizeColumns).dp
         val sameNostalgicOverlayHeight = if (sameNostalgicCanvasEnabled) {
             sameNostalgicReferenceWidth / sameNostalgicTargetAspectRatio
         } else {
@@ -3064,8 +3051,8 @@ private fun GameGallery(
             flingBehavior = flingBehavior,
             horizontalArrangement = Arrangement.spacedBy(
                 when {
-                    sameNostalgicCanvasEnabled -> sameNostalgicSpacing
                     shelfNostalgicModeEnabled -> shelfstalgicItemSpacing(tileSizeColumns)
+                    sameNostalgicCanvasEnabled -> sameNostalgicSpacing
                     mixedNostalgicMode -> 4.dp
                     nostalgicMode -> 0.dp
                     else -> 10.dp
@@ -3096,7 +3083,7 @@ private fun GameGallery(
                 val mameCabinetRenderData = if (nostalgicMode) {
                     rememberMameNostalgicCabinetRenderData(
                         game = game,
-                        normalizeCanvasSize = sameNostalgicCanvasEnabled,
+                        normalizeCanvasSize = sameNostalgicCanvasEnabled || shelfNostalgicModeEnabled,
                         glassEffectEnabled = nostalgicGlassEffectEnabled
                     )
                 } else {
@@ -3112,16 +3099,22 @@ private fun GameGallery(
                 val isRecommendationLoading = isRecommendation && recommendationTile?.isLoading == true
                 val distance = abs(index - focusedIndex)
                 val relativeOffset = index - focusedIndex
+                val shelfOverlayData = if (shelfNostalgicModeEnabled && overlaySpec != null && mameCabinetRenderData == null) {
+                    rememberNostalgicOverlayRenderData(overlaySpec, normalizeCanvasSize = true)
+                } else null
+                val shelfAspectRatio = mameCabinetRenderData?.aspectRatio ?: shelfOverlayData?.aspectRatio
+                    ?: overlaySpec?.croppedAspectRatio ?: FEATURED_GALLERY_CARD_ASPECT_RATIO
+                val shelfObjectWidth = com.ariy.retrolauncher.ui.shelfArtworkWidth(
+                    maxWidth.value, maxHeight.value, shelfAspectRatio, tileSizeColumns).dp
                 val shelfstalgicLayout = rememberShelfstalgicItemLayout(
                     enabled = shelfNostalgicModeEnabled,
                     relativeOffset = relativeOffset,
                     slotWidth = shelfstalgicSlotWidth,
-                    focusedWidth = shelfstalgicFocusedItemWidth,
-                    compactWidth = shelfstalgicCompactItemWidth
+                    focusedWidth = shelfObjectWidth
                 )
                 if (isRecommendationAdd) {
                     if (shelfstalgicLayout != null) {
-                        ShelfstalgicSlot(layout = shelfstalgicLayout) {
+                        ShelfstalgicSlot(layout = shelfstalgicLayout, artworkHeight = shelfstalgicArtworkHeight) {
                             RecommendationAddCard(
                                 game = game,
                                 columns = tileSizeColumns,
@@ -3171,15 +3164,16 @@ private fun GameGallery(
                         else -> nostalgicItemWidth
                     }
                     if (shelfstalgicLayout != null) {
-                        ShelfstalgicSlot(layout = shelfstalgicLayout) {
+                        ShelfstalgicSlot(layout = shelfstalgicLayout, artworkHeight = shelfstalgicArtworkHeight) {
                             MameCabinetNostalgicItem(
                                 game = game,
                                 editMode = editMode,
                                 tileBackgroundMode = launcherTileBackgroundMode,
                                 cabinetRenderData = mameCabinetRenderData,
                                 compactMode = shelfstalgicLayout.compactMode,
-                                showShelfTitle = true,
-                                normalizedOverlayHeight = sameNostalgicOverlayHeight,
+                                selectedShelfItem = index == focusedIndex,
+                                showShelfTitle = false,
+                                normalizedOverlayHeight = null,
                                 showGalleryInfo = nostalgicGalleryInfoEnabled,
                                 isArtworkLoading = isArtworkLoading,
                                 isArtworkPending = isArtworkPending,
@@ -3259,7 +3253,7 @@ private fun GameGallery(
                         else -> nostalgicItemWidth
                     }
                     if (shelfstalgicLayout != null) {
-                        ShelfstalgicSlot(layout = shelfstalgicLayout) {
+                        ShelfstalgicSlot(layout = shelfstalgicLayout, artworkHeight = shelfstalgicArtworkHeight) {
                             NostalgicGalleryItem(
                                 game = game,
                                 editMode = editMode,
@@ -3267,9 +3261,10 @@ private fun GameGallery(
                                 overlaySpec = overlaySpec,
                                 tileBackgroundMode = launcherTileBackgroundMode,
                                 compactMode = shelfstalgicLayout.compactMode,
-                                showShelfTitle = true,
-                                normalizeCanvasSize = sameNostalgicCanvasEnabled,
-                                normalizedOverlayHeight = sameNostalgicOverlayHeight,
+                                selectedShelfItem = index == focusedIndex,
+                                showShelfTitle = false,
+                                normalizeCanvasSize = true,
+                                normalizedOverlayHeight = null,
                                 glassEffectEnabled = nostalgicGlassEffectEnabled,
                                 showGalleryInfo = nostalgicGalleryInfoEnabled,
                                 isArtworkLoading = isArtworkLoading,
@@ -3350,7 +3345,7 @@ private fun GameGallery(
                     }
                 } else {
                     if (shelfstalgicLayout != null) {
-                        ShelfstalgicSlot(layout = shelfstalgicLayout) {
+                        ShelfstalgicSlot(layout = shelfstalgicLayout, artworkHeight = shelfstalgicArtworkHeight) {
                             GameCard(
                                 game = game,
                                 columns = tileSizeColumns,
@@ -3432,6 +3427,18 @@ private fun GameGallery(
                         )
                     }
                 }
+            }
+        }
+        if (shelfNostalgicModeEnabled) {
+            games.getOrNull(focusedIndex)?.let { selected ->
+                Text(text = tileTitle(selected.libraryDisplayTitle(), split = false).primary,
+                    color = Color.White, style = MaterialTheme.typography.titleMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                        .padding(top = shelfstalgicArtworkHeight + 32.dp)
+                        .width((shelfstalgicSlotWidth + 80.dp).coerceAtMost(maxWidth - 32.dp))
+                        .zIndex(30f))
             }
         }
         ActiveFilterBadge(
@@ -3597,6 +3604,7 @@ private fun MameCabinetNostalgicItem(
     showShelfTitle: Boolean,
     normalizedOverlayHeight: Dp?,
     showGalleryInfo: Boolean,
+    selectedShelfItem: Boolean = false,
     isArtworkLoading: Boolean = false,
     isArtworkPending: Boolean = false,
     topTenRank: Int? = null,
@@ -3668,6 +3676,9 @@ private fun MameCabinetNostalgicItem(
                         }
                     )
             ) {
+                if (selectedShelfItem) {
+                    com.ariy.retrolauncher.ui.TemplateDropShadow(cabinetRenderData.bitmap)
+                }
                 Image(
                     painter = BitmapPainter(cabinetRenderData.bitmap),
                     contentDescription = game.platform,
@@ -3768,6 +3779,7 @@ private fun NostalgicGalleryItem(
     normalizedOverlayHeight: Dp?,
     glassEffectEnabled: Boolean,
     showGalleryInfo: Boolean,
+    selectedShelfItem: Boolean = false,
     isArtworkLoading: Boolean = false,
     isArtworkPending: Boolean = false,
     topTenRank: Int? = null,
@@ -3875,6 +3887,11 @@ private fun NostalgicGalleryItem(
                     Modifier.clip(RoundedCornerShape(artworkCornerRadius))
                 }
 
+                if (selectedShelfItem) {
+                    overlayRenderData?.overlayBitmap?.let { template ->
+                        com.ariy.retrolauncher.ui.TemplateDropShadow(template)
+                    }
+                }
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -4137,21 +4154,25 @@ private fun NostalgicGalleryInfoPanel(
 @Composable
 private fun ShelfstalgicSlot(
     layout: ShelfstalgicItemLayout,
+    artworkHeight: Dp,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Box(
         modifier = modifier
             .width(layout.slotWidth)
+            .height(artworkHeight + 16.dp)
             .padding(top = layout.topPadding, bottom = layout.bottomPadding)
             .zIndex(layout.zIndex)
             .graphicsLayer {
                 alpha = layout.alpha
                 translationY = layout.translationY
             },
-        contentAlignment = Alignment.TopStart
+        contentAlignment = Alignment.BottomCenter
     ) {
-        content()
+        Box(Modifier.width(layout.width)) {
+            content()
+        }
     }
 }
 
@@ -4173,9 +4194,9 @@ private fun ShelfstalgicTitleCaption(
             )
         ) {
             Text(
-                text = tileTitle(game.libraryDisplayTitle(), split = !compact).primary,
+                text = tileTitle(game.libraryDisplayTitle(), split = false).primary,
                 color = Color.White,
-                style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleSmall,
+                style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium,
                 maxLines = if (compact) 1 else 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -4557,31 +4578,9 @@ private fun sameNostalgicOverlapPressure(
     return max(aspectPressure, occupiedPressure)
 }
 
-private fun shelfstalgicFocusWidthFraction(tileSizeColumns: Int): Float = when (tileSizeColumns) {
-    1 -> 0.84f
-    2 -> 0.76f
-    3 -> 0.71f
-    4 -> 0.66f
-    8 -> 0.55f
-    else -> 0.84f
-}
-
-private fun shelfstalgicCompactWidthFraction(tileSizeColumns: Int): Float = when (tileSizeColumns) {
-    1 -> 0.56f
-    2 -> 0.50f
-    3 -> 0.46f
-    4 -> 0.42f
-    8 -> 0.36f
-    else -> 0.56f
-}
-
 private fun shelfstalgicItemSpacing(tileSizeColumns: Int): Dp = when (tileSizeColumns) {
-    1 -> 2.dp
-    2 -> 4.dp
-    3 -> 4.dp
-    4 -> 6.dp
-    8 -> 8.dp
-    else -> 4.dp
+    8 -> 10.dp
+    else -> 16.dp
 }
 
 @Composable
@@ -4589,46 +4588,11 @@ private fun rememberShelfstalgicItemLayout(
     enabled: Boolean,
     relativeOffset: Int,
     slotWidth: Dp,
-    focusedWidth: Dp,
-    compactWidth: Dp
+    focusedWidth: Dp
 ): ShelfstalgicItemLayout? {
     if (!enabled) return null
 
-    val targetWidth = when {
-        relativeOffset == 0 -> focusedWidth
-        relativeOffset > 0 -> when (relativeOffset) {
-            1 -> compactWidth * 0.88f
-            2 -> compactWidth * 0.80f
-            else -> compactWidth * 0.72f
-        }
-        else -> compactWidth * 0.58f
-    }
-    val targetAlpha = when {
-        relativeOffset == 0 -> 1f
-        relativeOffset > 0 -> when (relativeOffset) {
-            1 -> 0.92f
-            2 -> 0.78f
-            else -> 0.62f
-        }
-        else -> 0.28f
-    }
-    val targetYOffset = when {
-        relativeOffset == 0 -> 0f
-        relativeOffset > 0 -> when (relativeOffset) {
-            1 -> 8f
-            2 -> 12f
-            else -> 15f
-        }
-        else -> 10f
-    }
-    val width by animateDpAsState(
-        targetValue = targetWidth,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "shelfstalgicWidth"
-    )
+    val targetAlpha = if (relativeOffset == 0) 1f else 0.85f
     val alpha by animateFloatAsState(
         targetValue = targetAlpha,
         animationSpec = spring(
@@ -4637,27 +4601,14 @@ private fun rememberShelfstalgicItemLayout(
         ),
         label = "shelfstalgicAlpha"
     )
-    val translationY by animateFloatAsState(
-        targetValue = targetYOffset,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "shelfstalgicYOffset"
-    )
-
     return ShelfstalgicItemLayout(
         slotWidth = slotWidth,
-        width = width,
+        width = focusedWidth,
         compactMode = relativeOffset != 0,
-        topPadding = when {
-            relativeOffset == 0 -> 8.dp
-            relativeOffset > 0 -> 10.dp
-            else -> 12.dp
-        },
-        bottomPadding = if (relativeOffset == 0) 8.dp else 4.dp,
+        topPadding = 8.dp,
+        bottomPadding = 8.dp,
         alpha = alpha,
-        translationY = translationY,
+        translationY = 0f,
         zIndex = when {
             relativeOffset == 0 -> 20f
             relativeOffset > 0 -> (20 - relativeOffset).toFloat()
@@ -4691,13 +4642,13 @@ private fun GameCard(
     modifier: Modifier = Modifier
 ) {
     val image = previewImage ?: rememberDecodedBitmap(game.imageUri)
-    val showText = columns != 8 || isRecommendation
+    val showText = if (shelfMode) false else columns != 8 || isRecommendation
     val showSubtitle = showText && !shelfCompactMode
     val grayscaleFilter = remember {
         ColorMatrix().apply { setToSaturation(0f) }
     }
     val shapeModifier = Modifier.aspectRatio(
-        if (game.platform.equals(GamePlatforms.ANDROID, ignoreCase = true) || !showText) 1f
+        if (game.platform.equals(GamePlatforms.ANDROID, ignoreCase = true) || (!shelfMode && !showText)) 1f
         else FEATURED_GALLERY_CARD_ASPECT_RATIO
     )
     val glossyTileBackground = isGlossyTileBackgroundMode(tileBackgroundMode)
@@ -4720,7 +4671,7 @@ private fun GameCard(
     }
     val titleStyle = when {
         shelfCompactMode -> MaterialTheme.typography.labelSmall
-        shelfMode -> MaterialTheme.typography.titleSmall
+        shelfMode -> MaterialTheme.typography.titleMedium
         else -> if (columns >= 3) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium
     }
     val subtitleStyle = if (shelfCompactMode) {

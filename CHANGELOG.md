@@ -4,7 +4,24 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
-No additional changes beyond 0.1.2 below.
+No additional changes beyond 0.1.3 below.
+
+## 0.1.3 — Experimental preview — 2026-10-12
+
+- Android version code increased to 4 for a same-key in-place upgrade.
+- Fix a gallery crash when switching from a long list to a shorter platform/filter: stale scroll
+	focus is clamped before rendering and artwork prefetch ranges remain within the current list.
+- Shelf uses smaller normalized artwork within fixed, separated slots and a shared baseline.
+	Selection changes brightness only, without resizing, bouncing or changing tile spacing.
+- The selected Shelf game title appears frameless directly below the centered tile; the platform
+	badge stays bottom-left. A soft drop shadow follows the selected template's actual alpha silhouette,
+	rather than outlining its rectangular slot; selection does not change tile size.
+- ROM scan emulator choices now show the installed application's icon alongside the emulator,
+  platform and core details. Icons load off the UI thread; unavailable icons use Android's fallback.
+
+Validation: 206 JVM tests passed; app and Android-test APKs compiled. The gallery crash fix is
+grounded in retained device traces and regression tests. Full device UI/stress verification remains
+pending. See [0.1.3 release notes](docs/releases/0.1.3.md).
 
 ## 0.1.2 — Experimental preview — 2026-10-11
 

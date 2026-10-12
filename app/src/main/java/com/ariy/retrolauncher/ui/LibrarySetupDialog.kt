@@ -93,14 +93,18 @@ internal fun LibrarySetupDialog(
                             val core = resolveEmulatorSelectionDraft(CustomIntentTemplates.all, option)
                                 ?.retroArchSystem?.coreSoFile
                             OutlinedButton(onClick = { onChooseEmulator(option.key) }, modifier = Modifier.fillMaxWidth()) {
-                                Column {
-                                    Text("${template.label.removeSuffix(" preset")} · ${option.systemLabel}")
-                                    if (core != null) Text(
-                                        "Requires installed core $core and a compatible ROM. Core availability is not verified.",
-                                        style = MaterialTheme.typography.bodySmall)
-                                    else if (template.packageName == "com.retroarch" || template.packageName == "com.retroarch.aarch64")
-                                        Text("Install the required RetroArch core and use a compatible ROM. Core availability is not verified.",
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    InstalledEmulatorIcon(template.packageName, template.label.removeSuffix(" preset"))
+                                    Column(Modifier.weight(1f)) {
+                                        Text("${template.label.removeSuffix(" preset")} · ${option.systemLabel}")
+                                        if (core != null) Text(
+                                            "Requires installed core $core and a compatible ROM. Core availability is not verified.",
                                             style = MaterialTheme.typography.bodySmall)
+                                        else if (template.packageName == "com.retroarch" || template.packageName == "com.retroarch.aarch64")
+                                            Text("Install the required RetroArch core and use a compatible ROM. Core availability is not verified.",
+                                                style = MaterialTheme.typography.bodySmall)
+                                    }
                                 }
                             }
                         }

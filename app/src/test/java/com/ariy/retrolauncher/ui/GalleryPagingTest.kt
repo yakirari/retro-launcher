@@ -4,6 +4,24 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class GalleryPagingTest {
+    @Test fun artworkPrefetchClampsOldFocusWhenSwitchingToShorterLists() {
+        assertEquals(0..0, GalleryPaging.artworkPrefetchRange(1, 7, 4, 8))
+        assertEquals(0..2, GalleryPaging.artworkPrefetchRange(3, 999, 4, 8))
+        assertEquals(0..8, GalleryPaging.artworkPrefetchRange(20, -1, 4, 8))
+        assertEquals(IntRange.EMPTY, GalleryPaging.artworkPrefetchRange(0, 999, 4, 8))
+    }
+
+    @Test fun artworkPrefetchRangesAlwaysFormValidSubListsIncludingOverflowInputs() {
+        for (total in listOf(1, 2, 3, 48, 1000)) {
+            for (focus in listOf(-10, 0, 7, 999, Int.MAX_VALUE)) {
+                val range = GalleryPaging.artworkPrefetchRange(total, focus, 4, 8)
+                val list = List(total) { it }
+                assertEquals(range.toList(), list.subList(range.first, range.last + 1))
+            }
+        }
+        assertEquals(0 until Int.MAX_VALUE,
+            GalleryPaging.artworkPrefetchRange(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE))
+    }
     @Test fun smallLibrariesStayCompleteAndLargeLibrariesStartWithOnePage() {
         assertEquals(0, GalleryPaging.initialCount(0))
         assertEquals(17, GalleryPaging.initialCount(17))

@@ -124,14 +124,14 @@ Rescanning a ROM folder cannot discover hub games that have not been shared as s
 | Contributors | [Contribution workflow](CONTRIBUTING.md) |
 | Release maintainers | [Publication and release checklist](docs/RELEASING.md) |
 | First preview | [0.1.0 release notes and known limitations](docs/releases/0.1.0.md) |
-| Current preview | [0.1.2 changes, installation and limitations](docs/releases/0.1.2.md) |
+| Current preview | [0.1.3 changes, installation and limitations](docs/releases/0.1.3.md) |
 | Repository administrators | [Hosting, security settings and audit scope](docs/HOSTING.md) |
 | Security reporters | [Security reporting policy](SECURITY.md) |
 | Asset contributors | [Licensing scope and third-party notices](THIRD_PARTY_NOTICES.md) |
 
 ## Status and licensing
 
-Experimental, version 0.1.2. Preview downloads are debug-signed testing builds, not production-signed
+Experimental, version 0.1.3. Preview downloads are debug-signed testing builds, not production-signed
 artifacts. The root Gradle project builds only `:app`; no emulator source tree
 or engine is bundled. JVM tests cover policies/parsing/merging/artwork/paging;
 real-device UI and game-launch tests remain necessary.

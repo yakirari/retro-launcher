@@ -5,6 +5,16 @@ internal object GalleryPaging {
     const val PAGE_SIZE = 48
     const val PREFETCH_DISTANCE = 12
 
+    /** Lazy layout indices can still describe the old list during a filter transition. */
+    fun artworkPrefetchRange(total: Int, focusedIndex: Int, behind: Int, ahead: Int): IntRange {
+        if (total <= 0) return IntRange.EMPTY
+        val focus = focusedIndex.coerceIn(0, total - 1).toLong()
+        val start = (focus - behind.coerceAtLeast(0)).coerceAtLeast(0).toInt()
+        val endExclusive = (focus + ahead.coerceAtLeast(0).toLong() + 1)
+            .coerceAtMost(total.toLong()).toInt()
+        return start until endExclusive
+    }
+
     fun initialCount(total: Int): Int = total.coerceIn(0, PAGE_SIZE)
 
     fun countThrough(total: Int, current: Int, requiredIndex: Int): Int {
