@@ -46,6 +46,20 @@ list cannot be enumerated by Retro Launcher. See [verified ScummVM notes](../art
 
 ## PC game hubs
 
+**In the app:** open **Add games → Games**. The visible **GameNative**, **GameHub** and
+**GameHub Lite · Setup / Import** buttons lead to publisher-specific shortcut setup, Open and Import
+controls. They are shortcut integrations, not fake ROM/emulator presets. The same choices are visible
+in **Add games → Shortcuts**, even when no games have been shared yet.
+
+1. Set Retro Launcher as the default **Home** app.
+2. Open the hub, select a game, and use **Add to home screen** (if the installed version supports it).
+3. **Allow** Android's shortcut request. Repeat for each desired game.
+4. Return to Retro Launcher. Approved pins and accessible published shortcuts are added automatically;
+   **Import** re-queries that publisher if needed. Library scanning also checks accessible shortcuts.
+
+No ROM folder is needed. Merely installing a hub or downloading / registering a game does **not**
+publish a shortcut. Retro Launcher cannot enumerate private hub libraries.
+
 ### GameNative
 
 Create a game's home-screen shortcut while Retro Launcher is Home, then Allow. Published pins/dynamic
@@ -62,13 +76,13 @@ per-game shortcuts. Both packages use the same Android shortcut path here; this 
 version or establish a full-library API.
 
 Create a shortcut inside the hub and Allow for automatic addition. Existing shared shortcuts can be queried
-via **Add → Shortcuts → Shortcut setup → Refresh**, using the appropriate Import button.
+via **Add games → Games → GameHub / GameHub Lite · Setup / Import**, using the appropriate Import button.
 
 Installing the hub or downloading a game inside it is not enough to expose that game's launch target.
 Use the hub's per-game menu to create a **home-screen shortcut** (the wording varies by version),
 with Retro Launcher already set as the default Home app. Repeat for each desired game and approve
 the Android pin confirmation. Return to Home to refresh accessible shared shortcuts if necessary.
-**Scan library / Setup** searches ROM folders; it cannot enumerate these hubs' private game lists
+**Scan library / Setup** searches ROM folders and accessible published shortcuts; it cannot enumerate these hubs' private game lists
 and is not a substitute for publishing shortcuts. You do not need to rescan ROMs after every hub pin.
 
 **Old pins:** a shortcut can exist on the device but belong only to another launcher. Android prevents
@@ -97,6 +111,8 @@ launch contracts; use a compatible installed build or a manually verified launch
 | PPSSPP | PSP (preset targets the standard PPSSPP package) |
 | DuckStation | PlayStation 1 |
 | NetherSX2 | PlayStation 2; preset uses the compatible AetherSX2 package identity |
+| ARMSX2 | PlayStation 2; `com.armsx2.Main` with `ACTION_VIEW` and the selected ROM URI |
+| ARMSX3 | PlayStation 3; package `com.armsx3`, activity `com.armsx2.Main`, `ACTION_VIEW` with game URI |
 | Vita3K | PS Vita; manual setup, no supported automatic bulk folder scanner |
 | NES.emu / Snes9x EX+ | NES / Super Nintendo |
 | Mupen64Plus AE / DraStic | Nintendo 64 / Nintendo DS |
@@ -111,6 +127,55 @@ launch contracts; use a compatible installed build or a manually verified launch
 PC hubs **GameNative, GameHub and GameHub Lite** integrate through Android-published game shortcuts,
 not a full-library folder scanner. GameNative also has a documented manual intent preset, but
 publishing a shortcut avoids entering or guessing game IDs.
+
+### ARMSX2
+
+The preset follows the official [ARMSX2 2.7.2 runtime](https://github.com/ARMSX2/ARMSX2/blob/2.7.2/platforms/android/app/src/main/java/com/armsx2/runtime/MainActivityRuntime.kt)
+and [exported activity declaration](https://github.com/ARMSX2/ARMSX2/blob/2.7.2/platforms/android/app/src/main/AndroidManifest.xml):
+`Main` accepts the game URI on both initial launch and `onNewIntent`, then queues it for boot.
+This is not AetherSX2's `bootPath` extra. Content URIs retain Retro Launcher's normal read-grant
+handoff rather than being forced into filesystem paths.
+
+Configure your own legally obtained BIOS and ROM access inside ARMSX2, and test the game there
+before importing. Select **ARMSX2** for PlayStation 2 in **Add games** or **Scan library / Setup**.
+An existing NetherSX2 selection is retained; installing ARMSX2 does not rewrite saved game targets.
+Other installed PS3-labelled apps are not covered by this preset or classified as PS2.
+
+### PlayStation 3 and emulator game shortcuts
+
+ARMSX3 has a separate **Sony PlayStation 3** platform choice. The preset targets the installed
+1.0.5 build's exported `com.armsx2.Main` activity (the class name really does retain `armsx2`).
+Inspection of that APK's URI handler shows game URIs entering its pending-launch flow on
+initial launch and `onNewIntent`; this does not certify successful gameplay or every game format.
+On-device validation on 2026-10-12 scanned and imported The Wolf Among Us ISO through
+Retro Launcher's PS3 scan, then launched the actual tile. ARMSX3's runtime log received the
+correct SAF content URI and opened the ISO through its virtual SAF filesystem. The game reached
+shader loading and SPU cache compilation, verifying the launcher-to-emulator handoff rather
+than only a shell/file-URI smoke test. This does not certify sustained gameplay or other titles.
+Configure firmware and game access inside ARMSX3 and test your game there first.
+Automatic PS3 folder scanning currently accepts **ISO only**; it does not import firmware PUPs,
+PKG installers, extracted EBOOT files or installed games from the emulator's private library.
+
+Other PS3 emulators can use **Add games → Shortcuts** if they publish Android game shortcuts.
+Set Retro Launcher as Home, create the game's home-screen shortcut inside its emulator, then
+approve Android's pin request. Retro Launcher imports the package, shortcut ID and user profile,
+and Android executes the publisher's original payload using `LauncherApps.startShortcut`.
+This can carry app-specific parameters without reconstructing their private launch contracts.
+Published shortcuts from ARMSX3, aPS3e (`aenu.aps3e`), the installed RPCS3-labelled app (`net.rpcs3`)
+and RPCSX (`net.rpcsx`) are classified as PS3 even when Android hides their intents.
+These package classifications are not provenance endorsements or direct-launch presets.
+
+No published shortcut records for those four packages were found on the inspected device.
+That is not proof they cannot create shortcuts: support depends on the app/version actually
+publishing them. A launcher cannot manufacture a publisher-owned game shortcut from an installed
+app or private game list. Pins belonging only to another Home app must be republished, as with
+GameHub. Shared shortcuts from these four known PS3 packages are now imported automatically on
+launcher refresh / library scanning, with exact package / shortcut ID / profile deduplication.
+**Add games → Games → PS3 shortcuts · Setup / Import** exposes setup steps, installed emulator Open
+buttons and a dedicated import, requiring no ROM folder. **Scan ISO + shortcuts** on the PS3 system
+also checks shared shortcuts while scanning ISO files with the selected ARMSX3 preset.
+No private payloads or unsupported direct-launch presets are reconstructed. A ROM URI and an opaque
+shortcut cannot always be proven to refer to the same game; such distinct targets are not guessed together.
 
 ### RetroArch cores
 

@@ -1,0 +1,32 @@
+Slot cartridge artwork (GB / GBC / GBA neutral shells)
+
+Project: Slot, by Brandon Kowalski and contributors
+Artist: Markus (MarkusMaribu), credited by upstream for the skeuomorphic artwork
+https://github.com/MarkusMaribu
+https://github.com/BrandonKowalski/slot
+
+Pinned upstream revision: f4b7bc3b1f7240c00d245c82fe123181a2d5c590 (2026-10-19)
+Original files: assets/gb_neutral.png, assets/gbc_neutral.png, assets/gba_neutral.png
+Source: https://github.com/BrandonKowalski/slot/tree/f4b7bc3b1f7240c00d245c82fe123181a2d5c590/assets
+
+License: GPL-3.0-or-later, as declared in upstream Cargo.toml and root LICENSE.
+Full GPL v3 text is included in licenses/Slot-GPL-3.0.txt in this APK.
+These third-party graphics and their derivatives are NOT relicensed under MIT.
+No warranty; see the license for terms, copying and modification rights.
+
+Modifications by Retro Launcher contributors, 2026-10-20:
+- The blank label wells are made transparent for separately rendered game labels.
+- User-selected decorative color is applied to neutral plastic at runtime.
+- Upstream plastic detail, embossing, texture, original pixel dimensions and silhouette are retained.
+
+Corresponding editable inputs and preparation source are retained with the launcher source:
+https://github.com/yakirari/retro-launcher
+artwork/slot/source/ (unmodified upstream PNGs)
+scripts/PrepareSlotHandheldShells.java (label-window adapter)
+app/src/main/java/com/ariy/retrolauncher/ui/HandheldArtwork.kt (runtime tinting)
+See artwork/slot/README.md for original SHA-256 hashes and provenance.
+Distributors must include the corresponding sources/notices for the exact version distributed;
+this project URL alone is not a source-delivery guarantee for an unpublished build.
+
+Nintendo/Game Boy branding remains the property of its respective owner.
+No affiliation, endorsement or separate trademark license is implied.

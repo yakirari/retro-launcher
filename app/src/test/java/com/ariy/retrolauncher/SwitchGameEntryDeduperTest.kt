@@ -8,6 +8,20 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SwitchGameEntryDeduperTest {
+    @Test fun cartridgeSettingsSurviveBasePromotionAndFillMissingValues() {
+        val update = game("update", "Game Update", "content://rom/Game%20Upd%203.nsp").copy(
+            cartridgeLabelUri = "content://art/manual-label", cartridgeColor = "blue")
+        val base = game("base", "Game", "content://rom/Game.nsp").copy(
+            cartridgeLabelUri = "content://art/new-label", cartridgeColor = "red")
+        val merged = dedupeSwitchGameEntries(listOf(update, base), emptyMap()).single()
+        assertEquals(base.intentDataUri, merged.intentDataUri)
+        assertEquals(update.cartridgeLabelUri, merged.cartridgeLabelUri)
+        assertEquals(update.cartridgeColor, merged.cartridgeColor)
+        val filled = dedupeSwitchGameEntries(listOf(update.copy(cartridgeLabelUri = null, cartridgeColor = null), base), emptyMap()).single()
+        assertEquals(base.cartridgeLabelUri, filled.cartridgeLabelUri)
+        assertEquals(base.cartridgeColor, filled.cartridgeColor)
+    }
+
     @Test fun filenameFallbackPromotesBaseRatherThanLaunchingAnUpdate() {
         val update = game("update", "Game Update", "content://rom/Game%20Upd%203.nsp")
         val base = game("base", "Game", "content://rom/Game.nsp")

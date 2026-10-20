@@ -44,7 +44,7 @@ internal object LibretroArtworkCatalog {
         "Sony PlayStation Vita" to "Sony - PlayStation Vita"
     )
 
-    fun fetchCandidates(platform: String?, rawTitle: String): List<ArtworkCandidate> {
+    fun fetchCandidates(platform: String?, rawTitle: String, romName: String? = null): List<ArtworkCandidate> {
         val normalizedPlatform = GamePlatforms.normalizeOrNull(platform) ?: return emptyList()
         val directoryName = systemDirectories[normalizedPlatform] ?: return emptyList()
         val isPsp = normalizedPlatform == "Sony PlayStation Portable"
@@ -61,12 +61,16 @@ internal object LibretroArtworkCatalog {
             cachedEntries[directoryUrl] = it
         } ?: return emptyList()
 
-        return entries.asSequence()
+        val matches = entries.asSequence()
             .filter { (when {
                 isPsp -> pspArtworkMatchKey(it.displayTitle)
                 isScummVm -> scummVmArtworkMatchKey(it.displayTitle)
                 else -> it.matchKey
             }) == titleKey }
+            .toList()
+        val bestRegion = matches.minOfOrNull { regionRank(it.displayTitle, romName ?: rawTitle) }
+        return matches.asSequence()
+            .filter { regionRank(it.displayTitle, romName ?: rawTitle) == bestRegion }
             .take(6)
             .map { entry ->
                 ArtworkCandidate(
@@ -76,6 +80,21 @@ internal object LibretroArtworkCatalog {
                 )
             }
             .toList()
+    }
+
+    internal fun regionRank(candidate: String, romName: String): Int {
+        fun regions(value: String): Set<String> = Regex("\\(([^)]*)\\)").findAll(value)
+            .flatMap { it.groupValues[1].lowercase().split(Regex("[, /]+")).asSequence() }
+            .map { when (it) { "u", "us" -> "usa"; "e", "eu" -> "europe"; "j", "jp" -> "japan"; else -> it } }
+            .filter { it in setOf("usa", "europe", "japan", "world", "australia") }.toSet()
+        val wanted = regions(romName)
+        if (wanted.isEmpty()) return 0 // Do not invent a region when the ROM gives no evidence.
+        val offered = regions(candidate)
+        return when {
+            offered.any { it in wanted } -> 0
+            "world" in offered -> 1
+            else -> 2
+        }
     }
 
     internal fun artworkMatchKey(rawTitle: String): String {
@@ -120,9 +139,9 @@ internal object LibretroArtworkCatalog {
     }.getOrNull()
 
     internal fun parseDirectoryIndex(html: String): List<CatalogEntry> {
-        val anchorPattern = Regex("""(?is)<a\s+href=["']([^"']+)["'][^>]*>([^<]+)</a>""")
+        val anchorPattern = Regex("""(?is)<a\s+href=(["'])(.*?)\1[^>]*>([^<]+)</a>""")
         return anchorPattern.findAll(html).mapNotNull { match ->
-            val href = match.groupValues[1]
+            val href = match.groupValues[2]
             if (href.startsWith("?") || href.startsWith("/") || href.endsWith("/")) return@mapNotNull null
             val decodedName = URLDecoder.decode(href.replace("+", "%2B"), StandardCharsets.UTF_8.name())
             val extension = decodedName.substringAfterLast('.', "").lowercase()

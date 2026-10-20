@@ -147,7 +147,7 @@ rewrites.
 New preparation script: scripts/PrepareReviewedArcadeSources.java, compiled with
 NormalizeArcadeCabinets.java. It emits ONLY the listed 37 reviewed cutouts. Existing
 SF2 row-interior and Shinobi threshold-16 policies remain source-specific.
-Original overlay_mame images are never overwritten.
+Original [arcade overlay images](../arcade-overlays/) are never overwritten.
 
 Standalone verification used JDK 17.0.14+7 and cached Kotlin 2.1.20, no Gradle:
 

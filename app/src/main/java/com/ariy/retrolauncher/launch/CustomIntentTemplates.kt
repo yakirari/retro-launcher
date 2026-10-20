@@ -243,6 +243,24 @@ object CustomIntentTemplates {
             extrasJson = "{\"bootPath\":\"{filePath}\"}"
         ),
         CustomIntentTemplate(
+            label = "ARMSX2 preset",
+            description = "Launches ARMSX2 using ACTION_VIEW and the selected ROM URI. Configure your BIOS and test the game inside ARMSX2 first.",
+            emulatedPlatform = "PlayStation 2",
+            romSubfolderHint = "ps2",
+            packageName = "com.armsx2",
+            activityName = "com.armsx2.Main",
+            action = "android.intent.action.VIEW"
+        ),
+        CustomIntentTemplate(
+            label = "ARMSX3 preset",
+            description = "Launches ARMSX3 using ACTION_VIEW and the selected game URI. Configure PS3 firmware and test the game inside ARMSX3 first. Automatic scanning currently imports ISO files only.",
+            emulatedPlatform = "Sony PlayStation 3",
+            romSubfolderHint = "ps3",
+            packageName = "com.armsx3",
+            activityName = "com.armsx2.Main",
+            action = "android.intent.action.VIEW"
+        ),
+        CustomIntentTemplate(
             label = "GameNative preset",
             description = "Targets GameNative's documented LAUNCH_GAME contract to boot a Steam/GOG/Epic/Amazon PC game directly, skipping GameNative's own library screen. Replace app_id/game_source in Extras with the game's numeric id and source (STEAM, GOG, EPIC, AMAZON or CUSTOM_GAME).",
             emulatedPlatform = "GameNative",

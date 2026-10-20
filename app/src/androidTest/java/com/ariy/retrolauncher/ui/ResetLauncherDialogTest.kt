@@ -2,6 +2,8 @@ package com.ariy.retrolauncher.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -30,6 +32,12 @@ class ResetLauncherDialogTest {
 
     @Test fun cancelIsInitiallyFocusedAndDoesNotReset() {
         showConfirmation()
+        // Android window-focus delivery is asynchronous and is not covered by
+        // Compose's idle clock. Await the actual focus, then keep the assertion.
+        compose.waitUntil(5_000) {
+            compose.onNodeWithText("Cancel").fetchSemanticsNode()
+                .config.getOrNull(SemanticsProperties.Focused) == true
+        }
         compose.onNodeWithText("Cancel").assertIsFocused().performClick()
         compose.runOnIdle {
             assertEquals(0, confirmations)

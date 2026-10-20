@@ -13,7 +13,7 @@ fun platformDisplayDefaults(platform: String?): PlatformDisplaySettings = when (
     in PcGameStores.platforms, "PC (Windows)" -> PlatformDisplaySettings("gallerystalgic", 3, "transparent")
     "MAME Arcade", "Final Burn Neo" -> PlatformDisplaySettings("gridstalgic", 2, "transparent")
     "Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo 64" -> PlatformDisplaySettings("gridstalgic", 3, "transparent")
-    "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation Portable", "Nintendo Wii" -> PlatformDisplaySettings("gridstalgic", 3, "transparent")
+    "Sony PlayStation", "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation Portable", "Nintendo Wii" -> PlatformDisplaySettings("gridstalgic", 3, "transparent")
     "Nintendo Switch" -> PlatformDisplaySettings("gallery", 3, "normal")
     else -> PlatformDisplaySettings()
 }

@@ -4,7 +4,27 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
-No additional changes beyond 0.1.3 below.
+No additional changes beyond 0.1.4 below.
+
+## 0.1.4 — Experimental preview — 2026-10-20
+
+- External GB/GBC/GBA cartridge labels matched by exact ROM CRC, with attributed Slot shells,
+	artwork-derived plastic colors, manual controls and atomic loading without cover flashes.
+- Restore N64 cartridge presentation with exact normalized-header label matching; seven reviewed
+	original scans upgrade thumbnail labels. All 313 scans are prepared locally, not bundled or
+	automatically mapped to additional ROM identities.
+- Improve complete GameCube/PS2 covers and regional catalog selection; restore original CD
+	cover-retaining tabs/clips on PlayStation jewel cases.
+- Repair recognized generic ScummVM shortcut artwork without replacing manual covers or changing
+	launch targets. Improve shortcut recognition and PS3/ARMSX3 scanning/presets.
+- Hide emulator/application tiles from mixed All in both grid and gallery; retain dedicated
+	galleries and actual games launched through emulators.
+- Refine scan/deduplication safeguards, compact dialogs, cartridge controls and platform badges.
+- Consolidate artwork build inputs; add reproducible crop preparation, quality/provenance metadata
+	and packaged third-party shell/media notices. Android version code 5.
+
+See [0.1.4 release notes](docs/releases/0.1.4.md) for validation and limitations. Production signing,
+complete live UI/gameplay verification and third-party artwork redistribution review remain unfinished.
 
 ## 0.1.3 — Experimental preview — 2026-10-12
 

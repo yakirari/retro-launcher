@@ -18,6 +18,40 @@ class GameEntryMergeTest {
         intentDataUri = game.intentDataUri
     )
 
+    @Test fun cartridgeSettingsKeepExistingOverridesAndFillMissingValues() {
+        val original = game("a", "Game", "content://rom/a").copy(
+            imageUri = "content://art/cover", cartridgeLabelUri = "content://art/manual-label", cartridgeColor = "gold"
+        )
+        val incoming = game("b", "Game", "content://rom/b").copy(
+            cartridgeLabelUri = "content://art/incoming-label", cartridgeColor = "red"
+        )
+        val library = mutableListOf(original)
+        upsertOrMergeInPlace(library, incoming, target(incoming))
+        assertEquals(original.cartridgeLabelUri, library.single().cartridgeLabelUri)
+        assertEquals(original.cartridgeColor, library.single().cartridgeColor)
+        assertEquals(original.imageUri, library.single().imageUri)
+
+        val empty = mutableListOf(original.copy(cartridgeLabelUri = null, cartridgeColor = null))
+        upsertOrMergeInPlace(empty, incoming, target(incoming))
+        assertEquals(incoming.cartridgeLabelUri, empty.single().cartridgeLabelUri)
+        assertEquals(incoming.cartridgeColor, empty.single().cartridgeColor)
+    }
+
+    @Test fun launchSetupRepairAndRepeatedImportPreserveCartridgeOverrides() {
+        val pending = game("a", "Game", "content://rom/a").copy(
+            needsLaunchSetup = true, packageName = null,
+            cartridgeLabelUri = "content://art/label", cartridgeColor = "indigo"
+        )
+        val ready = pending.copy(id = "b", needsLaunchSetup = false, packageName = "emulator",
+            cartridgeLabelUri = null, cartridgeColor = null)
+        val library = mutableListOf(pending)
+        assertEquals(UpsertOutcome.MERGED, upsertOrMergeInPlace(library, ready, target(ready)).outcome)
+        assertEquals(pending.cartridgeLabelUri, library.single().cartridgeLabelUri)
+        assertEquals(pending.cartridgeColor, library.single().cartridgeColor)
+        assertEquals(UpsertOutcome.DUPLICATE, upsertOrMergeInPlace(library, ready, target(ready)).outcome)
+        assertEquals(pending.cartridgeLabelUri, library.single().cartridgeLabelUri)
+    }
+
     @Test fun newScanResultPreservesExistingTilesAndMetadata() {
         val original = game("a", "Game A", "content://rom/a").copy(
             imageUri = "file:///cover.png", genre = "Favorites", lastPlayedAtEpochMillis = 123L

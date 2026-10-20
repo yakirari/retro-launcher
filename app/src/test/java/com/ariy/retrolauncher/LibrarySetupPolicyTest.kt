@@ -112,6 +112,48 @@ class LibrarySetupPolicyTest {
         assertTrue(prompted)
     }
 
+    @Test fun armsx2IsSelectableForPs2WithoutReplacingConfiguredNetherSx2() = kotlinx.coroutines.runBlocking {
+        val templates = CustomIntentTemplates.all
+        val options = LibrarySetupPolicy.standaloneChoices(buildGameSystemEmulatorOptions(templates), templates,
+            setOf("Sony PlayStation 2"), setOf("com.armsx2", "xyz.aethersx2.android"))
+        assertEquals(setOf("ARMSX2 preset", "NetherSX2 preset"), options.map { templates[it.templateIndex].label }.toSet())
+        val nether = options.single { templates[it.templateIndex].packageName == "xyz.aethersx2.android" }
+        assertEquals(nether, LibrarySetupPolicy.chooseStandalone(options, templates, "xyz.aethersx2.android") {
+            error("Must retain the existing emulator selection")
+        })
+        val arms = options.single { templates[it.templateIndex].packageName == "com.armsx2" }
+        assertEquals(arms, LibrarySetupPolicy.chooseStandalone(options, templates, null) { arms })
+        assertNull(LibrarySetupPolicy.chooseStandalone(listOf(arms), templates, null) { null })
+    }
+
+    @Test fun armsx3SetupUsesSeparatePs3SystemAndRespectsMissingEmulatorAndSkip() = kotlinx.coroutines.runBlocking {
+        val templates = CustomIntentTemplates.all
+        val all = buildGameSystemEmulatorOptions(templates)
+        val choices = LibrarySetupPolicy.standaloneChoices(all, templates,
+            setOf("Sony PlayStation 3"), setOf("com.armsx3", "com.armsx2"))
+        val choice = choices.single()
+        assertEquals("com.armsx3", templates[choice.templateIndex].packageName)
+        assertEquals("ps3", choice.romFolderHint)
+        assertEquals(GamePickerKind.FILE, choice.pickerKind)
+        assertEquals(choice, LibrarySetupPolicy.chooseStandalone(choices, templates, null) { choice })
+        assertNull(LibrarySetupPolicy.chooseStandalone(choices, templates, null) { null })
+        assertTrue(LibrarySetupPolicy.standaloneChoices(all, templates,
+            setOf("Sony PlayStation 3"), setOf("com.armsx2", "net.rpcsx")).isEmpty())
+        assertTrue(isRecognizedRomScanRoot(listOf("PS3"), "ps3", "Sony PlayStation 3"))
+        assertFalse(isRecognizedRomScanRoot(listOf("PS2"), "ps3", "Sony PlayStation 3"))
+    }
+
+    @Test fun addGameFilterPreselectsCurrentSystemWithoutRemovingPs3Options() {
+        val options = buildGameSystemEmulatorOptions(CustomIntentTemplates.all)
+        val ps3 = options.single { CustomIntentTemplates.all[it.templateIndex].packageName == "com.armsx3" }
+        assertEquals(ps3.systemId, initialAddGameSystemId(options, "Sony PlayStation 3"))
+        val n64 = requireNotNull(initialAddGameSystemId(options, "Nintendo 64"))
+        assertTrue(options.any { it.systemId == n64 && it.platform == "Nintendo 64" })
+        assertTrue(options.any { it.systemId == ps3.systemId })
+        assertNull(initialAddGameSystemId(options, "All"))
+        assertEquals("GameNative", options.first { it.systemId == initialAddGameSystemId(options, "Steam") }.platform)
+    }
+
     @Test fun scummVmInitialSetupNeedsPickerWithoutAssumingFirstGameExposesFullLibrary() {
         val launcher = GameEntry(title = "ScummVM", platform = GamePlatforms.EMULATORS,
             sourceType = GameSourceType.ACTIVITY, packageName = "org.scummvm.scummvm")

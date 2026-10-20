@@ -85,6 +85,8 @@ internal fun upsertOrMergeInPlace(
     if (existing.needsLaunchSetup && !entry.needsLaunchSetup) {
         val repaired = existing.copy(
             subtitle = entry.subtitle, needsLaunchSetup = false,
+            cartridgeLabelUri = existing.cartridgeLabelUri ?: entry.cartridgeLabelUri,
+            cartridgeColor = existing.cartridgeColor ?: entry.cartridgeColor,
             sourceType = entry.sourceType, packageName = entry.packageName,
             activityName = entry.activityName, shortcutId = entry.shortcutId, userSerial = entry.userSerial,
             intentAction = entry.intentAction, intentDataUri = entry.intentDataUri,
@@ -107,6 +109,8 @@ internal fun upsertOrMergeInPlace(
         tagline = existing.tagline ?: entry.tagline,
         platform = existing.platform ?: entry.platform,
         imageUri = existing.imageUri ?: entry.imageUri,
+        cartridgeLabelUri = existing.cartridgeLabelUri ?: entry.cartridgeLabelUri,
+        cartridgeColor = existing.cartridgeColor ?: entry.cartridgeColor,
         alternateTargetsJson = (existing.alternateTargets() + target).toJsonString()
     )
     current[existingIndex] = merged

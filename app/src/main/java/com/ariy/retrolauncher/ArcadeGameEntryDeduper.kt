@@ -51,6 +51,8 @@ internal fun dedupeArcadeGameEntries(entries: List<GameEntry>): List<GameEntry> 
                     count + entry.playCount.coerceIn(0, Long.MAX_VALUE - count)
                 },
                 imageUri = existing.imageUri ?: entry.imageUri,
+                cartridgeLabelUri = existing.cartridgeLabelUri ?: entry.cartridgeLabelUri,
+                cartridgeColor = existing.cartridgeColor ?: entry.cartridgeColor,
                 lastPlayedAtEpochMillis = listOfNotNull(existing.lastPlayedAtEpochMillis, entry.lastPlayedAtEpochMillis).maxOrNull(),
                 alternateTargetsJson = targets.filterNot { it.stableKey() == primary.primaryTarget().stableKey() }
                     .takeIf { it.isNotEmpty() }?.toJsonString(),

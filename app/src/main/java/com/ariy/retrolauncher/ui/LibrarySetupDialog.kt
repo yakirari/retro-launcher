@@ -135,8 +135,10 @@ internal fun LibrarySetupDialog(
                     }
                     if (choice == null && !progress.running) {
                         Text("Choose the folder containing your platform folders. Games are added automatically; covers download afterward.", color = Color.White)
-                        Text("$installedCount emulators / hubs detected · $sharedGameCount shared hub games", color = muted,
+                        Text("$installedCount emulators / hubs detected · $sharedGameCount shared game shortcuts", color = muted,
                             style = MaterialTheme.typography.bodyMedium)
+                        Text("GameNative / GameHub / GameHub Lite / PS3: only game shortcuts shared with this Home app are added automatically. First create a game shortcut inside the hub / emulator and Allow. Add games → Games → Setup / Import has the steps and Open buttons. A private library is not exposed by installing the app.",
+                            color = muted, style = MaterialTheme.typography.bodySmall)
                         if (hasRoot) OutlinedButton(onClick = onChooseRoot, modifier = Modifier.fillMaxWidth()) { Text("Change ROM folder") }
                         if (progress.unconfigured > 0) Text("${progress.unconfigured} games need launch setup. Tile menu → Edit → Launch targets.", color = muted)
                         if (progress.deferredPlatforms.isNotEmpty()) Text(
@@ -153,7 +155,7 @@ internal fun LibrarySetupDialog(
                     }
                     if (showDetails) {
                         if (!isDefaultLauncher) OutlinedButton(onClick = onSetHome, modifier = Modifier.fillMaxWidth()) { Text("Set as Home app") }
-                        Text("For GameNative, GameHub and GameHub Lite: set Retro Launcher as Home, then create / approve game shortcuts inside the hub. Private libraries and shortcuts pinned only to another launcher cannot be read.", color = muted,
+                        Text("For GameNative, GameHub, GameHub Lite and PS3: set Retro Launcher as Home, then create / approve game shortcuts inside the hub or emulator if supported. Private libraries and shortcuts pinned only to another launcher cannot be read. PS3 ISO folder scanning uses ARMSX3; firmware and installed-game lists are not imported.", color = muted,
                             style = MaterialTheme.typography.bodySmall)
                         Text("${progress.skipped} skipped / already present · ${progress.errors} platform errors. Return anytime through Options → Scan library / Setup.", color = muted,
                             style = MaterialTheme.typography.bodySmall)

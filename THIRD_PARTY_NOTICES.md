@@ -63,7 +63,7 @@ automatically licensed under this project's MIT terms.
 
 The project author, [@yakirari](https://github.com/yakirari), confirms authorship of the launcher SVGs,
 backgrounds, exported templates and original app artwork. Original contributions in
-[app/src/main/res/raw](app/src/main/res/raw/), [backgrounds](backgrounds/) and [overlay](overlay/),
+[app/src/main/res/raw](app/src/main/res/raw/), [backgrounds](artwork/backgrounds/) and [overlays](artwork/overlays/),
 plus their packaged copies, are included under the project's MIT license.
 This confirmation does not claim ownership of the documented external cabinet downloads or donor images
 described above, nor of third-party game covers downloaded at runtime.
@@ -76,7 +76,45 @@ does not clear rights in their exported images or remove those files from earlie
 Original simple hub symbols/digital frame generators do not grant rights to covers placed inside them.
 The PS1 generator derives a shell from the author's exported template.
 
+## Slot cartridge graphics
+
+GB/GBC/GBA neutral shell graphics are from Slot revision f4b7bc3b1f7240c00d245c82fe123181a2d5c590,
+not original MIT artwork. Slot credits Markus / MarkusMaribu for its skeuomorphic art and declares
+GPL-3.0-or-later. The imports preserve the plastic pixels and open only the blank label wells;
+runtime tinting adds decorative shell colors. Original author-owned templates are still retained.
+
+- [Original sources, hashes, modifications and distribution obligations](artwork/slot/README.md)
+- [Packaged Slot credits](app/src/main/assets/SLOT-ARTWORK-CREDITS.txt)
+- [Packaged full GPL license](app/src/main/assets/licenses/Slot-GPL-3.0.txt)
+
+These graphics and their derivatives are not covered by the MIT grant. Preserve their GPL terms
+and exact corresponding sources when distributing; review combined-distribution obligations before
+a public source/APK release. No blanket relicensing of other third-party material is implied.
+
 ## Runtime artwork
+
+GB/GBC/GBA nostalgic stickers optionally download exact-ROM CRC matches from Slot's hosted art set.
+Slot Cart Studio attributes ScreenScraper media to CC BY-NC-SA 4.0 and libretro database data
+to CC BY-SA 4.0. These downloaded images are not MIT-licensed or bundled here; noncommercial,
+attribution and share-alike conditions need separate review for any redistribution/use.
+See [packaged sources and license links](app/src/main/assets/CARTRIDGE-LABEL-SOURCES.txt).
+
+N64 cartridge stickers use the separately downloaded
+[archived Analogue 3D label database](https://archive.org/details/Analogue3Dcartdatabase).
+Its 74×86 images are matched by normalized ROM-header CRC, cached locally and not bundled.
+The archive does not declare a media license; public availability is not public-domain status
+or permission to redistribute. These images remain subject to their original owners' rights.
+Seven reviewed USA signatures prefer individually fetched original cartridge scans from
+[N64 Cartridge Art Collection](https://archive.org/details/N64_Cartridge_Art_Collection),
+uploaded by Jason Scott (2016). Sources are hash-verified and only the manually reviewed
+sticker rectangle is extracted. These scans also declare no media license and are not
+bundled or relicensed. Exact source filenames/hashes/crops are in
+[N64 scan manifest](app/src/main/assets/cartridge-artwork/n64-scans.json).
+The [generic preparation workflow](artwork/CARTRIDGE-ARTWORK.md) inventories original sources
+and exports reviewed labels outside the repository; its distribution mode requires recorded rights
+approval. Preparation alone does not grant permission to bundle or host third-party images.
+No Analogue/Nintendo affiliation or MIT relicensing is implied. Format documentation was
+consulted, not copied; source and format references are in the packaged artwork notices above.
 
 Lookup uses Steam Store/CDN, Libretro/Eden catalogues and web search providers. These services' availability,
 terms and image rights are independent of the launcher license. Do not commit user-downloaded covers

@@ -48,6 +48,9 @@ explicit preview limitations and notices; production signing and artwork review 
 
 ## Release procedure
 
+[0.1.4 notes](releases/0.1.4.md) cover cartridge labels, console artwork, shared mixed-view filtering
+and artwork organization (version code 5). Local N64 exports are excluded from Git/APKs.
+
 [0.1.3 notes](releases/0.1.3.md) include a trace-confirmed gallery crash fix, stable Shelf sizing
 and emulator icons (version code 4). UI/stress testing and production signing remain incomplete.
 

@@ -179,7 +179,7 @@ fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): S
     val trimmed = raw?.trim().orEmpty()
     val normalizedInput = stripUriPathNoise(trimmed)
     val baseName = if (stripFileExtension) {
-        normalizedInput.replace(Regex("""(?i)\.(?:nsp|xci|nsz|xcz|iso|cso|chd|cue|bin|pbp|zip|7z|nes|sfc|smc|gba|gbc|gb|nds|3ds|cia|n64|z64|v64|rom|exe|lnk|url|png|jpe?g|webp)$"""), "")
+        normalizedInput.replace(Regex("""(?i)\.(?:nsp|xci|nsz|xcz|iso|rvz|gcz|ciso|wbfs|cso|chd|cue|bin|pbp|zip|7z|nes|sfc|smc|gba|gbc|gb|nds|3ds|cia|n64|z64|v64|rom|exe|lnk|url|png|jpe?g|webp)$"""), "")
     } else {
         normalizedInput
     }

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "platform": "Nintendo 64",
+  "sourceCollection": "https://archive.org/details/N64_Cartridge_Art_Collection",
+  "archiveUrl": "https://archive.org/download/N64_Cartridge_Art_Collection/N64_Art_Collection_images.zip",
+  "archiveSha1": "57a9571b156c44d602ac9250ab3f4e41d0b8d3f3",
+  "mediaLicense": "Not declared; public availability does not grant redistribution rights",
+  "entries": [
+    {"signatures":["89239B0E"],"title":"Donkey Kong 64","region":"USA","filename":"Donkey Kong 64 (U) Cart.jpg","sha256":"148dd003caf42dc84eb008fd93aed86347299c46ce88d40998b5e42b17c08905","sourceWidth":683,"sourceHeight":449,"crop":[175,47,328,370],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["AC631DA0"],"title":"GoldenEye 007","region":"USA","filename":"GoldenEye 007 (U) Cart.jpg","sha256":"2c4f1269e3899da6bd6841659320928a4ea01b62fe1d03075bed5c493f1942c7","sourceWidth":689,"sourceHeight":451,"crop":[178,49,326,369],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["8E94F2DD"],"title":"The Legend of Zelda: Majora's Mask","region":"USA","filename":"Legend of Zelda, The - Majora's Mask (U) Cart.jpg","sha256":"815580ff4ed6cdb034b7564d900046f50447b0d45a43b860980c8c67c61dee41","sourceWidth":685,"sourceHeight":456,"crop":[170,37,343,381],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["7021064B"],"title":"The Legend of Zelda: Ocarina of Time","region":"USA","filename":"Legend of Zelda, The - Ocarina of Time (U) Cart.jpg","sha256":"359d17e7046a29a4eab4118eda8767a455b4e6338d865a3ca18dcfe600e1d47b","sourceWidth":635,"sourceHeight":423,"crop":[164,35,305,350],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["BE5799F3"],"title":"Paper Mario","region":"USA","filename":"Paper Mario (U) Cart.jpg","sha256":"72bd0b57a198c939fae30b9c5c1e4be33533fd565da18ed866c07a1ef2dd580c","sourceWidth":678,"sourceHeight":449,"crop":[171,46,325,368],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["E5CDED18"],"title":"Spider-Man","region":"USA","filename":"Spider-Man (U) Cart.jpg","sha256":"4c805ab0cbcc0150cdd05cc2cee627e1a768f597b70d5b7c2a34e120b7dfa094","sourceWidth":678,"sourceHeight":449,"crop":[176,45,329,368],"reviewed":true,"redistributionApproved":false},
+    {"signatures":["B393776D"],"title":"Super Mario 64","region":"USA","filename":"Super Mario 64 (U) Cart.jpg","sha256":"50402e21c340fa162ce2aafaa673d83910b85fce829075c2d7519f8c946b10b7","sourceWidth":678,"sourceHeight":449,"crop":[171,47,325,368],"reviewed":true,"redistributionApproved":false}
+  ]
+}

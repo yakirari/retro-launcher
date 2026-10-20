@@ -91,7 +91,9 @@ data class GameEntry(
     val releaseYear: String? = null,
     val tagline: String? = null,
     val playCount: Long = 0,
-    val needsLaunchSetup: Boolean = false
+    val needsLaunchSetup: Boolean = false,
+    val cartridgeLabelUri: String? = null,
+    val cartridgeColor: String? = null
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
@@ -118,6 +120,8 @@ data class GameEntry(
         put("tagline", tagline)
         put("playCount", playCount)
         put("needsLaunchSetup", needsLaunchSetup)
+        put("cartridgeLabelUri", cartridgeLabelUri)
+        put("cartridgeColor", cartridgeColor)
     }
 
     fun primaryTarget(): LaunchTarget = LaunchTarget(
@@ -179,7 +183,9 @@ data class GameEntry(
             releaseYear = json.optString("releaseYear").ifBlank { null },
             tagline = json.optString("tagline").ifBlank { null },
             playCount = json.optLong("playCount", 0).coerceAtLeast(0),
-            needsLaunchSetup = json.optBoolean("needsLaunchSetup", false)
+            needsLaunchSetup = json.optBoolean("needsLaunchSetup", false),
+            cartridgeLabelUri = if (json.isNull("cartridgeLabelUri")) null else json.optString("cartridgeLabelUri").ifBlank { null },
+            cartridgeColor = if (json.isNull("cartridgeColor")) null else json.optString("cartridgeColor").ifBlank { null }
         )
     }
 }

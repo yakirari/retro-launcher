@@ -13,7 +13,7 @@ independent AI output. A per-file reconciliation is still needed before public d
 
 ## Build preparation
 
-The finite cabinet collection is sourced from `overlay_mame`. The curated ROM/name
+The finite cabinet collection is sourced from [arcade-overlays](arcade-overlays/). The curated ROM/name
 mapping is maintained in `ArcadeGameCatalog.kt`. Unlisted clones or sequels are not
 automatically treated as the same game.
 

@@ -1,0 +1,44 @@
+Optional downloaded GB / GBC / GBA cartridge labels
+
+Art index and images: https://art.slot-cfw.fyi/
+Slot Cart Studio: https://github.com/BrandonKowalski/slot-cart-studio
+ScreenScraper artwork source: https://www.screenscraper.fr/
+Database source: https://github.com/libretro/libretro-database
+
+Slot Cart Studio's README attributes game names/CRCs to libretro-database
+(CC BY-SA 4.0), and artwork to ScreenScraper (CC BY-NC-SA 4.0).
+https://creativecommons.org/licenses/by-sa/4.0/
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Retro Launcher downloads exact-CRC matching GB / GBC / GBA support-texture images on demand.
+Downloaded images are kept in app cache, fitted without extra text, and are not
+bundled with this app or relicensed under MIT. Original media authors retain their
+rights. Attribution and these source/license links apply to cached downloaded media.
+No affiliation or endorsement is implied. Commercial distribution/use requires
+separate review of the media terms; runtime fetching does not remove obligations.
+
+Optional downloaded Nintendo 64 cartridge labels
+
+Source: https://archive.org/details/Analogue3Dcartdatabase
+File: https://archive.org/download/Analogue3Dcartdatabase/labels.db
+Format reference: https://github.com/Chrisser73/analogue-3d-labels-db-editor
+The format documentation was consulted; no upstream code is copied.
+
+Reviewed higher-resolution original cartridge scans:
+https://archive.org/details/N64_Cartridge_Art_Collection
+Uploaded by Jason Scott (2016); source filenames, exact ROM-header signatures,
+SHA-256 digests and manually reviewed sticker crop coordinates are recorded in
+cartridge-artwork/n64-scans.json. Seven reviewed USA labels use 305-343 by 350-381 original pixels.
+Each scan is fetched separately and only the sticker rectangle is cached. Unknown
+or unreviewed variants retain the exact lower-resolution label, not another region.
+No AI reconstruction or invented lettering is used. These scans have no declared
+media license either; original owners retain rights, with no redistribution grant.
+
+The fallback pre-loaded Analogue 3D label database contains 74x86 pixel portrait images.
+The approximately 22 MiB database is downloaded into cache on first N64 label lookup,
+size/SHA-256 verified, then read locally using an exact normalized first-8-KiB ROM CRC.
+No ROM bytes are uploaded. Ordinary box artwork is not overwritten.
+This is not Slot artwork, is not affiliated with Analogue or Nintendo, and is not
+bundled or relicensed under MIT. The archive does not declare a media license;
+availability is not public-domain or redistribution permission. Original rights
+remain with their respective owners. Review media rights before redistribution.

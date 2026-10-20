@@ -1,1 +1,14 @@
-<svg width="50" height="50" viewBox="0 0 100 100"><rect x="5" y="25" width="90" height="50" rx="15" fill="none" stroke="white" stroke-width="8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="112" viewBox="0 0 320 112">
+	<title>PlayStation Vita — angular wordmark badge</title>
+	<desc>Original path lettering on a transparent canvas; no embedded font or raster artwork.</desc>
+	<g fill="#FFFFFF">
+		<!-- Compact PS signature above the open, widely spaced VITA lettering. -->
+		<path fill-rule="evenodd" d="M133 8h17c9 0 14 5 14 12s-5 12-14 12h-10v12h-7V8zm7 6v12h10c5 0 7-2 7-6s-2-6-7-6h-10z"/>
+		<path d="M194 8v6h-18c-3 0-5 2-5 5s2 4 5 4h8c8 0 12 4 12 10s-4 11-12 11h-20v-6h20c3 0 5-2 5-5s-2-4-5-4h-8c-8 0-12-4-12-10s4-11 12-11h18z"/>
+		<path d="M12 56h10l27 40 27-40h10l-37 54L12 56z"/>
+		<path d="M103 56h9v54h-9V56z"/>
+		<path d="M132 56h76v8h-33v46h-10V64h-33v-8z"/>
+		<path d="M260 54l48 56h-12l-36-43-36 43h-12l48-56z"/>
+		<path d="M236 91h48v8h-48z"/>
+	</g>
+</svg>

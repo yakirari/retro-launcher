@@ -1,1 +1,19 @@
-<svg width="50" height="50" viewBox="0 0 100 100"><rect x="20" y="30" width="60" height="40" rx="5" fill="none" stroke="white" stroke-width="8"/><rect x="30" y="40" width="10" height="10" fill="white"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="192" viewBox="0 0 320 192">
+	<title>PC Engine — geometric wordmark badge</title>
+	<desc>Original bold PC and ENGINE path lettering with a transparent background and open counters.</desc>
+	<g fill="#FFFFFF">
+		<!-- Forward-cut PC lettering; the counters remain genuinely transparent. -->
+		<path fill-rule="evenodd" d="M58 12h81l17 17v41l-17 17H82v33H58V12zm24 22v31h47l5-5V39l-5-5H82z"/>
+		<path d="M183 12h79v22h-68l-8 8v48l8 8h68v22h-79l-21-21V33l21-21z"/>
+		<!-- Short speed bars balance the broad upper wordmark. -->
+		<path d="M14 43h32v8H14zM22 60h24v8H22zM30 77h16v8H30z"/>
+		<path d="M274 43h32v8h-32zM274 60h24v8h-24zM274 77h16v8h-16z"/>
+		<!-- ENGINE is all paths so AndroidSVG never substitutes a device font. -->
+		<path d="M12 142h40v9H22v11h26v9H22v11h30v9H12v-49z"/>
+		<path d="M63 191v-49h10l24 32v-32h10v49H97l-24-32v32H63z"/>
+		<path d="M125 142h36v9h-31l-4 4v23l4 4h21v-11h-15v-9h25v29h-36l-9-9v-31l9-9z"/>
+		<path d="M173 142h10v49h-10v-49z"/>
+		<path d="M195 191v-49h10l24 32v-32h10v49h-10l-24-32v32h-10z"/>
+		<path d="M251 142h40v9h-30v11h26v9h-26v11h30v9h-40v-49z"/>
+	</g>
+</svg>

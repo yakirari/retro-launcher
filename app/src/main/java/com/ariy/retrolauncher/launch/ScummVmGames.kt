@@ -126,6 +126,8 @@ internal object ScummVmGames {
             intentAction = incoming.intentAction, extrasJson = incoming.extrasJson,
             // Retain the selected ROM folder when repairing a legacy tile; launching uses the registered target.
             intentDataUri = existing.intentDataUri ?: incoming.intentDataUri,
+            cartridgeLabelUri = existing.cartridgeLabelUri ?: incoming.cartridgeLabelUri,
+            cartridgeColor = existing.cartridgeColor ?: incoming.cartridgeColor,
             preferredTargetKey = null
         )
     }

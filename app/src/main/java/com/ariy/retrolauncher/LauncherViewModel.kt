@@ -278,6 +278,60 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         scheduleSwitchDuplicateReconciliation()
         refreshInstalledTargets(importSharedGames = _setupCompleted.value)
         prefetchMameFallbackArtworkIfNeeded()
+        refreshConsoleCatalogArtwork()
+        refreshScummVmShortcutArtwork()
+    }
+
+    private fun refreshScummVmShortcutArtwork() {
+        launchWorker(Dispatchers.IO) {
+            for (original in _games.value.filter { GamePlatforms.normalizeOrNull(it.platform) == "ScummVM" }) {
+                currentCoroutineContext().ensureActive()
+                try { upgradeScummVmShortcutArtwork(original) }
+                catch (cancelled: CancellationException) { throw cancelled }
+                catch (_: Exception) { /* Keep the existing image when offline; retry next startup. */ }
+            }
+        }
+    }
+
+    private suspend fun upgradeScummVmShortcutArtwork(original: GameEntry) {
+        if (GamePlatforms.normalizeOrNull(original.platform) != "ScummVM") return
+        // Manual replacements share the same filename: compare pixels, never just the path.
+        if (!importedIconStore.isLegacyScummVmPlaceholder(original) && !installedTargets.isImportedShortcutIcon(original)) return
+        val candidates = com.ariy.retrolauncher.launch.LibretroArtworkCatalog.fetchCandidates(
+            "ScummVM", ScummVmGames.artworkTitle(original.title))
+        val workerContext = currentCoroutineContext()
+        val saved = importedIconStore.downloadBestAspectImage("${original.id}-scummvm-cover-v1",
+            candidates.map(ArtworkCandidate::imageUrl), preferredArtworkAspectRatio("ScummVM"),
+            cancellationCheck = { workerContext.ensureActive() }) ?: return
+        updateGamesFromBackground { games -> games.map { game ->
+            if (game.id == original.id && game.imageUri == original.imageUri) game.copy(imageUri = saved) else game
+        } }
+    }
+
+    private fun refreshConsoleCatalogArtwork() {
+        launchWorker(Dispatchers.IO) {
+            val workerContext = currentCoroutineContext()
+            val platforms = setOf("Nintendo GameCube", "Nintendo 64", "Sony PlayStation 2")
+            for (original in _games.value.filter { GamePlatforms.normalizeOrNull(it.platform) in platforms }) {
+                currentCoroutineContext().ensureActive()
+                val source = original.imageUri ?: continue
+                // Only our generated cover files are eligible, never manual images or picker results.
+                if (resolveArtworkSourceUri(source).lastPathSegment != "${original.id}-autofill.png") continue
+                val name = "${original.id}-console-catalog-v2"
+                val saved = importedIconStore.existingBitmapUri(name) ?: run {
+                    val candidates = runCatching {
+                        com.ariy.retrolauncher.launch.LibretroArtworkCatalog.fetchCandidates(original.platform, original.title,
+                            original.intentDataUri?.let { Uri.decode(it).substringAfterLast('/') })
+                    }.getOrElse { error -> if (error is CancellationException) throw error else emptyList() }
+                    importedIconStore.downloadBestAspectImage(name, candidates.map(ArtworkCandidate::imageUrl),
+                        preferredArtworkAspectRatio(original.platform), minimumShortEdge = 240,
+                        cancellationCheck = { workerContext.ensureActive() })
+                } ?: continue
+                updateGamesFromBackground { games -> games.map { game ->
+                    if (game.id == original.id && game.imageUri == source) game.copy(imageUri = saved) else game
+                } }
+            }
+        }
     }
 
     fun refreshInstalledTargets(importSharedGames: Boolean = true) {
@@ -489,7 +543,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             subtitle = option.sourceLabel,
             platform = com.ariy.retrolauncher.model.PcGameStores.forShortcut(option)
                 ?: "ScummVM".takeIf { option.packageName == ScummVmGames.PACKAGE }
-                ?: inferPlatformFromIntentDataUri(inferredIntentDataUri),
+                ?: inferPlatformFromIntentDataUri(inferredIntentDataUri)
+                ?: GamePlatforms.inferFromPackageName(option.packageName),
             imageUri = runCatching { installedTargets.importShortcutIcon(
                 packageName = option.packageName,
                 shortcutId = option.shortcutId,
@@ -524,7 +579,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         ) }
         if (autofill) launchWorker(Dispatchers.IO) {
             _games.value.firstOrNull { it.packageName == option.packageName && it.shortcutId == option.shortcutId &&
-                it.userSerial == option.userSerial }?.let { upgradeDigitalPortrait(it) }
+                it.userSerial == option.userSerial }?.let {
+                    upgradeDigitalPortrait(it)
+                    upgradeScummVmShortcutArtwork(it)
+                }
         }
     }
 
@@ -768,6 +826,18 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun updateGameImage(id: String, uri: Uri?) {
         val updated = _games.value.map { game ->
             if (game.id == id) game.copy(imageUri = uri?.toString()?.let(::stampArtworkUri)) else game
+        }
+        persistGames(updated)
+    }
+
+    fun updateGameCartridge(id: String, labelUri: String?, color: String?) {
+        val updated = _games.value.map { game ->
+            if (game.id == id && com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
+                game.copy(
+                    cartridgeLabelUri = labelUri?.takeIf { it.isNotBlank() },
+                    cartridgeColor = com.ariy.retrolauncher.model.HandheldCartridgeSettings.normalizeColor(color)
+                )
+            } else game
         }
         persistGames(updated)
     }
@@ -1340,6 +1410,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 fileName = fileName,
                 imageUrls = candidates.map(ArtworkCandidate::imageUrl),
                 targetAspectRatio = preferredArtworkAspectRatio(game.platform),
+                // Reject tiny catalog thumbnails rather than permanently saving blurry covers.
+                minimumShortEdge = if (GamePlatforms.normalizeOrNull(game.platform) in
+                    setOf("Nintendo GameCube", "Nintendo 64", "Sony PlayStation 2")) 240 else 0,
                 cancellationCheck = { coroutineContext.ensureActive() }
             )
             // A download fallback must not replace the primary Find images results/cache.

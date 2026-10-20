@@ -76,6 +76,8 @@ internal fun dedupeSwitchGameEntries(
                     count + normalizedEntry.playCount.coerceIn(0, Long.MAX_VALUE - count)
                 },
                 imageUri = existing.imageUri ?: normalizedEntry.imageUri,
+                cartridgeLabelUri = existing.cartridgeLabelUri ?: normalizedEntry.cartridgeLabelUri,
+                cartridgeColor = existing.cartridgeColor ?: normalizedEntry.cartridgeColor,
                 alternateTargetsJson = (existing.alternateTargets() + mergedTargets)
                     .distinctBy { it.stableKey() }
                     .takeIf { it.isNotEmpty() }

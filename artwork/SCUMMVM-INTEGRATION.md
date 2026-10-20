@@ -36,6 +36,13 @@ autofill artwork is invalidated when correcting a known title; manually chosen a
 Cover lookup uses exact Libretro ScummVM title matches, tolerating its platform/edition suffixes and
 trailing `, The` convention. It preserves subtitle colons and does not guess generic web artwork.
 
+Imported shortcuts can supply ScummVM's generic gray silhouette instead of game artwork.
+On startup and new shortcut import, these icons receive a separate exact-catalog cover lookup.
+Eligibility requires matching current shortcut pixels or the exact SHA-256 of the verified legacy
+placeholder, not merely an app-private filename (manual covers share those filenames).
+Downloads use separate files; unmatched/offline results keep the old image, and concurrent manual
+changes win. The floppy template's transparency-derived label placement is unchanged.
+
 ## Verified references (2026-10-10)
 
 - [ScummVM Android documentation](https://docs.scummvm.org/en/latest/other_platforms/android.html)

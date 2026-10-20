@@ -14,13 +14,16 @@ val nostalgicOverlayMappings = mapOf(
     "gb.png" to "nostalgic_overlay_gb.png",
     "gba.png" to "nostalgic_overlay_gba.png",
     "gbc.png" to "nostalgic_overlay_gbc.png",
-    "gc.png" to "nostalgic_overlay_gc.png",
+    "handheld/gb_shell.png" to "nostalgic_shell_gb.png",
+    "handheld/gbc_shell.png" to "nostalgic_shell_gbc.png",
+    "handheld/gba_shell.png" to "nostalgic_shell_gba.png",
+    "gc_full_cover.png" to "nostalgic_overlay_gc.png",
     "md.png" to "nostalgic_overlay_md.png",
     "n64.png" to "nostalgic_overlay_n64.png",
     "nds.png" to "nostalgic_overlay_nds.png",
     "nes.png" to "nostalgic_overlay_nes.png",
     "ps1_full_cover.png" to "nostalgic_overlay_ps1.png",
-    "ps2.png" to "nostalgic_overlay_ps2.png",
+    "ps2_full_cover.png" to "nostalgic_overlay_ps2.png",
     "ps3.png" to "nostalgic_overlay_ps3.png",
     "psp.png" to "nostalgic_overlay_psp.png",
     "scummvm.png" to "nostalgic_overlay_scummvm.png",
@@ -29,19 +32,56 @@ val nostalgicOverlayMappings = mapOf(
     "wii.png" to "nostalgic_overlay_wii.png"
 )
 
+val prepareSlotHandheldShells by tasks.registering(Exec::class) {
+    group = "assets"
+    description = "Opens label wells in attributed Slot cartridge artwork, preserving original plastic pixels."
+    val generator = rootProject.file("scripts/PrepareSlotHandheldShells.java")
+    val source = rootProject.file("artwork/slot/source")
+    val target = rootProject.file("artwork/overlays/handheld")
+    inputs.file(generator)
+    inputs.files(fileTree(source) { include("*_neutral.png") })
+    outputs.files(listOf("gb", "gbc", "gba").map { target.resolve("${it}_shell.png") })
+    commandLine("${System.getProperty("java.home")}/bin/java", "-Djava.awt.headless=true",
+        generator.absolutePath, source.absolutePath, target.absolutePath)
+}
+
+val prepareConsoleTemplates by tasks.registering(Exec::class) {
+    val generator = rootProject.file("scripts/PrepareConsoleTemplates.java")
+    inputs.file(generator)
+    inputs.files(rootProject.file("artwork/overlays/gc.png"), rootProject.file("artwork/overlays/ps2.png"))
+    outputs.files(rootProject.file("artwork/overlays/gc_full_cover.png"), rootProject.file("artwork/overlays/ps2_full_cover.png"),
+        rootProject.file("artwork/overlays/n64_box.png"))
+    commandLine("${System.getProperty("java.home")}/bin/java", "-Djava.awt.headless=true",
+        generator.absolutePath, rootProject.file("artwork/overlays").absolutePath)
+}
+
+val preparePlayStationTemplate by tasks.registering(Exec::class) {
+    group = "assets"
+    description = "Prepares the full-cover PlayStation jewel case with original retaining tabs."
+    val generator = rootProject.file("scripts/PreparePlayStationTemplate.java")
+    val source = rootProject.file("artwork/overlays/ps1.png")
+    val shell = rootProject.file("artwork/overlays/cd.png")
+    val target = rootProject.file("artwork/overlays/ps1_full_cover.png")
+    inputs.files(generator, source, shell)
+    outputs.file(target)
+    commandLine("${System.getProperty("java.home")}/bin/java", "-Djava.awt.headless=true",
+        generator.absolutePath, source.absolutePath, target.absolutePath, shell.absolutePath)
+}
+
 val syncOverlayAssets by tasks.registering {
+    dependsOn(prepareSlotHandheldShells, prepareConsoleTemplates, preparePlayStationTemplate)
     group = "assets"
     description = "Syncs overlay and background source art into the app's packaged assets and resources."
 
-    val mameOverlaySourceDir = rootProject.file("overlay_mame")
+    val mameOverlaySourceDir = rootProject.file("artwork/arcade-overlays")
     val mameOverlayTargetDir = layout.projectDirectory.dir("src/main/assets/overlay_mame").asFile
     val nostalgicOverlayTargetDir = layout.projectDirectory.dir("src/main/res/drawable-nodpi").asFile
-    val launcherBackgroundSourceDir = rootProject.file("backgrounds")
+    val launcherBackgroundSourceDir = rootProject.file("artwork/backgrounds")
     val launcherBackgroundTargetDir = layout.projectDirectory.dir("src/main/assets/backgrounds").asFile
     val supportedBackgroundExtensions = setOf("png", "jpg", "jpeg", "webp")
 
     inputs.files(fileTree(mameOverlaySourceDir) { include("*.png") })
-    inputs.files(nostalgicOverlayMappings.keys.map { sourceName -> rootProject.file("overlay/$sourceName") })
+    inputs.files(nostalgicOverlayMappings.keys.map { sourceName -> rootProject.file("artwork/overlays/$sourceName") })
     inputs.files(fileTree(launcherBackgroundSourceDir) {
         include("*.png", "*.jpg", "*.jpeg", "*.webp")
     })
@@ -50,6 +90,10 @@ val syncOverlayAssets by tasks.registering {
     outputs.files(nostalgicOverlayMappings.values.map { targetName -> nostalgicOverlayTargetDir.resolve(targetName) })
 
     doLast {
+        // Fail before pruning packaged copies if a source directory was moved or omitted.
+        listOf(mameOverlaySourceDir, launcherBackgroundSourceDir).forEach { sourceDir ->
+            require(sourceDir.isDirectory) { "Missing artwork source directory: ${sourceDir.path}" }
+        }
         mameOverlayTargetDir.mkdirs()
         nostalgicOverlayTargetDir.mkdirs()
         launcherBackgroundTargetDir.mkdirs()
@@ -103,7 +147,7 @@ val syncOverlayAssets by tasks.registering {
         }
 
         nostalgicOverlayMappings.forEach { (sourceName, targetName) ->
-            val sourceFile = rootProject.file("overlay/$sourceName")
+            val sourceFile = rootProject.file("artwork/overlays/$sourceName")
             require(sourceFile.isFile) {
                 "Missing overlay source file: ${sourceFile.path}"
             }
@@ -119,7 +163,7 @@ val syncOverlayAssets by tasks.registering {
 val prepareArcadeCabinets by tasks.registering(Exec::class) {
     group = "assets"
     description = "Prepares consistently framed arcade cabinets without modifying source artwork."
-    val source = rootProject.file("overlay_mame")
+    val source = rootProject.file("artwork/arcade-overlays")
     val generator = rootProject.file("scripts/NormalizeArcadeCabinets.java")
     val references = rootProject.file("artwork/cabinet-references")
     val target = layout.projectDirectory.dir("src/main/assets/cabinets_mame").asFile
@@ -156,8 +200,8 @@ android {
         applicationId = "com.ariy.retrolauncher"
         minSdk = 33
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.1.3"
+        versionCode = 5
+        versionName = "0.1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

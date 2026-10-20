@@ -84,9 +84,10 @@ Before `preBuild`, Gradle runs:
 
 | Task | Inputs | Output |
 | --- | --- | --- |
-| `syncOverlayAssets` | [overlay](../overlay/), [overlay_mame](../overlay_mame/), [backgrounds](../backgrounds/) | Drawable resources and copied assets |
+| `syncOverlayAssets` | [overlays](../artwork/overlays/), [arcade overlays](../artwork/arcade-overlays/), [backgrounds](../artwork/backgrounds/) | Drawable resources and copied assets |
 | `prepareArcadeCabinets` | [NormalizeArcadeCabinets.java](../scripts/NormalizeArcadeCabinets.java), cabinet PNGs/references | Normalized cabinet assets |
 | `syncFullArcadeCabinets` | [artwork/full-cabinets](../artwork/full-cabinets/) | Full-cabinet assets |
+| `preparePlayStationTemplate` | Original PS1 and CD jewel-case PNGs | Full-cover PS1 template retaining molded tabs/clips |
 
 Some outputs are written into the source tree. Inspect `git status` after builds and edit source assets,
 not synchronized copies. Do not indiscriminately delete checked-in assets: some manually generated
@@ -100,8 +101,10 @@ Reproduce the two manually generated templates with JDK 17:
 
 ```sh
 java -Djava.awt.headless=true scripts/PrepareDigitalGameTemplate.java app/src/main/res/drawable-nodpi/nostalgic_overlay_digital_pc.png
-java -Djava.awt.headless=true scripts/PreparePlayStationTemplate.java overlay/ps1.png overlay/ps1_full_cover.png
+java -Djava.awt.headless=true scripts/PreparePlayStationTemplate.java artwork/overlays/ps1.png artwork/overlays/ps1_full_cover.png
 ```
+
+See the [artwork directory guide](../artwork/README.md) for source, prepared, packaged and local-only paths.
 
 The PS1 generator preserves its source. Full-cabinet/metadata sourcing utilities are not required for
 ordinary builds; read their inputs/provenance before running them. See [cabinet notes](../artwork/ARCADE-CABINETS.md).

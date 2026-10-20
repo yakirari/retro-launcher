@@ -14,7 +14,8 @@ internal object LibrarySetupPolicy {
         packageName == "app.gamenative" || packageName in PcGameStores.hubPackages
 
     fun isAutoImportShortcutPackage(packageName: String): Boolean =
-        isSharedHubPackage(packageName) || packageName == com.ariy.retrolauncher.launch.ScummVmGames.PACKAGE
+        isSharedHubPackage(packageName) || packageName == com.ariy.retrolauncher.launch.ScummVmGames.PACKAGE ||
+            packageName in com.ariy.retrolauncher.launch.GameShortcutIntegrations.ps3Packages
 
     fun needsScummVmLink(importableCount: Int, games: List<GameEntry>): Boolean = importableCount == 0 &&
         games.none { it.platform == "ScummVM" && !it.needsLaunchSetup &&

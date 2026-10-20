@@ -16,6 +16,7 @@ release-keystore.properties
 overlay_raw/
 
 # Local/generated assets
+artwork/n64/local-prepared/
 .tmp_*
 *:Zone.Identifier
 *~RF*.TMP

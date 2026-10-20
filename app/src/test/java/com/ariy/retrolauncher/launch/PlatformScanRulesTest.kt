@@ -4,6 +4,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PlatformScanRulesTest {
+    @Test fun ps3ScanImportsDiscIsosNotFirmwarePackagesOrExecutables() {
+        assertTrue(GameRecommendations.supportsPlatformScan("ps3"))
+        assertTrue(GameRecommendations.supportsFilter("Sony PlayStation 3"))
+        assertTrue(hasAllowedRomExtension("The Wolf Among Us.ISO", ps3ScanExtensions))
+        for (name in listOf("PS3UPDAT.PUP", "Game.pkg", "EBOOT.BIN", "Game.chd", "Game.cso", "Game.ps3", "Game.iso.bak")) {
+            assertFalse(name, hasAllowedRomExtension(name, ps3ScanExtensions))
+        }
+    }
+
     @Test fun onlySupportedExtensionsAreCandidates() {
         val extensions = setOf("sfc", "smc")
         assertTrue(hasAllowedRomExtension("Game.SFC", extensions))

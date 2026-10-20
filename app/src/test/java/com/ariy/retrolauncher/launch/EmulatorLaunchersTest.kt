@@ -19,6 +19,37 @@ class EmulatorLaunchersTest {
         assertFalse(GamePlatforms.matchesFilter(GamePlatforms.EMULATORS, "Android Games"))
     }
     private fun activity(pkg: String, name: String = "Main") = InstalledActivityOption(name, pkg, name, pkg, "$pkg.$name", 0)
+    @Test fun armsx2HasUriPresetAndSeparatePayloadFreeLauncher() {
+        val template = CustomIntentTemplates.all.single { it.packageName == "com.armsx2" }
+        assertEquals("com.armsx2.Main", template.activityName)
+        assertEquals("android.intent.action.VIEW", template.action)
+        assertTrue(template.extrasJson.isBlank()) // Not AetherSX2's bootPath contract.
+        assertEquals("Sony PlayStation 2", GamePlatforms.inferFromPackageName(template.packageName))
+        val game = CustomIntentTemplates.toEntry(template, "My PS2 game", "ARMSX2")
+            .copy(intentDataUri = "content://roms/game.iso", platform = "Sony PlayStation 2")
+        val entries = installedEmulatorLaunchers(listOf(activity("com.armsx2", "BootSplashActivity")), listOf(game))
+        assertEquals(1, entries.size)
+        assertEquals(GamePlatforms.EMULATORS, entries.single().platform)
+        assertNull(entries.single().intentDataUri)
+        assertNull(entries.single().extrasJson)
+        assertTrue(installedEmulatorLaunchers(listOf(activity("com.armsx2")), entries).isEmpty())
+    }
+    @Test fun ps3PackagesCanBeClassifiedWithoutInventingDirectGamePresets() {
+        val packages = listOf("com.armsx3", "aenu.aps3e", "net.rpcs3", "net.rpcsx")
+        for (pkg in packages) assertEquals("Sony PlayStation 3", GamePlatforms.inferFromPackageName(pkg))
+        assertEquals("Sony PlayStation 3", GamePlatforms.normalizeOrNull("ps3"))
+        assertEquals("Sony PlayStation 3", GamePlatforms.normalizeOrNull("PlayStation 3"))
+        assertFalse(GamePlatforms.matchesFilter("ps3", "ps2"))
+        val template = CustomIntentTemplates.all.single { it.packageName == "com.armsx3" }
+        assertEquals("com.armsx2.Main", template.activityName) // Actual class differs from app's package.
+        assertEquals("android.intent.action.VIEW", template.action)
+        assertTrue(template.extrasJson.isBlank())
+        assertTrue(CustomIntentTemplates.all.none { it.packageName in packages.drop(1) })
+        val standalone = installedEmulatorLaunchers(packages.map { activity(it) }, emptyList())
+        assertEquals(4, standalone.size)
+        assertTrue(standalone.all { it.platform == GamePlatforms.EMULATORS && it.intentDataUri == null && it.extrasJson == null })
+    }
+
     @Test fun gameHubsBecomeStandaloneLaunchersWithStableNamesAndNoGamePayload() {
         val apps = listOf(activity("com.xiaoji.egggame"), activity("gamehub.lite"))
         val entries = installedEmulatorLaunchers(apps, emptyList())

@@ -1,1 +1,24 @@
-<svg width="50" height="50" viewBox="0 0 100 100"><path d="M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10" fill="none" stroke="white" stroke-width="8"/><line x1="20" y1="50" x2="80" y2="50" stroke="white" stroke-width="8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="208" viewBox="0 0 320 208">
+	<title>Sega Saturn — orbital wordmark badge</title>
+	<desc>Original orbital emblem and outlined path lettering, optimized for small monochrome badges.</desc>
+	<g transform="rotate(-24 160 52)" fill="#FFFFFF">
+		<!-- A transparent equatorial gap separates the planet from its ring. -->
+		<path d="M126 46a35 35 0 0 1 68 0h-68zM126 58h68a35 35 0 0 1-68 0z"/>
+		<ellipse cx="160" cy="52" rx="70" ry="15" fill="none" stroke="#FFFFFF" stroke-width="7"/>
+	</g>
+	<!-- SEGA, centered above the larger SATURN wordmark. -->
+	<g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round" stroke-linecap="square">
+		<path d="M111 106H91v12h20v12H91"/>
+		<path d="M143 106h-20v24h20m-20-12h17"/>
+		<path d="M176 106h-21v24h21v-12h-10"/>
+		<path d="M188 130v-24h21v24m-21-12h21"/>
+	</g>
+	<g fill="#FFFFFF">
+		<path d="M14 148h40v9H24v13h30v32H14v-9h30v-14H14v-31z"/>
+		<path fill-rule="evenodd" d="M77 148h17l20 54h-11l-5-14H74l-5 14H58l19-54zm5 10-6 21h19l-7-21h-6z"/>
+		<path d="M112 148h44v9h-17v45h-10v-45h-17v-9z"/>
+		<path d="M164 148h10v39c0 5 3 7 11 7s11-2 11-7v-39h10v39c0 11-7 16-21 16s-21-5-21-16v-39z"/>
+		<path fill-rule="evenodd" d="M216 148h24c14 0 20 6 20 17 0 8-4 13-11 15l14 22h-12l-13-20h-12v20h-10v-54zm10 9v16h14c7 0 10-2 10-8s-3-8-10-8h-14z"/>
+		<path d="M272 202v-54h10l22 36v-36h10v54h-10l-22-36v36h-10z"/>
+	</g>
+</svg>

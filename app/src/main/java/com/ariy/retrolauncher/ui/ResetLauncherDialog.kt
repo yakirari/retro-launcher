@@ -8,10 +8,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
+import kotlinx.coroutines.flow.first
 
 @Composable
 internal fun ResetLauncherDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
@@ -31,7 +36,17 @@ internal fun ResetLauncherDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
                 "There is no undo or in-app backup/export. Continue only if you accept losing your launcher data.")
         },
         dismissButton = {
-            TextButton(onClick = onCancel, modifier = Modifier.focusRequester(cancelFocus)) { Text("Cancel") }
+            val windowInfo = LocalWindowInfo.current
+            TextButton(onClick = onCancel, modifier = Modifier
+                .focusRequester(cancelFocus)
+                .focusProperties { canFocus = true }) { Text("Cancel") }
+            // Use the dialog's window, not the activity window: Android may
+            // transfer focus after the dialog's initial composition/layout.
+            LaunchedEffect(windowInfo) {
+                snapshotFlow { windowInfo.isWindowFocused }.first { it }
+                withFrameNanos { }
+                cancelFocus.requestFocus()
+            }
         },
         confirmButton = {
             Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB42318))) {
@@ -39,6 +54,4 @@ internal fun ResetLauncherDialog(onCancel: () -> Unit, onConfirm: () -> Unit) {
             }
         }
     )
-    // Controller/keyboard activation starts on the non-destructive choice.
-    LaunchedEffect(Unit) { cancelFocus.requestFocus() }
 }

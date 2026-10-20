@@ -25,7 +25,8 @@ data class NostalgicOverlaySpec(
     val cropHeightFraction: Float = 1f,
     val trimPlayStationSpine: Boolean = false,
     // Scale the complete cartridge and its artwork together, keeping label placement intact.
-    val gridArtworkScale: Float = 1f
+    val gridArtworkScale: Float = 1f,
+    val fitCompleteArtwork: Boolean = false
 ) {
     val croppedAspectRatio: Float
         get() = aspectRatio * (cropWidthFraction / cropHeightFraction)
@@ -117,25 +118,24 @@ object NostalgicOverlays {
         applyVintageArtwork = true
     )
     private val gameBoySpec = NostalgicOverlaySpec(
-        drawableResourceId = R.drawable.nostalgic_overlay_gb,
-        aspectRatio = 960f / 768f,
-        artworkLeftFraction = 331f / 960f,
-        artworkTopFraction = 366f / 768f,
-        artworkWidthFraction = 301f / 960f,
-        artworkHeightFraction = 264f / 768f,
-        artworkCornerRadiusFraction = 0.01f,
-        fitArtworkToWindow = true,
-        applyVintageArtwork = true
+        drawableResourceId = R.drawable.nostalgic_shell_gb,
+        aspectRatio = 312f / 337f,
+        artworkLeftFraction = 44f / 312f,
+        artworkTopFraction = 95f / 337f,
+        artworkWidthFraction = 223f / 312f,
+        artworkHeightFraction = 199f / 337f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false
     )
     private val gameBoyColorSpec = NostalgicOverlaySpec(
-        drawableResourceId = R.drawable.nostalgic_overlay_gbc,
-        aspectRatio = 960f / 768f,
-        artworkLeftFraction = 331f / 960f,
-        artworkTopFraction = 366f / 768f,
-        artworkWidthFraction = 301f / 960f,
-        artworkHeightFraction = 264f / 768f,
-        artworkCornerRadiusFraction = 0.01f,
-        applyVintageArtwork = true
+        drawableResourceId = R.drawable.nostalgic_shell_gbc,
+        aspectRatio = 312f / 337f,
+        artworkLeftFraction = 45f / 312f,
+        artworkTopFraction = 110f / 337f,
+        artworkWidthFraction = 223f / 312f,
+        artworkHeightFraction = 199f / 337f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false
     )
     private val megaDriveSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_md,
@@ -148,14 +148,14 @@ object NostalgicOverlays {
         applyVintageArtwork = true
     )
     private val gameBoyAdvanceSpec = NostalgicOverlaySpec(
-        drawableResourceId = R.drawable.nostalgic_overlay_gba,
-        aspectRatio = 960f / 768f,
-        artworkLeftFraction = 277f / 960f,
-        artworkTopFraction = 418f / 768f,
-        artworkWidthFraction = 408f / 960f,
-        artworkHeightFraction = 185f / 768f,
-        artworkCornerRadiusFraction = 0.01f,
-        applyVintageArtwork = true
+        drawableResourceId = R.drawable.nostalgic_shell_gba,
+        aspectRatio = 360f / 212f,
+        artworkLeftFraction = 48f / 360f,
+        artworkTopFraction = 50f / 212f,
+        artworkWidthFraction = 264f / 360f,
+        artworkHeightFraction = 136f / 212f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false
     )
     private val pspSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_psp,
@@ -188,12 +188,12 @@ object NostalgicOverlays {
         aspectRatio = 960f / 768f,
         // Recalculated from the current PNG transparency mask.
         artworkLeftFraction = 287f / 960f,
-        artworkTopFraction = 163f / 768f,
+        artworkTopFraction = 132f / 768f,
         artworkWidthFraction = 364f / 960f,
-        artworkHeightFraction = 486f / 768f,
-        artworkCornerRadiusFraction = 0.01f,
-        preTrimTopFraction = 0.05f,
-        preTrimHeightFraction = 0.95f
+        artworkHeightFraction = 517f / 768f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false,
+        fitCompleteArtwork = true
     )
     private val nintendo3dsSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_3ds,
@@ -224,16 +224,18 @@ object NostalgicOverlays {
     private val ps2Spec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_ps2,
         aspectRatio = 960f / 768f,
-        artworkLeftFraction = 203f / 960f,
-        artworkTopFraction = 91f / 768f,
-        artworkWidthFraction = 527f / 960f,
-        artworkHeightFraction = 639f / 768f,
+        artworkLeftFraction = 205f / 960f,
+        artworkTopFraction = 28f / 768f,
+        artworkWidthFraction = 526f / 960f,
+        artworkHeightFraction = 701f / 768f,
         artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = false,
         clipArtworkToTransparencyMask = true,
-        cropLeftFraction = 203f / 960f,
-        cropTopFraction = 91f / 768f,
-        cropWidthFraction = 527f / 960f,
-        cropHeightFraction = 639f / 768f
+        fitCompleteArtwork = true,
+        cropLeftFraction = 200f / 960f,
+        cropTopFraction = 15f / 768f,
+        cropWidthFraction = 550f / 960f,
+        cropHeightFraction = 735f / 768f
     )
     private val switchSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_switch,
@@ -262,16 +264,18 @@ object NostalgicOverlays {
     private val n64Spec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_n64,
         aspectRatio = 960f / 768f,
-        artworkLeftFraction = 242f / 960f,
-        artworkTopFraction = 141f / 768f,
-        artworkWidthFraction = 478f / 960f,
-        artworkHeightFraction = 554f / 768f,
-        artworkCornerRadiusFraction = 0.01f,
-        applyVintageArtwork = true,
-        cropLeftFraction = 459f / 1408f,
-        cropTopFraction = 77f / 769f,
-        cropWidthFraction = 482f / 1408f,
-        cropHeightFraction = 615f / 769f,
+        // Portrait cartridge stickers are looked up separately; ordinary box art stays intact.
+        artworkLeftFraction = 297f / 960f,
+        artworkTopFraction = 174f / 768f,
+        artworkWidthFraction = 374f / 960f,
+        artworkHeightFraction = 427f / 768f,
+        artworkCornerRadiusFraction = 0f,
+        detectArtworkPlacementFromTransparency = true,
+        fitCompleteArtwork = true,
+        cropLeftFraction = 84f / 960f,
+        cropTopFraction = 126f / 768f,
+        cropWidthFraction = 792f / 960f,
+        cropHeightFraction = 518f / 768f,
         gridArtworkScale = 0.88f
     )
 

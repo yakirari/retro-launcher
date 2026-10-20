@@ -10,6 +10,20 @@ class ArcadeGameEntryDeduperTest {
         id = id, title = title, platform = "MAME Arcade", sourceType = GameSourceType.CUSTOM_INTENT,
         intentDataUri = "content://rom/$rom", packageName = "org.libretro.retroarch"
     )
+    @Test fun cartridgeSettingsSurvivePrimaryReplacementAndFillMissingValues() {
+        val pending = game("old", "Manual", "1941.zip").copy(needsLaunchSetup = true,
+            cartridgeLabelUri = "content://art/manual-label", cartridgeColor = "grey")
+        val ready = game("new", "1941", "1941.zip").copy(
+            cartridgeLabelUri = "content://art/new-label", cartridgeColor = "red")
+        val merged = dedupeArcadeGameEntries(listOf(pending, ready)).single()
+        assertFalse(merged.needsLaunchSetup)
+        assertEquals(pending.cartridgeLabelUri, merged.cartridgeLabelUri)
+        assertEquals(pending.cartridgeColor, merged.cartridgeColor)
+        val filled = dedupeArcadeGameEntries(listOf(pending.copy(cartridgeLabelUri = null, cartridgeColor = null), ready)).single()
+        assertEquals(ready.cartridgeLabelUri, filled.cartridgeLabelUri)
+        assertEquals(ready.cartridgeColor, filled.cartridgeColor)
+    }
+
     @Test fun sameRomUnderDifferentTitlesPreservesMetadataHistoryAndTargets() {
         val original = game("old", "My favorite", "ddragonu.zip").copy(imageUri = "file://manual", genre = "Favorites", lastPlayedAtEpochMillis = 10)
         val duplicate = game("new", "Double Dragon", "ddragon.zip").copy(lastPlayedAtEpochMillis = 20)

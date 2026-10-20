@@ -37,7 +37,8 @@ object ArtworkSuggestionService {
             ) {
                 yield(EdenBoxartCatalog.fetchCandidates(game.platform, catalogTitle))
             }
-            yield(LibretroArtworkCatalog.fetchCandidates(game.platform, catalogTitle))
+            yield(LibretroArtworkCatalog.fetchCandidates(game.platform, catalogTitle,
+                game.intentDataUri?.let { android.net.Uri.decode(it).substringAfterLast('/') }))
             if (game.platform.equals("Nintendo Switch", ignoreCase = true) ||
                 game.platform.equals("Switch", ignoreCase = true)
             ) {

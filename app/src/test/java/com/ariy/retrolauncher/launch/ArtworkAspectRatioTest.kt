@@ -5,6 +5,17 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ArtworkAspectRatioTest {
+    @Test fun nearEquivalentCatalogScansPreferResolutionNotFractionalAspectDifferences() {
+        assertTrue(preferCatalogArtwork(700, 1000, 140, 200, 0.70f))
+        assertTrue(preferCatalogArtwork(710, 1000, 140, 200, 0.70f))
+        assertTrue(!preferCatalogArtwork(140, 200, 710, 1000, 0.70f))
+        assertTrue(!preferCatalogArtwork(1920, 1080, 700, 1000, 0.70f))
+    }
+    @Test fun n64BoxArtIsLandscapeRatherThanDvdPortrait() {
+        val ratio = preferredArtworkAspectRatio("Nintendo 64")
+        assertTrue(ratio > 1f)
+        assertTrue(compareArtworkAspectRatios(700, 500, 350, 500, ratio) < 0)
+    }
     @Test fun digitalLibrariesPreferFullPortraitCoversOverHeadersAndIcons() {
         for (platform in com.ariy.retrolauncher.model.PcGameStores.platforms + "PC (Windows)") {
             val ratio = preferredArtworkAspectRatio(platform)

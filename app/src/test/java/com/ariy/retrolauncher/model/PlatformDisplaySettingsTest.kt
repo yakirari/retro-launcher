@@ -17,7 +17,7 @@ class PlatformDisplaySettingsTest {
         assertEquals(2, platformDisplayDefaults("MAME Arcade").gridColumns)
     }
     @Test fun requestedConsoleDefaultsUseThreeTransparentNostalgicColumns() {
-        for (platform in listOf("ps1", "ps2", "psp", "wii", "n64")) {
+        for (platform in listOf("ps1", "ps2", "ps3", "psp", "wii", "n64")) {
             assertEquals(platform, PlatformDisplaySettings("gridstalgic",3,"transparent"), platformDisplayDefaults(platform))
         }
     }

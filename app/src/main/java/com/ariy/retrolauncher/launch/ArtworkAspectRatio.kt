@@ -11,8 +11,9 @@ internal fun preferredArtworkAspectRatio(platform: String?): Float {
         "Nintendo Switch", "Nintendo 3DS", "Nintendo DS", "Sony PlayStation",
         "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation Portable",
         "Sony PlayStation Vita", "Nintendo GameCube", "Nintendo Wii" -> 0.70f
+        "Nintendo 64" -> 1.4f // Western front box scans are landscape, not DVD-shaped portraits.
         "Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Entertainment System",
-        "Super Nintendo", "Nintendo 64", "Sega Master System", "Sega Genesis / Mega Drive",
+        "Super Nintendo", "Sega Master System", "Sega Genesis / Mega Drive",
         "Sega Saturn", "Sega Dreamcast", "Neo Geo", "Neo Geo Pocket", "Neo Geo Pocket Color" -> 0.72f
         "DOS Games" -> 1.50f
         "Android", "MAME Arcade", "Final Burn Neo" -> 1f
@@ -30,6 +31,15 @@ internal fun compareArtworkAspectRatios(
     val firstScore = artworkAspectRatioDistance(firstWidth, firstHeight, targetRatio)
     val secondScore = artworkAspectRatioDistance(secondWidth, secondHeight, targetRatio)
     return firstScore.compareTo(secondScore)
+}
+
+internal fun preferCatalogArtwork(width: Int, height: Int, currentWidth: Int, currentHeight: Int, target: Float): Boolean {
+    val distance = artworkAspectRatioDistance(width, height, target)
+    val current = artworkAspectRatioDistance(currentWidth, currentHeight, target)
+    if (!distance.isFinite()) return false
+    if (!current.isFinite()) return true
+    return if (abs(distance - current) <= 0.05f) width.toLong() * height > currentWidth.toLong() * currentHeight
+        else distance < current
 }
 
 private fun artworkAspectRatioDistance(width: Int, height: Int, targetRatio: Float): Float {

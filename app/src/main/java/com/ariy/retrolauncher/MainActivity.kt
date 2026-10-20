@@ -335,7 +335,7 @@ private fun isRecommendationActivateKey(key: Key): Boolean =
         key == Key.Spacebar ||
         key == Key.ButtonA
 
-private data class TransparentRegionBounds(
+internal data class TransparentRegionBounds(
     val left: Int,
     val top: Int,
     val right: Int,
@@ -1874,6 +1874,9 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
             },
             onRemoveImage = {
                 viewModel.updateGameImage(selected.id, null)
+            },
+            onUpdateCartridge = { labelUri, color ->
+                viewModel.updateGameCartridge(selected.id, labelUri, color)
             },
             onImportImageUrl = { url ->
                 viewModel.importImageFromUrl(selected.id, url)
@@ -3795,10 +3798,16 @@ private fun NostalgicGalleryItem(
     onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val image = rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
+    val handheld = com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)
+    val cover = rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
+    val label = if (handheld && game.cartridgeLabelUri != null) {
+        com.ariy.retrolauncher.ui.rememberHandheldLabelSource(game.cartridgeLabelUri)
+    } else null
+    val image = com.ariy.retrolauncher.ui.rememberHandheldLabel(game, overlaySpec, label ?: cover, label != null)
     val overlayRenderData = rememberNostalgicOverlayRenderData(
         overlaySpec = overlaySpec,
-        normalizeCanvasSize = normalizeCanvasSize
+        normalizeCanvasSize = normalizeCanvasSize,
+        shellColor = if (handheld) com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, label ?: cover) else null
     )
     val artworkPlacement = overlayRenderData?.artworkPlacement ?: overlaySpec.defaultArtworkPlacement()
     val artworkMaskBitmap = overlayRenderData?.artworkMaskBitmap
@@ -3904,7 +3913,7 @@ private fun NostalgicGalleryItem(
                         Image(
                             painter = BitmapPainter(image),
                             contentDescription = game.title,
-                            contentScale = if (overlaySpec.fitArtworkToWindow) ContentScale.FillWidth else ContentScale.Crop,
+                            contentScale = if (handheld || overlaySpec.fitCompleteArtwork) ContentScale.Fit else if (overlaySpec.fitArtworkToWindow) ContentScale.FillWidth else ContentScale.Crop,
                             colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -4458,13 +4467,14 @@ private fun rememberPreparedGames(games: List<GameEntry>, filter: String, sortOr
     return prepared
 }
 
-private fun orderedGamesForFilter(
+internal fun orderedGamesForFilter(
     games: List<GameEntry>,
     filter: String,
     sortOrder: GameSortOrder
 ): List<GameEntry> {
-    val filteredGames = if (filter == GameFilters.ALL) {
-        games
+    val filteredGames = if (filter.equals(GameFilters.ALL, ignoreCase = true)) {
+        // Shared by grid and gallery, including loading snapshots and empty-state counts.
+        com.ariy.retrolauncher.ui.mainGalleryGames(games, filter)
     } else {
         val platformFilter = GamePlatforms.filterLabel(filter)
         if (platformFilter != null) {
@@ -4940,7 +4950,11 @@ private fun GridNostalgicCard(
 ) {
     val overlaySpec = NostalgicOverlays.specForPlatform(game.platform)
     val nostalgicImage = if (overlaySpec != null) {
-        rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
+        val cover = rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
+        val label = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform) && game.cartridgeLabelUri != null) {
+            com.ariy.retrolauncher.ui.rememberHandheldLabelSource(game.cartridgeLabelUri)
+        } else null
+        com.ariy.retrolauncher.ui.rememberHandheldLabel(game, overlaySpec, label ?: cover, label != null)
     } else {
         null
     }
@@ -4952,7 +4966,10 @@ private fun GridNostalgicCard(
     val overlayRenderData = overlaySpec?.let {
         rememberNostalgicOverlayRenderData(
             overlaySpec = it,
-            normalizeCanvasSize = normalizeCanvasSize
+            normalizeCanvasSize = normalizeCanvasSize,
+            shellColor = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
+                com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, nostalgicImage)
+            } else null
         )
     }
     val mameCabinetRenderData = rememberMameNostalgicCabinetRenderData(
@@ -5095,7 +5112,9 @@ private fun GridNostalgicCard(
                                         Image(
                                             painter = BitmapPainter(nostalgicImage),
                                             contentDescription = game.title,
-                                            contentScale = if (overlaySpec.fitArtworkToWindow) {
+                                            contentScale = if (overlaySpec.fitCompleteArtwork || com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
+                                                ContentScale.Fit
+                                            } else if (overlaySpec.fitArtworkToWindow) {
                                                 ContentScale.FillWidth
                                             } else {
                                                 ContentScale.Crop
@@ -6149,10 +6168,13 @@ private fun rememberMameNostalgicCabinetRenderData(
 @Composable
 private fun rememberNostalgicOverlayRenderData(
     overlaySpec: NostalgicOverlaySpec,
-    normalizeCanvasSize: Boolean = false
+    normalizeCanvasSize: Boolean = false,
+    shellColor: Int? = null
 ): NostalgicOverlayRenderData? {
     val resources = LocalContext.current.resources
-    val cacheKey = "${overlaySpec.drawableResourceId}:$normalizeCanvasSize"
+    val handheld = overlaySpec.drawableResourceId in setOf(R.drawable.nostalgic_shell_gb, R.drawable.nostalgic_shell_gbc, R.drawable.nostalgic_shell_gba)
+    val effectiveShellColor = if (handheld) shellColor ?: 0xFFBDBDB5.toInt() else null
+    val cacheKey = "${overlaySpec.drawableResourceId}:$normalizeCanvasSize:$effectiveShellColor"
     return produceState<NostalgicOverlayRenderData?>(initialValue = nostalgicOverlayRenderCache[cacheKey], cacheKey, overlaySpec) {
         nostalgicOverlayRenderCache[cacheKey]?.let { cached ->
             value = cached
@@ -6168,7 +6190,9 @@ private fun rememberNostalgicOverlayRenderData(
                     val transparentBounds = findNostalgicArtworkWindowBounds(source)
                     val baseArtworkPlacement = detectNostalgicArtworkPlacement(source, overlaySpec, transparentBounds)
                         ?: overlaySpec.defaultArtworkPlacement()
-                    val recoloredOverlay = recolorNostalgicOverlayBitmap(source, APP_BACKGROUND_COLOR_ARGB)
+                    val recoloredOverlay = if (effectiveShellColor != null) {
+                        com.ariy.retrolauncher.ui.tintHandheldShell(source, effectiveShellColor)
+                    } else recolorNostalgicOverlayBitmap(source, APP_BACKGROUND_COLOR_ARGB)
                     val renderedOverlay = if (normalizeCanvasSize) {
                         cropBitmapToVisibleOverlayBounds(
                             source = recoloredOverlay
@@ -6194,7 +6218,15 @@ private fun rememberNostalgicOverlayRenderData(
                         ),
                         artworkMaskBitmap = if (overlaySpec.clipArtworkToTransparencyMask) {
                             transparentBounds?.let { bounds ->
-                                buildNostalgicArtworkMaskBitmap(source, bounds).asImageBitmap()
+                                val alignedBounds = if (overlaySpec.detectArtworkPlacementFromTransparency) bounds else
+                                    TransparentRegionBounds(
+                                        (source.width * overlaySpec.artworkLeftFraction).roundToInt(),
+                                        (source.height * overlaySpec.artworkTopFraction).roundToInt(),
+                                        (source.width * (overlaySpec.artworkLeftFraction + overlaySpec.artworkWidthFraction)).roundToInt(),
+                                        (source.height * (overlaySpec.artworkTopFraction + overlaySpec.artworkHeightFraction)).roundToInt(),
+                                        0
+                                    )
+                                buildNostalgicArtworkMaskBitmap(source, alignedBounds).asImageBitmap()
                             }
                         } else {
                             null
@@ -6282,7 +6314,7 @@ private fun detectNostalgicArtworkPlacement(
     )
 }
 
-private fun findNostalgicArtworkWindowBounds(overlayBitmap: Bitmap): TransparentRegionBounds? =
+internal fun findNostalgicArtworkWindowBounds(overlayBitmap: Bitmap): TransparentRegionBounds? =
     findLargestTransparentRegion(overlayBitmap)
         ?.takeIf { it.pixelCount >= MIN_NOSTALGIC_ARTWORK_WINDOW_PIXELS }
 
@@ -6372,7 +6404,7 @@ private fun findNostalgicOverlayOccupiedBounds(bitmap: Bitmap): TransparentRegio
     )
 }
 
-private fun buildNostalgicArtworkMaskBitmap(
+internal fun buildNostalgicArtworkMaskBitmap(
     overlayBitmap: Bitmap,
     bounds: TransparentRegionBounds
 ): Bitmap {
@@ -6498,7 +6530,7 @@ private fun shouldTreatDarkBaseColorAsTransparent(baseColor: Int): Boolean {
         blue <= NOSTALGIC_OVERLAY_DARK_BASE_COLOR_THRESHOLD
 }
 
-private fun recolorNostalgicOverlayBitmap(source: Bitmap, baseColor: Int): Bitmap {
+internal fun recolorNostalgicOverlayBitmap(source: Bitmap, baseColor: Int): Bitmap {
     val width = source.width
     val height = source.height
     val sourcePixels = IntArray(width * height)
@@ -7395,6 +7427,7 @@ private fun AddGameDialog(
     collectionSuggestions: List<String>
 ) {
     var tab by rememberSaveable(initialTab) { mutableIntStateOf(initialTab.coerceIn(0, 2)) }
+    var shortcutPublisher by rememberSaveable { mutableStateOf<String?>(null) }
 
     AdaptiveLauncherDialog(onDismissRequest = onDismiss) {
         Surface(
@@ -7427,6 +7460,7 @@ private fun AddGameDialog(
                         activities = activities,
                         isDefaultLauncher = isDefaultLauncher,
                         authorizedRomTreeUri = authorizedRomTreeUri,
+                        initialPublisher = shortcutPublisher,
                         onAddShortcut = onAddShortcut
                     )
                     1 -> ActivityPicker(activities = activities, onAddActivity = onAddActivity)
@@ -7441,6 +7475,7 @@ private fun AddGameDialog(
                         onFillMissingArtworkForPlatform = onFillMissingArtworkForPlatform,
                         onRefreshAllArtworkForPlatform = onRefreshAllArtworkForPlatform,
                         onVerifyScummVm = onVerifyScummVm,
+                        onOpenShortcutSetup = { publisher -> shortcutPublisher = publisher; tab = 0 },
                         collectionSuggestions = collectionSuggestions
                     )
                 }
@@ -7457,11 +7492,13 @@ private fun ShortcutPicker(
     activities: List<InstalledActivityOption>,
     isDefaultLauncher: Boolean,
     authorizedRomTreeUri: String?,
+    initialPublisher: String? = null,
     onAddShortcut: (InstalledShortcutOption) -> Unit
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    var selectedPublisher by rememberSaveable(initialPublisher) { mutableStateOf(initialPublisher) }
     var setupFeedback by remember { mutableStateOf<String?>(null) }
-    var showSetup by rememberSaveable { mutableStateOf(false) }
+    var showSetup by rememberSaveable(initialPublisher) { mutableStateOf(initialPublisher != null) }
     var refreshedShortcuts by remember { mutableStateOf(shortcuts) }
     var refreshing by remember { mutableStateOf(false) }
     val shortcutScope = rememberCoroutineScope()
@@ -7479,12 +7516,14 @@ private fun ShortcutPicker(
             }
             .toSet()
     }
-    val filtered = remember(refreshedShortcuts, query, authorizedRoot) {
+    val filtered = remember(refreshedShortcuts, query, authorizedRoot, selectedPublisher) {
         refreshedShortcuts.filter {
             val matchesQuery = it.title.contains(query, ignoreCase = true) || it.subtitle.contains(query, ignoreCase = true)
             val shortcutRoot = it.resolvedIntentDataUri().extractDocumentRoot()
             val matchesAuthorizedRoot = authorizedRoot == null || shortcutRoot == null || shortcutRoot == authorizedRoot
-            matchesQuery && matchesAuthorizedRoot
+            val matchesPublisher = selectedPublisher == null || it.packageName in
+                com.ariy.retrolauncher.launch.GameShortcutIntegrations.packages(selectedPublisher!!)
+            matchesQuery && matchesAuthorizedRoot && matchesPublisher
         }
     }
     val visibleShortcuts = remember(filtered, existingShortcutKeys) {
@@ -7526,13 +7565,23 @@ private fun ShortcutPicker(
             SelectionRow(title = it.title, subtitle = it.subtitle, onClick = { onAddShortcut(it) })
         }, header = {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("GameNative, GameHub, GameHub Lite and PS3 use shared game shortcuts, not private-library scanning. Choose an app below for setup and import.",
+            color = Color(0xFF98A2B3), style = MaterialTheme.typography.bodySmall)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = selectedPublisher == null, onClick = { selectedPublisher = null }, label = { Text("All shortcuts") })
+            com.ariy.retrolauncher.launch.GameShortcutIntegrations.choices.forEach { (id, label) ->
+                FilterChip(selected = selectedPublisher == id, onClick = {
+                    selectedPublisher = id; showSetup = true; setupFeedback = null
+                }, label = { Text(label) })
+            }
+        }
         setupFeedback?.let { Text(it, color = Color(0xFFFDB022), style = MaterialTheme.typography.bodySmall) }
         if (!isDefaultLauncher) {
             Text("Set Retro Launcher as Home to access published shortcuts.", color = Color(0xFFFDB022), style = MaterialTheme.typography.bodySmall)
         }
         if (showSetup) {
         Text(
-            text = "GameNative / GameHub / GameHub Lite: set Retro Launcher as Home, then use the game's Add to home screen action in its app and allow the request. Published shortcuts appear here; private libraries cannot be scanned. If no shortcut action exists, use Android to open the hub instead.",
+            text = com.ariy.retrolauncher.launch.GameShortcutIntegrations.SETUP,
             color = Color(0xFF98A2B3),
             style = MaterialTheme.typography.bodySmall
         )
@@ -7540,8 +7589,11 @@ private fun ShortcutPicker(
             Text("Choose default Home launcher")
         }
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            activities.filter { com.ariy.retrolauncher.model.PcGameStores.fromAppLabel(it.sourceLabel) != null ||
-                it.packageName in com.ariy.retrolauncher.model.PcGameStores.hubPackages }
+            activities.filter { app ->
+                if (selectedPublisher != null) app.packageName in com.ariy.retrolauncher.launch.GameShortcutIntegrations.packages(selectedPublisher!!)
+                else com.ariy.retrolauncher.model.PcGameStores.fromAppLabel(app.sourceLabel) != null ||
+                    app.packageName in com.ariy.retrolauncher.launch.GameShortcutIntegrations.ps3Packages ||
+                    app.packageName in com.ariy.retrolauncher.model.PcGameStores.hubPackages }
                 .distinctBy { it.packageName to it.userSerial }.forEach { app ->
                     OutlinedButton(onClick = {
                         val started = com.ariy.retrolauncher.launch.InstalledTargets(context.applicationContext as android.app.Application)
@@ -7551,8 +7603,10 @@ private fun ShortcutPicker(
                 }
         }
         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            com.ariy.retrolauncher.model.PcGameStores.hubPackages.forEach { (packageName, label) ->
-                if (activities.any { it.packageName == packageName }) OutlinedButton(
+            com.ariy.retrolauncher.launch.GameShortcutIntegrations.choices.filterKeys { selectedPublisher == null || it == selectedPublisher }.forEach { (publisher, choiceLabel) ->
+                val label = choiceLabel.removeSuffix(" shortcuts")
+                val packages = com.ariy.retrolauncher.launch.GameShortcutIntegrations.packages(publisher)
+                OutlinedButton(
                     enabled = isDefaultLauncher && !refreshing,
                     onClick = {
                         refreshing = true
@@ -7560,12 +7614,12 @@ private fun ShortcutPicker(
                             try {
                                 val published = withContext(Dispatchers.IO) {
                                     com.ariy.retrolauncher.launch.InstalledTargets(context.applicationContext as android.app.Application)
-                                        .loadShortcuts(packageName)
+                                        .let { targets -> packages.flatMap { targets.loadShortcuts(it) } }
                                 }
-                                refreshedShortcuts = refreshedShortcuts.filterNot { it.packageName == packageName } + published
+                                    refreshedShortcuts = refreshedShortcuts.filterNot { it.packageName in packages } + published
                                 val available = published.filterNot {
                                     "${it.packageName}|${it.shortcutId}|${it.userSerial}" in existingShortcutKeys
-                                }
+                                    }.filter { it.packageName != "app.gamenative" || com.ariy.retrolauncher.launch.GameNativeScan.isPublishedGameShortcut(it) }
                                 available.forEach(onAddShortcut)
                                 setupFeedback = when {
                                     published.isEmpty() -> "No $label shortcuts shared with Retro Launcher. Recreate the game's home-screen shortcut inside $label while Retro Launcher is Home, then Allow. Existing pins in the stock launcher are not accessible here."
@@ -7579,6 +7633,13 @@ private fun ShortcutPicker(
                     }
                 ) { Text("Import $label shortcuts") }
             }
+        }
+        if (selectedPublisher == com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3) {
+            Text(com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3_HELP, color = Color(0xFF98A2B3), style = MaterialTheme.typography.bodySmall)
+        }
+        if (selectedPublisher != null && activities.none { it.packageName in com.ariy.retrolauncher.launch.GameShortcutIntegrations.packages(selectedPublisher!!) }) {
+            Text("No matching app detected. Install and configure the hub / emulator first. The Android tab adds an app launcher, not an individual game.",
+                color = Color(0xFFFDB022), style = MaterialTheme.typography.bodySmall)
         }
         }
         }
@@ -7767,7 +7828,7 @@ private val retroArchSystemPresets = listOf(
 
 internal enum class GamePickerKind { FILE, FOLDER }
 
-private data class GameSystemChoice(
+internal data class GameSystemChoice(
     val id: String,
     val label: String,
     val platform: String?,
@@ -7874,6 +7935,13 @@ private fun systemChoiceSortOrder(platform: String?, label: String): Int {
         ?.takeIf { it >= 0 }
         ?: Int.MAX_VALUE
 }
+
+internal fun initialAddGameSystemId(options: List<GameSystemEmulatorOption>, platformFilter: String?): String? =
+    options.firstOrNull { option ->
+        option.platform?.let { GamePlatforms.matchesFilter(it, platformFilter) } == true ||
+            (platformFilter in com.ariy.retrolauncher.model.PcGameStores.platforms &&
+                option.platform in setOf("PC (Windows)", "GameNative"))
+    }?.systemId
 
 internal fun buildGameSystemEmulatorOptions(
     templates: List<CustomIntentTemplate>
@@ -8097,6 +8165,7 @@ private fun CustomIntentEditor(
     onFillMissingArtworkForPlatform: (String?) -> Unit,
     onRefreshAllArtworkForPlatform: (String?) -> Unit,
     onVerifyScummVm: (gameFolderUri: String, gameId: String) -> Boolean,
+    onOpenShortcutSetup: (String) -> Unit,
     collectionSuggestions: List<String>
 ) {
     val context = LocalContext.current
@@ -8104,15 +8173,8 @@ private fun CustomIntentEditor(
     val scope = rememberCoroutineScope()
     val systemEmulatorOptions = remember(templates) { buildGameSystemEmulatorOptions(templates) }
     val scopedPlatformFilter = remember(initialPlatformFilter) { GamePlatforms.filterLabel(initialPlatformFilter) }
-    val filteredSystemEmulatorOptions = remember(systemEmulatorOptions, scopedPlatformFilter) {
-        val platformFilter = scopedPlatformFilter ?: return@remember systemEmulatorOptions
-        systemEmulatorOptions
-            .filter { option ->
-                option.platform?.let { platform -> GamePlatforms.matchesFilter(platform, platformFilter) } == true ||
-                    (platformFilter in com.ariy.retrolauncher.model.PcGameStores.platforms && option.platform in setOf("PC (Windows)", "GameNative"))
-            }
-            .ifEmpty { systemEmulatorOptions }
-    }
+    // The current library filter is an initial selection, not a restriction on adding systems.
+    val filteredSystemEmulatorOptions = systemEmulatorOptions
     val systemChoices = remember(filteredSystemEmulatorOptions) {
         filteredSystemEmulatorOptions
             .distinctBy { it.systemId }
@@ -8137,12 +8199,16 @@ private fun CustomIntentEditor(
         filteredSystemEmulatorOptions.groupingBy { it.systemId }.eachCount()
     }
     val systemChoiceKey = remember(systemChoices) { systemChoices.joinToString(separator = "|") { it.id } }
+    val initialSystemId = remember(systemEmulatorOptions, scopedPlatformFilter, systemChoiceKey) {
+        initialAddGameSystemId(systemEmulatorOptions, scopedPlatformFilter)
+            ?: systemChoices.firstOrNull()?.id.orEmpty()
+    }
     var step by rememberSaveable(scopedPlatformFilter, systemChoiceKey) {
         mutableIntStateOf(0)
     }
     var systemSelectionPendingId by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedSystemId by rememberSaveable(scopedPlatformFilter, systemChoiceKey) {
-        mutableStateOf(systemChoices.firstOrNull()?.id.orEmpty())
+        mutableStateOf(initialSystemId)
     }
     var selectedEmulatorKey by rememberSaveable(scopedPlatformFilter, systemChoiceKey) { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
@@ -8299,7 +8365,7 @@ private fun CustomIntentEditor(
     }
     LaunchedEffect(systemChoices) {
         if (selectedSystemId.isBlank() || systemChoices.none { it.id == selectedSystemId }) {
-            selectedSystemId = systemChoices.firstOrNull()?.id.orEmpty()
+            selectedSystemId = initialSystemId
         }
     }
     LaunchedEffect(step) {
@@ -8618,7 +8684,12 @@ private fun CustomIntentEditor(
             val entries = runCatching {
                 withContext(Dispatchers.IO) {
                     val scanContext = coroutineContext
-                    GameRecommendations.scanImportablePlatformRoms(
+                    val sharedPs3 = if (scanPlatform == com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3) {
+                        val targets = com.ariy.retrolauncher.launch.InstalledTargets(context.applicationContext as android.app.Application)
+                        com.ariy.retrolauncher.launch.GameShortcutIntegrations.select(scanPlatform,
+                            com.ariy.retrolauncher.launch.GameShortcutIntegrations.ps3Packages.flatMap { targets.loadShortcuts(it) }, games, collection)
+                    } else emptyList()
+                    val romEntries = GameRecommendations.scanImportablePlatformRoms(
                         context = context,
                         authorizedRomTreeUri = authorizedRomTreeUri,
                         games = games,
@@ -8652,6 +8723,7 @@ private fun CustomIntentEditor(
                             extrasJson = extrasJson
                         )
                     }
+                    romEntries + sharedPs3
                 }
             }.getOrElse { error ->
                 if (error is CancellationException) throw error
@@ -8662,7 +8734,9 @@ private fun CustomIntentEditor(
             pendingScanPlatform = null
             if (entries.isEmpty()) {
                 scanFeedback = scanFeedback
-                    ?: "No new $activeScanSystemLabel titles were found in the ROM folder."
+                    ?: if (scanPlatform == com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3)
+                        "No new PS3 ISO files or shared game shortcuts found. ISO scan requires ARMSX3; for emulator-installed games use PS3 shortcuts · Setup / Import. Create a game shortcut inside the emulator if supported, with Retro Launcher as Home, then Allow."
+                    else "No new $activeScanSystemLabel titles were found in the ROM folder."
             } else {
                 onAddCustomBatch(entries, scanPlatform)
             }
@@ -8776,6 +8850,20 @@ private fun CustomIntentEditor(
         }
         when {
             step == 0 -> {
+                HelpCard(title = "PC game launchers — no ROM folder needed",
+                    body = "Create a home-screen game shortcut inside your launcher, then Allow. Shared shortcuts are imported automatically on return / library scan. Installing a launcher or downloading a game alone does not publish its games. Choose below for setup, Open and Import controls; manual GameNative IDs are optional advanced setup.")
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    com.ariy.retrolauncher.launch.GameShortcutIntegrations.publishers.forEach { (publisher, label) ->
+                        OutlinedButton(onClick = { onOpenShortcutSetup(publisher) }) { Text("$label · Setup / Import") }
+                    }
+                }
+                OutlinedButton(onClick = { onOpenShortcutSetup(com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3) }) {
+                    Text("PS3 shortcuts · Setup / Import")
+                }
+                if (selectedSystemChoice?.platform == com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3) {
+                    HelpCard(title = "PlayStation 3 — ISO files or shared game shortcuts",
+                        body = com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3_HELP)
+                }
                 HelpCard(
                     title = "Choose system",
                     body = "Start with the system you want to play. Folder hints and compatible emulators are derived from this selection."
@@ -8796,7 +8884,9 @@ private fun CustomIntentEditor(
                             enabled = systemSelectionPendingId == null && !bulkScanRunning && !needsRomFolder,
                             pending = systemSelectionPendingId == systemChoice.id,
                             secondaryActionLabel = if (isGameNativeSystem) {
-                                "Scan GameNative"
+                                "Import shared shortcuts"
+                            } else if (systemChoice.platform == com.ariy.retrolauncher.launch.GameShortcutIntegrations.PS3 && !authorizedRomTreeUri.isNullOrBlank()) {
+                                "Scan ISO + shortcuts"
                             } else if (supportsScan && !authorizedRomTreeUri.isNullOrBlank()) {
                                 "Scan"
                             } else {
@@ -8807,7 +8897,7 @@ private fun CustomIntentEditor(
                                 systemSelectionPendingId == null &&
                                 !bulkScanRunning,
                             onSecondaryAction = if (isGameNativeSystem) {
-                                startGameNativeScan
+                                { onOpenShortcutSetup("app.gamenative") }
                             } else if (supportsScan && !authorizedRomTreeUri.isNullOrBlank()) {
                                 {
                                     if (authorizedRomTreeUri.isNullOrBlank()) return@SystemChoiceCard
@@ -8822,14 +8912,14 @@ private fun CustomIntentEditor(
                             } else {
                                 null
                             },
-                            tertiaryActionLabel = "Add missing",
+                            tertiaryActionLabel = "Fill missing covers",
                             tertiaryActionEnabled = systemSelectionPendingId == null && !bulkScanRunning,
                             onTertiaryAction = {
                                 if (systemSelectionPendingId != null || bulkScanRunning) return@SystemChoiceCard
                                 scanFeedback = "Queued missing artwork for ${systemChoice.label}."
                                 onFillMissingArtworkForPlatform(systemChoice.platform)
                             },
-                            quaternaryActionLabel = "Refresh all",
+                            quaternaryActionLabel = "Refresh all covers",
                             quaternaryActionEnabled = systemSelectionPendingId == null && !bulkScanRunning,
                             onQuaternaryAction = {
                                 if (systemSelectionPendingId != null || bulkScanRunning) return@SystemChoiceCard
@@ -9314,7 +9404,7 @@ private fun CustomIntentEditor(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SystemChoiceCard(
+internal fun SystemChoiceCard(
     choice: GameSystemChoice,
     selected: Boolean,
     emulatorCount: Int,
@@ -9331,6 +9421,7 @@ private fun SystemChoiceCard(
     onQuaternaryAction: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
+    val platformBadge = rememberPlatformBadgeBitmap(showBadge = true, platform = choice.platform)
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (selected) Color(0xFF2A3A52) else Color(0xFF1F2937)
@@ -9346,33 +9437,56 @@ private fun SystemChoiceCard(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = choice.label,
-                color = Color.White,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            choice.romFolderHint?.let { hint ->
-                Text(
-                    text = folderLabelText(hint),
-                    color = Color(0xFF98A2B3),
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Text(
-                text = if (emulatorCount == 1) "1 emulator" else "$emulatorCount emulators",
-                color = Color(0xFFF2AA4C),
-                style = MaterialTheme.typography.labelSmall
-            )
-            if (pending) {
-                Text(
-                    text = "Opening...",
-                    color = Color(0xFF98A2B3),
-                    style = MaterialTheme.typography.labelSmall
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = choice.label,
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    choice.romFolderHint?.let { hint ->
+                        Text(
+                            text = folderLabelText(hint),
+                            color = Color(0xFF98A2B3),
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Text(
+                        text = if (emulatorCount == 1) "1 emulator" else "$emulatorCount emulators",
+                        color = Color(0xFFF2AA4C),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    if (pending) {
+                        Text(
+                            text = "Opening...",
+                            color = Color(0xFF98A2B3),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
+                // Reserve the space while the cached SVG loads so text and
+                // controls do not jump; keep badges out of the action row.
+                Box(modifier = Modifier.size(72.dp), contentAlignment = Alignment.Center) {
+                    platformBadge?.let { badge ->
+                        Image(
+                            painter = BitmapPainter(badge),
+                            contentDescription = "${choice.label} platform badge",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
             }
             val actionRowItems = buildList {
                 if (!secondaryActionLabel.isNullOrBlank() && onSecondaryAction != null) {
@@ -9892,6 +10006,7 @@ private fun EditGameDialog(
     onDelete: () -> Unit,
     onPickImage: () -> Unit,
     onRemoveImage: () -> Unit,
+    onUpdateCartridge: (String?, String?) -> Unit,
     onImportImageUrl: (String) -> Unit,
     onSearchWebImage: (String) -> Unit,
     suggestions: List<ArtworkCandidate>,
@@ -10163,6 +10278,11 @@ private fun EditGameDialog(
                     }
 
                     else -> {
+                        com.ariy.retrolauncher.ui.HandheldCartridgeControls(
+                            game = game,
+                            sessionActive = sessionActive,
+                            onUpdate = onUpdateCartridge
+                        )
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             OutlinedButton(onClick = onPickImage) {
                                 Text("Choose image")

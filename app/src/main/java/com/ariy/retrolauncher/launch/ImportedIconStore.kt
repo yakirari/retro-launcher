@@ -24,7 +24,18 @@ class ImportedIconStore(private val context: Context) {
     fun existingBitmapUri(fileName: String): String? {
         val file = imageFile(fileName)
         if (!file.isFile || file.length() == 0L) return null
-        return stampArtworkUri(Uri.fromFile(file).toString(), file.lastModified())
+            return stampArtworkUri(Uri.fromFile(file).toString(), file.lastModified())
+    }
+
+    /** Exact fingerprint of the legacy gray ScummVM shortcut silhouette observed on-device. */
+    fun isLegacyScummVmPlaceholder(entry: com.ariy.retrolauncher.model.GameEntry): Boolean {
+        if (entry.platform != "ScummVM" || entry.imageUri == null) return false
+        val file = imageFile(entry.id)
+        if (com.ariy.retrolauncher.resolveArtworkSourceUri(entry.imageUri) != Uri.fromFile(file) ||
+            !file.isFile || file.length() > 64 * 1024) return false
+        val hash = java.security.MessageDigest.getInstance("SHA-256").digest(file.readBytes())
+            .joinToString("") { "%02x".format(it) }
+        return hash == "87f457bb7f0ce1684dc06c75d1e3087d88db5864a8c2ccb0fe1c1a892c44a2ca"
     }
 
     fun matchesShortcutIcon(fileName: String, imageUri: String?, drawable: Drawable): Boolean {
@@ -69,6 +80,7 @@ class ImportedIconStore(private val context: Context) {
         imageUrls: Iterable<String>,
         targetAspectRatio: Float,
         maxAttempts: Int = 6,
+        minimumShortEdge: Int = 0,
         cancellationCheck: () -> Unit = {}
     ): String? {
         if (maxAttempts <= 0 || targetAspectRatio <= 0f) return null
@@ -84,21 +96,20 @@ class ImportedIconStore(private val context: Context) {
             for (imageUrl in candidates) {
                 cancellationCheck()
                 val bitmap = downloadBitmap(imageUrl, cancellationCheck) ?: continue
-                val comparison = compareArtworkAspectRatios(
-                    firstWidth = bitmap.width,
-                    firstHeight = bitmap.height,
-                    secondWidth = bestBitmap?.width ?: 0,
-                    secondHeight = bestBitmap?.height ?: 0,
-                    targetRatio = targetAspectRatio
-                )
-                if (bestBitmap == null || comparison < 0) {
+                if (minOf(bitmap.width, bitmap.height) < minimumShortEdge) {
+                    bitmap.recycle()
+                    continue
+                }
+                val distance = kotlin.math.abs(kotlin.math.ln((bitmap.width.toFloat() / bitmap.height) / targetAspectRatio))
+                if (bestBitmap == null || preferCatalogArtwork(bitmap.width, bitmap.height,
+                        bestBitmap.width, bestBitmap.height, targetAspectRatio)) {
                     bestBitmap?.recycle()
                     bestBitmap = bitmap
-                    bestDistance = kotlin.math.abs(kotlin.math.ln((bitmap.width.toFloat() / bitmap.height) / targetAspectRatio))
+                    bestDistance = distance
                 } else {
                     bitmap.recycle()
                 }
-                if (bestDistance == 0f) break
+                if (bestDistance == 0f && minOf(bitmap.width, bitmap.height) >= 512) break
             }
 
             cancellationCheck()

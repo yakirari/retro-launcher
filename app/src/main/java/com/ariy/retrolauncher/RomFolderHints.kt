@@ -168,6 +168,7 @@ fun preferredRomFolderHintForPlatform(platform: String?): String? =
         "Sega Dreamcast" -> "dreamcast"
         "Neo Geo Pocket Color" -> "ngpc"
         "Sony PlayStation 2" -> "ps2"
+        "Sony PlayStation 3" -> "ps3"
         "Game Boy Advance" -> "gba"
         "Nintendo GameCube" -> "gamecube"
         "Nintendo DS" -> "nds"

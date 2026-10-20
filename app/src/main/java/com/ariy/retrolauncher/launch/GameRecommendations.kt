@@ -144,6 +144,7 @@ private val explicitPlatformScanPlatforms = setOf(
     "Sega Dreamcast",
     "Neo Geo Pocket Color",
     "Sony PlayStation 2",
+    "Sony PlayStation 3",
     "Game Boy Advance",
     "Nintendo GameCube",
     "Nintendo DS",
@@ -368,6 +369,11 @@ private fun explicitPlatformScanSpec(
             allowedExtensions = setOf("iso", "chd", "cso", "bin"),
             extensionPriority = listOf("chd", "iso", "cso", "bin")
         )
+        // Firmware/PKG installers and extracted executables are not standalone disc games.
+        "Sony PlayStation 3" -> PlatformScanSpec(
+            allowedExtensions = ps3ScanExtensions,
+            extensionPriority = listOf("iso")
+        )
         "Game Boy Advance" -> PlatformScanSpec(
             allowedExtensions = setOf("gba", "agb") +
                 if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.GbaEmu") archiveExtensions else emptySet(),
@@ -568,7 +574,12 @@ object GameRecommendations {
         platformRecommendationSource(
             platform = "Sony PlayStation 2",
             romFolderHint = "ps2",
-            preferredTemplatePackages = listOf("xyz.aethersx2.android")
+            preferredTemplatePackages = listOf("xyz.aethersx2.android", "com.armsx2")
+        ),
+        platformRecommendationSource(
+            platform = "Sony PlayStation 3",
+            romFolderHint = "ps3",
+            preferredTemplatePackages = listOf("com.armsx3")
         ),
         platformRecommendationSource(
             platform = "Game Boy Advance",
