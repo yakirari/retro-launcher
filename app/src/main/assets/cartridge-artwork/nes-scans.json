@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "platform": "Nintendo Entertainment System",
+  "identity": "SHA-1 of complete iNES file including header and any trainer; no normalization",
+  "identitySource": "https://github.com/libretro/libretro-database/blob/master/dat/Nintendo%20-%20Nintendo%20Entertainment%20System.dat",
+  "identitySourceSha256": "8271d8c63dca6a80734ef635003b2353cb93e2bbfe1daa80567dbe2b1dee1dc6",
+  "entries": [
+    {
+      "title": "The Legend of Zelda",
+      "region": "USA",
+      "cartridge": "NES-ZL-USA gold cartridge scan; not a claim for every revision or rerelease shell",
+      "reviewed": true,
+      "redistributionApproved": false,
+      "source": "https://archive.org/details/TheLegendofZelda-NES-CartScans",
+      "url": "https://archive.org/download/TheLegendofZelda-NES-CartScans/The%20Legend%20of%20Zelda%20-%20Cart%20Front.jpg",
+      "sha256": "b510830897ac5718213f5257f7c6ab102e4010566bed60024a040b8289a96195",
+      "sourceWidth": 3840,
+      "sourceHeight": 4321,
+      "crop": [1548, 0, 1770, 2934],
+      "romNames": ["Legend of Zelda, The (USA)"],
+      "romSha1": ["799459548f9636dd263200da494f04058f5540e2"]
+    }
+  ]
+}

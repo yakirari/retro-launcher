@@ -62,7 +62,7 @@ the same debug key and retaining the production-signing, live-provider and artwo
 3. Run JVM tests/debug assembly and lint/relevant instrumented tests; record failures honestly.
 4. Test an upgrade without clearing data: titles/artwork/history/targets/settings/grants must survive.
 5. Complete the device smoke checks below, noting device/Android/emulator versions.
-6. Generate/verify reviewed assets; do not implicitly fetch new third-party art during release.
+6. Verify packaged artwork indexes, checksums and notices; do not implicitly fetch new third-party art.
 7. Build/sign with the release key; verify signature, version/package ID and upgrade installation.
 8. Publish APK, checksum, changelog, source tag and required notices through the selected trusted channel.
 9. State known issues/tested versions; avoid unsupported gameplay or benchmark claims.

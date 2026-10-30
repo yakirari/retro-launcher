@@ -17,6 +17,13 @@ overlay_raw/
 
 # Local/generated assets
 artwork/n64/local-prepared/
+artwork/arcade-presentations-review/downloads/
+artwork/arcade-generation-handoff/
+artwork/current-arcade-fronts/
+artwork/system-artwork-status/
+artwork/sticker-workbench/
+__pycache__/
+*.py[cod]
 .tmp_*
 *:Zone.Identifier
 *~RF*.TMP

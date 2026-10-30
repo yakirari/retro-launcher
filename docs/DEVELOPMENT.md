@@ -51,10 +51,16 @@ does not certify UI tests or gameplay. Locked devices can stall instrumented tes
 
 Gallery settings regression tests are in
 [GlobalGallerySettingsTest.kt](../app/src/test/java/com/ariy/retrolauncher/model/GlobalGallerySettingsTest.kt).
-They cover first-use migration, validation, independent Grid/Shelf tile counts, persistence and ignored
+They cover first-use migration, validation, independent Grid/Stacked/Shelf sizes, persistence and ignored
 legacy platform profiles. On hardware, verify that platform/collection navigation leaves layout,
-tile background and captions unchanged, switching presets restores each count, and Options → Artwork
-still refreshes only the selected platform. Effective counts must not come from the legacy ViewModel flow.
+tile background and captions unchanged, switching presets restores each size, and Options → Artwork
+still refreshes only the selected platform. The existing per-layout numeric preference keys remain
+compatible: 1 maps to Large, 2/3 to Medium and 4/8 to Small; new choices save 1/2/4 respectively.
+`GallerySizingTest` verifies pixel-rounded row heights and gaps; `ShelfPresentationTest` verifies
+complete items at carousel ends. On hardware, check Small/Medium/Large fit at least 3/2/1 complete
+rows in Grid/Stacked and complete horizontal items in Shelf. Large must also show at least two
+tiles across in Grid/Stacked, including on tall/narrow viewports. Columns derive from the remaining
+viewport and template proportions, never from the legacy ViewModel count flow.
 
 ## Deploy
 
@@ -80,34 +86,19 @@ explicitly for local work. It is not a cross-platform CI runner.
 
 ## Assets
 
-Before `preBuild`, Gradle runs:
+The app packages its checked-in artwork directly from `app/src/main/assets/` and
+`app/src/main/res/drawable-nodpi/`. Gradle does not regenerate or synchronize artwork from a
+separate source directory. Update the runtime files and their catalog indexes/credits together.
+See the [artwork guide](ARTWORK.md) and [third-party notices](../THIRD_PARTY_NOTICES.md).
 
-| Task | Inputs | Output |
-| --- | --- | --- |
-| `syncOverlayAssets` | [overlays](../artwork/overlays/), [arcade overlays](../artwork/arcade-overlays/), [backgrounds](../artwork/backgrounds/) | Drawable resources and copied assets |
-| `prepareArcadeCabinets` | [NormalizeArcadeCabinets.java](../scripts/NormalizeArcadeCabinets.java), cabinet PNGs/references | Normalized cabinet assets |
-| `syncFullArcadeCabinets` | [artwork/full-cabinets](../artwork/full-cabinets/) | Full-cabinet assets |
-| `preparePlayStationTemplate` | Original PS1 and CD jewel-case PNGs | Full-cover PS1 template retaining molded tabs/clips |
-
-Some outputs are written into the source tree. Inspect `git status` after builds and edit source assets,
-not synchronized copies. Do not indiscriminately delete checked-in assets: some manually generated
-files are also build inputs. Rights review is required for source and derived images alike.
-
-GIMP working files are not required by the build and are ignored. Only used exported PNG templates
-are retained, plus the original PS1 PNG required by the regeneration command below. Keep local editable
-projects outside version control; do not remove exported sources that Gradle still references.
-
-Reproduce the two manually generated templates with JDK 17:
+The digital PC frame can be regenerated with JDK 17:
 
 ```sh
 java -Djava.awt.headless=true scripts/PrepareDigitalGameTemplate.java app/src/main/res/drawable-nodpi/nostalgic_overlay_digital_pc.png
-java -Djava.awt.headless=true scripts/PreparePlayStationTemplate.java artwork/overlays/ps1.png artwork/overlays/ps1_full_cover.png
 ```
 
-See the [artwork directory guide](../artwork/README.md) for source, prepared, packaged and local-only paths.
-
-The PS1 generator preserves its source. Full-cabinet/metadata sourcing utilities are not required for
-ordinary builds; read their inputs/provenance before running them. See [cabinet notes](../artwork/ARCADE-CABINETS.md).
+Other artwork scripts may need original inputs that are no longer retained. They are not invoked
+by ordinary builds; verify their inputs and rights before using or publishing generated output.
 
 ## Dependency compatibility
 

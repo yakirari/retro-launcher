@@ -42,3 +42,21 @@ This is not Slot artwork, is not affiliated with Analogue or Nintendo, and is no
 bundled or relicensed under MIT. The archive does not declare a media license;
 availability is not public-domain or redistribution permission. Original rights
 remain with their respective owners. Review media rights before redistribution.
+
+Optional downloaded Nintendo Entertainment System cartridge labels
+
+Reviewed source: https://archive.org/details/TheLegendofZelda-NES-CartScans
+The Legend of Zelda, NES-ZL-USA, original USA release only. This is a label crop
+from an existing cartridge scan, not AI reconstruction or invented lettering.
+Source JPEG is described by the uploader as scaled and possibly retouched.
+Source SHA-256, dimensions and crop are recorded in cartridge-artwork/nes-scans.json.
+Only metadata ships; no game scan is bundled. Downloads are bounded, hash-verified,
+region-decoded and cached. Matching uses complete-ROM SHA-1 (including iNES header)
+from libretro-database, not filenames, fuzzy titles or guessed regional substitutes:
+https://github.com/libretro/libretro-database
+Database attribution: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
+No ROM bytes are uploaded. Manual labels take priority; ordinary covers are unchanged.
+The scan metadata declares no media license. Download availability is not permission
+to redistribute, public-domain status or an MIT license. Original rights remain
+with their owners. No affiliation or endorsement by Nintendo or the source is implied.
+Separate media-rights review is required before distribution or hosting of images.

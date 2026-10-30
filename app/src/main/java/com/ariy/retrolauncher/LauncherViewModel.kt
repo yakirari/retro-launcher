@@ -279,7 +279,57 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         refreshInstalledTargets(importSharedGames = _setupCompleted.value)
         prefetchMameFallbackArtworkIfNeeded()
         refreshConsoleCatalogArtwork()
+        refreshNesCatalogArtwork()
         refreshScummVmShortcutArtwork()
+    }
+
+    private fun refreshNesCatalogArtwork() {
+        launchWorker(Dispatchers.IO) {
+            val worker = currentCoroutineContext()
+            val checkpoints = getApplication<android.app.Application>().getSharedPreferences("nes-portrait-v2", android.content.Context.MODE_PRIVATE)
+            for (original in _games.value.filter(com.ariy.retrolauncher.launch.NesArtworkPolicy::ownsAutomaticCover)) {
+                worker.ensureActive()
+                try {
+                    val source = original.imageUri ?: continue
+                    val bundled = com.ariy.retrolauncher.launch.NesBundledArtwork.save(getApplication(), original, importedIconStore)
+                    if (bundled != null) {
+                        worker.ensureActive()
+                        updateGamesFromBackground { games -> games.map { game ->
+                            if (game.id == original.id && game.imageUri == original.imageUri &&
+                                game.intentDataUri == original.intentDataUri && game.cartridgeLabelUri == null &&
+                                game.title == original.title && game.platform == original.platform) game.copy(imageUri = bundled) else game
+                        } }
+                        continue
+                    }
+                    val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    android.graphics.BitmapFactory.decodeFile(resolveArtworkSourceUri(source).path, bounds)
+                    // Correct portrait covers do not need another migration or network lookup.
+                    if (bounds.outWidth > 0 && bounds.outHeight > 0 &&
+                        bounds.outWidth.toFloat() / bounds.outHeight in 0.5f..0.85f) continue
+                    val rom = original.intentDataUri?.let { Uri.decode(it).substringAfterLast('/') } ?: continue
+                    val hash = java.security.MessageDigest.getInstance("SHA-256").digest("$source|$rom".toByteArray())
+                        .joinToString("") { "%02x".format(it) }
+                    val name = "${original.id}-nes-portrait-v2-$hash"
+                    val cached = importedIconStore.existingBitmapUri(name)
+                    if (cached == null && System.currentTimeMillis() - checkpoints.getLong(hash, 0) < 24 * 60 * 60 * 1000L) continue
+                    val saved = cached ?: run {
+                        // The alternate catalog provides typed portrait fronts. Do not block
+                        // it on the large legacy index that supplied the unsuitable cover.
+                        val candidates = com.ariy.retrolauncher.launch.NesPortraitArtworkCatalog.fetchCandidates(rom)
+                        importedIconStore.downloadNesCatalogCover(name, candidates.map(ArtworkCandidate::imageUrl), source) { worker.ensureActive() }
+                    }
+                    worker.ensureActive()
+                    checkpoints.edit().putLong(hash, System.currentTimeMillis()).apply()
+                    if (saved == null) continue
+                    updateGamesFromBackground { games -> games.map { game ->
+                        if (game.id == original.id && game.imageUri == original.imageUri &&
+                            game.intentDataUri == original.intentDataUri && game.cartridgeLabelUri == null &&
+                            game.title == original.title && game.platform == original.platform) game.copy(imageUri = saved) else game
+                    } }
+                } catch (cancelled: CancellationException) { throw cancelled }
+                catch (error: Exception) { Log.w("RetroLauncher", "NES portrait refresh failed", error) }
+            }
+        }
     }
 
     private fun refreshScummVmShortcutArtwork() {
@@ -832,12 +882,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun updateGameCartridge(id: String, labelUri: String?, color: String?) {
         val updated = _games.value.map { game ->
-            if (game.id == id && com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
-                game.copy(
-                    cartridgeLabelUri = labelUri?.takeIf { it.isNotBlank() },
-                    cartridgeColor = com.ariy.retrolauncher.model.HandheldCartridgeSettings.normalizeColor(color)
-                )
-            } else game
+            if (game.id == id) com.ariy.retrolauncher.model.CartridgeLabelSettings.update(game, labelUri, color)
+            else game
         }
         persistGames(updated)
     }
@@ -1271,14 +1317,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             if (title.isBlank()) return
             val current = _games.value.firstOrNull { it.id == id } ?: return
             if (!replaceExistingArtwork && !current.imageUri.isNullOrBlank()) return
+            if (!replaceExistingArtwork && com.ariy.retrolauncher.launch.SnesCartridgeScans.path(getApplication(), current) != null) return
             if (current.platform.supportsMameFallbackArtwork()) {
-                val availableAssets = runCatching {
-                    getApplication<Application>().assets.list("overlay_mame")
-                        ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-                        ?.associateBy { it.lowercase() }
-                        .orEmpty()
-                }.getOrDefault(emptyMap())
-                if (availableAssets.isNotEmpty() && !current.needsMameFallbackArtwork(availableAssets)) {
+                val context = getApplication<Application>()
+                val cabinet = (current.arcadeOverlayAssetBaseNames() + current.title)
+                    .firstNotNullOfOrNull { com.ariy.retrolauncher.launch.ArcadeCabinetArtStore.find(context, it) }
+                if (cabinet != null && com.ariy.retrolauncher.launch.ArcadePresentationArtStore.path(context, cabinet.asset) != null) {
                     return
                 }
             }
@@ -1286,6 +1330,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 markArtworkAutofillStarted(id, publishLoadingState)
                 val latest = _games.value.firstOrNull { it.id == id } ?: return@withPermit
                 if (!replaceExistingArtwork && !latest.imageUri.isNullOrBlank()) return@withPermit
+                val bundled = com.ariy.retrolauncher.launch.NesBundledArtwork.save(getApplication(), latest, importedIconStore)
+                if (bundled != null) {
+                    currentCoroutineContext().ensureActive()
+                    updateGamesFromBackground { games -> games.map { it.withAutofilledArtwork(latest, bundled) } }
+                    artworkRetryAfterMillis.remove(id)
+                    return@withPermit
+                }
                 artworkRetryAfterMillis[id] = SystemClock.elapsedRealtime() + 5 * 60_000L
                 val searchTitle = latest.title
                 val queryKey = artworkSuggestionQueryKey(id, searchTitle)
@@ -1354,15 +1405,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private fun prefetchMameFallbackArtworkIfNeeded() {
         launchWorker(Dispatchers.IO) {
-            val availableAssets = runCatching {
-                getApplication<Application>().assets.list("overlay_mame")
-                    ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-                    ?.associateBy { it.lowercase() }
-                    .orEmpty()
-            }.getOrDefault(emptyMap())
-            if (!hasGenericMameFallbackAsset(availableAssets)) return@launchWorker
+            val context = getApplication<Application>()
             _games.value
-                .filter { it.needsMameFallbackArtwork(availableAssets) }
+                .filter { game ->
+                    game.platform.supportsMameFallbackArtwork() && game.imageUri.isNullOrBlank() &&
+                        (game.arcadeOverlayAssetBaseNames() + game.title).none { rom ->
+                            com.ariy.retrolauncher.launch.ArcadeCabinetArtStore.find(context, rom)?.let {
+                                com.ariy.retrolauncher.launch.ArcadePresentationArtStore.path(context, it.asset)
+                            } != null
+                        }
+                }
                 .forEach { game ->
                     autoFillArtworkIfMissing(game.id, game.title)
                 }
@@ -1394,6 +1446,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     ): String? {
         val coroutineContext = currentCoroutineContext()
         val searchGame = game.copy(title = title.ifBlank { game.title })
+        if (GamePlatforms.normalizeOrNull(game.platform) == "Nintendo Entertainment System") {
+            com.ariy.retrolauncher.launch.NesBundledArtwork.save(getApplication(), game, importedIconStore)?.let { return it }
+            val rom = game.intentDataUri?.let { Uri.decode(it).substringAfterLast('/') }
+            if (rom != null) {
+                val portraits = com.ariy.retrolauncher.launch.NesPortraitArtworkCatalog.fetchCandidates(rom)
+                val saved = importedIconStore.downloadNesCatalogCover(fileName,
+                    portraits.map(ArtworkCandidate::imageUrl), null) { coroutineContext.ensureActive() }
+                if (saved != null) return saved
+            }
+        }
         val batches = sequence {
             yield(suggestions)
             yieldAll(ArtworkSuggestionService.fetchCandidateBatches(searchGame, searchGame.artworkSearchQueries(searchGame.title)))

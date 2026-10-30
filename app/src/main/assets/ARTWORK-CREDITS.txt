@@ -1,7 +1,59 @@
 Retro Launcher — cabinet artwork credits
 
+Bundled NES box-front scans
+--------------------------
+Source: Video Game Museum, https://www.vgmuseum.com/scans/nes.html
+Collection contributors: Aaron Mims, Dogmatix Man, Double Dragon Dojo, Eloist,
+J. Soler, KaneRobot, NGA, TJ, Zone and Rey. Thank you for preserving these scans.
+Per-file contributor assignments are not supplied by the source page.
+
+84 reviewed box fronts are resized to a maximum 768px long edge without cropping
+or upscaling; converted to sRGB JPEG quality 85 with 4:4:4 chroma; metadata stripped.
+Source URLs, original hashes and normalized hashes/dimensions are recorded in
+nes_covers/index.json. These are box scans, not cartridge-label scans.
+
+Published FAQ: https://www.vgmuseum.com/faq/faq.htm (checked 2026-10-28).
+It permits credited website reuse and prohibits off-site image hotlinking;
+app redistribution is not expressly addressed. Bundled at the project owner's
+direction, not represented as an additional license grant. Original game artwork
+and trademarks remain their owners' property and are not licensed under MIT.
+Source URLs and normalized file hashes: nes_covers/index.json.
+Additional rights notes: CARTRIDGE-LABEL-SOURCES.txt in this asset bundle.
+
+Bundled SNES cartridge labels
+----------------------------
+All 109 SNES labels are JPEGs listed in the unified snes_labels/index.json catalog.
+The earlier 48 comprise 42 user-supplied AI recreations and six composite-image
+extracts. A newer batch replaces 58 PNGs with 43 AI recreations and 15 supplied
+originals retained after the image tool rejected recreation, and adds three
+user-supplied labels for Mega Man 10, Mega Man 12 and Mega Man 13. AI recreations
+are not archival scans; lettering, illustration and small logos may differ from
+references. Per-image source descriptions, URLs, hashes and dimensions remain in
+the catalog. For AI recreations and composite extracts, historical scan URLs and
+crop details are reference context, not independent verification of supplied image
+pixels.
+
+Published FAQ: https://www.vgmuseum.com/faq/faq.htm (checked 2026-10-28).
+It permits credited website reuse and prohibits off-site image hotlinking; app
+redistribution of media based on those sources is not expressly addressed. Bundled
+at the project owner's direction, not represented as an additional license grant.
+Original game artwork and trademarks remain their owners' property and are not
+licensed under MIT.
+Per-label source and matching notes: snes_labels/index.json and
+CARTRIDGE-LABEL-SOURCES.txt in this asset bundle.
+
 Original launcher code and author-created artwork (SVGs, backgrounds and templates)
 are covered by the project's MIT license. Third-party cabinet images are not relicensed under MIT.
+
+User-supplied cartridge scans, restorations and labels retain their original
+provenance descriptions in the unified catalog. The new JPEG label bytes are copied
+without modification; full-cartridge preview renders are not bundled. Source claims
+are not independently authenticated; some labels have no source attribution. No
+redistribution license is asserted. The Japan-folder Super Mario RPG print has
+Spanish text and a USA product code, so its shell assignment is a user-selected
+presentation variant. Bundling is at the user's direction, not a claim of
+redistribution permission. Third-party game artwork and restorations are not
+relicensed under MIT.
 
 External cabinet references
 --------------------------
@@ -35,18 +87,42 @@ Modifications and generated artwork
 Retro Launcher processes some reference images into transparent, resized and
 aligned cabinet illustrations; some conversion illustrations use donor images.
 The project author also identifies their cabinet artwork as AI-generated.
-Per-file source/processing manifests in the source repository distinguish
-documented external inputs from original/generated contributions. Attribution
+The current packaged cabinet-to-ROM mappings are in arcade-metadata/cabinet-art.json.
+The former source/review manifests are not retained in the current tree. Attribution
 to an external source does not imply that every cabinet came from that source.
 Generated/conversion illustrations are not certified photographs of authentic
 factory cabinets. Processing or AI generation does not relicense external inputs.
 
-Source-repository provenance:
-artwork/ARCADE-CABINETS.md
-artwork/cabinet-references/SOURCES.md
-artwork/cabinet-references/EXPANDED-COVERAGE.md
-artwork/cabinet-references/cabinet-manifest.json
-THIRD_PARTY_NOTICES.md
+See THIRD_PARTY_NOTICES.md for the retained rights caveat.
+
+Gameplay-lit copies and Stacked fronts
+------------------------------------
+The current 381 Stacked fronts were supplied in retro_launcher_cabinets_v20/front
+and imported on 2026-10-25, with backgrounds/resolutions unchanged.
+379 PNGs were copied byte-for-byte. Batman and Simpsons were JPEG data with PNG
+filenames; they were losslessly encoded as PNG with decoded pixel equality verified.
+Creator, generation method and redistribution permissions were not supplied.
+They are not certified historical photographs or established MIT-licensed media.
+Per-file source-pack name, dimensions and hashes are in
+arcade_presentations/index.json.
+
+The superseded generated fronts combined illustrated upright cabinet bodies
+with third-party gameplay stills, marquees and control panels. The following
+source patterns/manifests describe those legacy inputs and retained lit copies,
+not verified source material or gameplay for the current user-supplied fronts.
+Screens are static artwork, not live games.
+
+Source patterns (ArcadeItalia / progetto-SNAPS material and original rights holders):
+https://adb.arcadeitalia.net/media/mame.current/ingames/{rom}.png
+https://adb.arcadeitalia.net/media/mame.current/marquees/{rom}.png
+https://adb.arcadeitalia.net/media/mame.current/cpanels/{rom}.png
+
+The current index records supplied source-pack names and image hashes. Detailed
+legacy download and processing records are not retained in the current tree.
+
+Public availability and attribution are not permission to redistribute.
+Game images/panel art and cabinet-photo derivatives are not relicensed under MIT.
+Include these assets in the release rights review before public redistribution.
 
 Support the source collection
 ----------------------------

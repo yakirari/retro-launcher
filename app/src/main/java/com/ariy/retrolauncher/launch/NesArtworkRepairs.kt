@@ -1,0 +1,1 @@
+// Per-title repairs retired. NES artwork refresh is governed by NesArtworkPolicy.

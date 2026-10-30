@@ -452,17 +452,11 @@ object GameRecommendations {
             romFolderHint = "mame",
             retroArchCoreSoFile = "mame2003_plus_libretro_android.so",
             buildPreviewAssetPath = previewAsset@{ context, rule ->
-                val availableAssets = runCatching {
-                    context.assets.list("overlay_mame")
-                        ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-                        ?.associateBy { it.lowercase() }
-                        .orEmpty()
-                }.getOrDefault(emptyMap())
-                val assetName = findMatchingArcadeOverlayAssetName(
-                    availableAssets = availableAssets,
-                    assetBaseNames = rule.previewAssetBaseNames()
-                )?.takeUnless(::isGenericArcadeFallbackAssetName) ?: return@previewAsset null
-                "overlay_mame/$assetName"
+                rule.previewAssetBaseNames().firstNotNullOfOrNull { rom ->
+                    ArcadeCabinetArtStore.find(context, rom)?.let { art ->
+                        ArcadePresentationArtStore.path(context, art.asset)
+                    }
+                }
             }
         ),
         platformRecommendationSource(

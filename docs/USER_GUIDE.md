@@ -12,6 +12,24 @@ The launcher can be opened for testing without becoming Home, but shortcut enume
 depend on the Home role. Keep a working alternative launcher installed. To leave Retro Launcher,
 change the default Home app in Android settings.
 
+## NES cartridge stickers
+
+In a NES game's edit dialog, choose **Choose cartridge label** to select a flat image of the
+printed sticker matching the game and region. Do not select a photograph of the whole cartridge.
+The label is separate from the game's cover: nostalgic grid, stacked and shelf layouts fit the
+complete sticker into the cartridge opening without recoloring it, while ordinary cover views
+keep the original cover. For portrait artwork, the NES opening and cartridge height adapt to
+the image proportions so fitted artwork does not leave cream bands above and below it. The
+rounded label corners and top/bottom plastic details are retained; artwork is not stretched
+or cropped. Very wide or unusually narrow images retain the standard template.
+
+**Use automatic label** removes the custom sticker. Reviewed scans are selected only for an
+exact ROM hash; current NES coverage is limited to the original USA release of The Legend of
+Zelda (not Rev 1, Japanese, European or digital rereleases). A matching label downloads into
+cache without uploading ROM bytes. Unknown dumps and offline/missing labels retain the complete
+cover fallback; adapted box art is not an authentic cartridge label. Header-edited ROMs may not
+match. Keep manually chosen documents available so Android's saved read permission remains valid.
+
 ## First run and automatic library setup
 
 **Before scanning, install and configure your emulators.** Retro Launcher assumes they already
@@ -90,7 +108,23 @@ app, and approve **Allow**. Return to Home for shared-shortcut refresh, or use
 cannot discover a game that the hub has not published. ScummVM likewise needs registration in its
 own UI before its picker/config/shortcuts can provide launchable targets.
 
-## Add emulated games
+## Dense Stacked gallery
+
+Choose **Options → General → Layout → Stacked**, then **Tile size → Small, Medium or Large**.
+Columns adjust automatically to the available width and height: Small fits at least three complete
+rows, Medium two, and Large one. Large also keeps at least two tiles across.
+Artwork retains its proportions inside height-bounded tiles;
+close spacing and no separate title panel keep cabinets densely packed.
+Accessible game names and tap-to-launch/edit behavior are retained. Grid, Stacked and Shelf remember
+independent sizes; selecting Stacked does not reset your existing Grid/Shelf preferences or library.
+
+Arcade Stacked tiles use a separate front-facing illustrated cabinet collection with real, matching
+gameplay stills and available marquee/control-panel references. These are illustrative operator fronts,
+not historically exact factory cabinets. Other views retain the original cabinet silhouettes, with
+reviewed gameplay-screen improvements where available. Screens are static, not animated/live gameplay.
+No rescan or artwork refresh is needed for packaged cabinet improvements.
+
+## Add individual emulated games
 
 1. Install an emulator and confirm the game runs inside it first.
 2. Open **Add → Games**, choose a platform and the appropriate installed emulator.
@@ -148,13 +182,19 @@ as Home, then create it again. Do not uninstall the game. See [integration troub
   Backgrounds have descriptive scene names in Options; saved selections, including None, are preserved.
 - On short landscape screens, dialogs use compact spacing and keep help, tabs and detailed progress
   inside the scrolling area where possible, leaving only essential actions fixed.
-- **Options → General** offers two global presets: **Grid** (static Gridstalgic layout) and
-  **Shelf** (Shelfstalgic layout). Each independently remembers a tile count of **1, 2, 3, 4 or 8**.
-- The default is **Grid, 2 tiles, transparent tile backgrounds**. On first use of these simplified
+- **Options → General** offers **Grid**, **Stacked** and **Shelf**. Each independently remembers
+  **Small**, **Medium** or **Large** under **Tile size**, not a fixed number of columns.
+  Grid/Stacked fit at least three, two or one complete rows respectively in the remaining screen
+  height, including gaps. Large keeps at least two tiles across in Grid/Stacked.
+  Shelf fits at least three, two or one complete items across, including
+  at either end of the centered carousel, when enough games are present.
+- The default is **Grid, Medium, transparent tile backgrounds**; Stacked defaults to Small.
+  Saved numeric choices map to Large (1), Medium (2/3) or Small (4/8), preserving other settings.
+  On first use of these simplified
   options, old layout/count/background settings are reset and platform display profiles are ignored.
   Existing library records, metadata, artwork, launcher wallpaper and the global caption choice are retained.
 - Layout, tile backgrounds and captions apply everywhere, including platform views and mixed collections;
-  changing filters does not change appearance. Switching Grid/Shelf restores that preset's tile count.
+  changing filters does not change the selected size. Switching layouts restores that preset's size.
 - **Options → Artwork** refreshes images for a selected platform without editing gallery settings or
   rescanning ROMs. Existing covers are replaced only when a new image is found, after confirmation.
 - Sorting offers alphabetical, release year and personal popularity. Played games group first;
@@ -219,7 +259,7 @@ databases. Never put passwords/tokens into intent extras or bug reports.
 | ScummVM folders won't launch | Register games inside ScummVM, then use its registered picker or exported config. |
 | SD card games disappear | Reinsert and reauthorize the correct directory; saved URIs can become invalid. |
 | Wrong cover | Check network access; choose a manual image or another suggestion. |
-| Tile count changes when switching Grid/Shelf | Each preset remembers its own global count; set both in Options → General. |
+| Tile size changes when switching layouts | Each preset remembers its own global size; set each in Options → General. |
 | APK won't update | Signing keys may differ. Understand data-loss risk before uninstalling. |
 
 Reports should include app/device/Android/emulator versions, steps and expected/actual behavior,

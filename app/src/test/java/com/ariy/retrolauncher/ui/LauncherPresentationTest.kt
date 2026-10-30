@@ -50,23 +50,6 @@ class LauncherPresentationTest {
         assertEquals("(USA).nes", curatedDisplayTitle("(USA).nes"))
     }
 
-    @Test fun phoneGridClampsUnusableDensities() {
-        assertEquals(2, responsiveGridColumns(328f, 4))
-        assertEquals(3, responsiveGridColumns(328f, 8))
-        assertEquals(1, responsiveGridColumns(260f, 4))
-    }
-
-    @Test fun tabletGridRetainsRequestedDensity() {
-        assertEquals(4, responsiveGridColumns(900f, 4))
-        assertEquals(8, responsiveGridColumns(900f, 8))
-        assertEquals(1, responsiveGridColumns(900f, 1))
-    }
-
-    @Test fun gridColumnsAreAlwaysPositiveEvenForTinyViewports() {
-        assertEquals(1, responsiveGridColumns(0f, 8))
-        assertEquals(1, responsiveGridColumns(328f, 0))
-    }
-
     @Test fun galleryFitsLandscapeHeightAndPhoneWidth() {
         val landscapeWidth = responsiveGalleryWidth(800f, 260f, 0.9f, 0.714f)
         assertTrue(landscapeWidth / 0.714f <= 172.01f)

@@ -18,7 +18,7 @@ fun platformDisplayDefaults(platform: String?): PlatformDisplaySettings = when (
     else -> PlatformDisplaySettings()
 }
 
-private val layouts = setOf("grid", "gridstalgic", "gallery", "nostalgic", "shelfstalgic", "samestalgic", "gallerystalgic")
+private val layouts = setOf("grid", "gridstalgic", "stacked", "gallery", "nostalgic", "shelfstalgic", "samestalgic", "gallerystalgic")
 fun PlatformDisplaySettings.validated(defaults: PlatformDisplaySettings = PlatformDisplaySettings()) = copy(
     layoutMode = layoutMode.takeIf { it in layouts } ?: defaults.layoutMode,
     gridColumns = gridColumns.takeIf { it in setOf(1, 2, 3, 4, 8) } ?: defaults.gridColumns,

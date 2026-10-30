@@ -1,5 +1,32 @@
 package com.ariy.retrolauncher.ui
 
+/** The supplied v20 fronts use a flat #0c0c0c surround. Never key arbitrary dark pixels. */
+internal fun arcadeFrontBackgroundMask(pixels: IntArray, width: Int, height: Int): BooleanArray {
+    require(width > 0 && height > 0 && width.toLong() * height == pixels.size.toLong())
+    val mask = BooleanArray(pixels.size)
+    val queue = IntArray(pixels.size)
+    var head = 0
+    var tail = 0
+    fun add(index: Int) {
+        if (mask[index]) return
+        val pixel = pixels[index]
+        if ((pixel ushr 24) != 0 && (pixel and 0x00ffffff) != 0x000c0c0c) return
+        mask[index] = true
+        queue[tail++] = index
+    }
+    for (x in 0 until width) { add(x); add((height - 1) * width + x) }
+    for (y in 0 until height) { add(y * width); add(y * width + width - 1) }
+    while (head < tail) {
+        val index = queue[head++]
+        val x = index % width
+        if (x > 0) add(index - 1)
+        if (x + 1 < width) add(index + 1)
+        if (index >= width) add(index - width)
+        if (index + width < pixels.size) add(index + width)
+    }
+    return mask
+}
+
 /** Only edge-connected near-white/transparent pixels are background; white logos survive. */
 internal fun cabinetBackgroundMask(pixels: IntArray, width: Int, height: Int): BooleanArray {
     require(width > 0 && height > 0 && width.toLong() * height == pixels.size.toLong())

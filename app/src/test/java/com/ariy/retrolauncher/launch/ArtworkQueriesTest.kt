@@ -7,6 +7,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ArtworkQueriesTest {
+    @Test fun revengeIsPartOfTheTitleRatherThanRevisionMetadata() {
+        assertEquals("Metal Combat - Falcon's Revenge",
+            normalizedArtworkTitle("Metal Combat - Falcon's Revenge (USA).sfc", true))
+        assertEquals("Future Game", normalizedArtworkTitle("Future Game rev1.sfc", true))
+        assertEquals("Future Game", normalizedArtworkTitle("Future Game Rev A.sfc", true))
+    }
     @Test fun subtitlesAndDottedTitlesAreNotMisreadAsUriSchemesOrExtensions() {
         assertEquals("Zelda: Tears of the Kingdom", normalizedArtworkTitle("Zelda: Tears of the Kingdom.nsp", true))
         assertEquals("S T A L K E R", normalizedArtworkTitle("S.T.A.L.K.E.R.", true))

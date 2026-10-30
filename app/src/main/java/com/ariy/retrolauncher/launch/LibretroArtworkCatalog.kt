@@ -12,6 +12,7 @@ internal object LibretroArtworkCatalog {
     private const val ROOT = "https://thumbnails.libretro.com/"
     private const val MAX_INDEX_BYTES = 6 * 1024 * 1024
     private val cachedEntries = ConcurrentHashMap<String, List<CatalogEntry>>()
+    private val failedIndexUntil = ConcurrentHashMap<String, Long>()
 
     private val systemDirectories = mapOf(
         "MAME Arcade" to "MAME",
@@ -49,7 +50,9 @@ internal object LibretroArtworkCatalog {
         val directoryName = systemDirectories[normalizedPlatform] ?: return emptyList()
         val isPsp = normalizedPlatform == "Sony PlayStation Portable"
         val isScummVm = normalizedPlatform == "ScummVM"
+        val isNes = normalizedPlatform == "Nintendo Entertainment System"
         val titleKey = when {
+            isNes -> artworkMatchKey(romName?.takeIf { it.isNotBlank() } ?: rawTitle)
             isPsp -> pspArtworkMatchKey(rawTitle)
             isScummVm -> scummVmArtworkMatchKey(rawTitle)
             else -> artworkMatchKey(rawTitle)
@@ -57,12 +60,20 @@ internal object LibretroArtworkCatalog {
         if (titleKey.isBlank()) return emptyList()
 
         val directoryUrl = "$ROOT${encodePath(directoryName)}/Named_Boxarts/"
+        if (System.currentTimeMillis() < (failedIndexUntil[directoryUrl] ?: 0L)) return emptyList()
         val entries = cachedEntries[directoryUrl] ?: loadDirectory(directoryUrl)?.also {
             cachedEntries[directoryUrl] = it
-        } ?: return emptyList()
+        } ?: run {
+            failedIndexUntil[directoryUrl] = System.currentTimeMillis() + 5 * 60_000L
+            return emptyList()
+        }
 
-        val matches = entries.asSequence()
+        val matchingEntries = if (isNes) {
+            selectNesEntries(entries, rawTitle, romName)
+        } else entries
+        val matches = matchingEntries.asSequence()
             .filter { (when {
+                isNes -> it.matchKey
                 isPsp -> pspArtworkMatchKey(it.displayTitle)
                 isScummVm -> scummVmArtworkMatchKey(it.displayTitle)
                 else -> it.matchKey
@@ -70,6 +81,7 @@ internal object LibretroArtworkCatalog {
             .toList()
         val bestRegion = matches.minOfOrNull { regionRank(it.displayTitle, romName ?: rawTitle) }
         return matches.asSequence()
+            .filter { !isNes || regionRank(it.displayTitle, romName ?: rawTitle) == 0 }
             .filter { regionRank(it.displayTitle, romName ?: rawTitle) == bestRegion }
             .take(6)
             .map { entry ->
@@ -96,6 +108,29 @@ internal object LibretroArtworkCatalog {
             else -> 2
         }
     }
+
+    /** Prefer the actual NES filename/edition, not a shortened tile title or an old hack alias. */
+    internal fun selectNesEntries(entries: List<CatalogEntry>, title: String, romName: String?): List<CatalogEntry> {
+        val rom = romName?.let { normalizedArtworkTitle(it, stripFileExtension = true) }.orEmpty()
+        val key = artworkMatchKey(rom.ifBlank { title })
+        val matches = entries.filter { it.matchKey == key && regionRank(it.displayTitle, romName ?: title) == 0 &&
+            nesEditionKey(it.displayTitle) == nesEditionKey(romName ?: title) }
+        val filename = romName?.substringBeforeLast('.', romName).orEmpty()
+        matches.filter { it.displayTitle.equals(filename, ignoreCase = true) }.takeIf { it.isNotEmpty() }?.let { return it }
+        // A legacy GoodNES dump/hack name must not win merely by appearing first in the index.
+        val modern = matches.filter { !it.displayTitle.contains('[') &&
+            !Regex("\\((?:19|20)[0-9x]{2}(?:-[0-9x]{2}){0,2}\\)", RegexOption.IGNORE_CASE).containsMatchIn(it.displayTitle) }
+        return modern.ifEmpty { matches }
+    }
+
+    /** Retain publisher, prototype and other edition qualifiers; ignore only neutral metadata. */
+    private fun nesEditionKey(name: String): Set<String> = Regex("[\\(\\[]([^\\)\\]]*)[\\)\\]]").findAll(name)
+        .map { it.groupValues[1].lowercase().trim() }
+        .filterNot { group ->
+            group.matches(Regex("rev(?:ision)?\\s*[a-z0-9]+")) ||
+                group.split(Regex("[, /]+" )).all { it in setOf("usa", "us", "u", "europe", "eu", "e", "japan", "jp", "j", "world", "australia",
+                    "en", "ja", "fr", "de", "es", "it", "pt", "nl", "sv", "no", "da", "fi", "zh", "ko") }
+        }.toSet()
 
     internal fun artworkMatchKey(rawTitle: String): String {
         val title = normalizedArtworkTitle(rawTitle, stripFileExtension = true).orEmpty()

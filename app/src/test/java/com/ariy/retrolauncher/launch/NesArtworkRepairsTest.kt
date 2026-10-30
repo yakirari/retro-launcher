@@ -1,0 +1,1 @@
+// Per-title tests retired. See NesArtworkPolicyTest for identity-independent coverage.

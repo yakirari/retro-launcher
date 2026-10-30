@@ -42,7 +42,7 @@ matching, not cryptographic game verification.
 
 A configured target differs from an engine ID. ScummVM Android treats its scheme-specific URI payload
 as one argument; an invented combined `--path` command is not a replacement. The entire private registered
-list cannot be enumerated by Retro Launcher. See [verified ScummVM notes](../artwork/SCUMMVM-INTEGRATION.md).
+list cannot be enumerated by Retro Launcher.
 
 ## PC game hubs
 
@@ -88,8 +88,6 @@ and is not a substitute for publishing shortcuts. You do not need to rescan ROMs
 **Old pins:** a shortcut can exist on the device but belong only to another launcher. Android prevents
 Retro Launcher reading it. Some hubs only update an existing pin. Remove the shortcut in the old Home,
 return to Retro Launcher as Home, and recreate it. Do not delete the game or reset the hub library.
-
-See [GameNative and hub notes](../artwork/GAMENATIVE-INTEGRATION.md) for facts and limitations.
 
 ## Standalone emulators
 

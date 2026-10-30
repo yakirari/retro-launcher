@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import com.ariy.retrolauncher.resolveArtworkSourceUri
+import com.ariy.retrolauncher.recolorNostalgicOverlayBitmap
 import com.ariy.retrolauncher.model.GameEntry
 import com.ariy.retrolauncher.model.HandheldCartridgeSettings
 import com.ariy.retrolauncher.model.NostalgicOverlaySpec
@@ -35,6 +36,14 @@ private val settledLabelCache = object : LruCache<String, Bitmap>(12 * 1024 * 10
     override fun sizeOf(key: String, value: Bitmap): Int = value.allocationByteCount
 }
 private val blankLabelCache = LruCache<Int, Bitmap>(3)
+
+internal fun clearHandheldArtworkMemory() {
+    labelSourceCache.evictAll()
+    composedLabelCache.evictAll()
+    settledLabelCache.evictAll()
+    blankLabelCache.evictAll()
+    artworkColorCache.evictAll()
+}
 
 /** A small, saturation-weighted histogram ignores white packaging and dark outlines. */
 internal fun handheldArtworkColor(source: Bitmap): Int? {
@@ -122,6 +131,15 @@ internal fun tintHandheldShell(source: Bitmap, color: Int): Bitmap {
     return Bitmap.createBitmap(pixels, source.width, source.height, Bitmap.Config.ARGB_8888)
 }
 
+internal fun tintSnesCartridgeShell(source: Bitmap, color: Int): Bitmap {
+    val neutral = recolorNostalgicOverlayBitmap(source, Color.BLACK)
+    return try {
+        tintHandheldShell(neutral, color)
+    } finally {
+        neutral.recycle()
+    }
+}
+
 /** Derived label only: source documents and ordinary cover views are never rewritten. */
 @Composable
 internal fun rememberHandheldLabel(
@@ -131,19 +149,27 @@ internal fun rememberHandheldLabel(
     isCustomLabel: Boolean,
     loadSticker: suspend (Context, GameEntry) -> Bitmap? = { context, entry ->
         if (entry.platform == "Nintendo 64") N64CartridgeLabelStore.load(context, entry)
+        else if (com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(entry.platform) == "Nintendo Entertainment System") NesCartridgeLabelStore.load(context, entry)
+        else if (com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(entry.platform) == "Super Nintendo") {
+            com.ariy.retrolauncher.launch.SnesCartridgeScans.path(context, entry)?.let { decodeSampledArtworkAsset(context, it, 768) }
+        }
         else CartridgeLabelStore.load(context, entry)
     }
 ): ImageBitmap? {
-    if (!HandheldCartridgeSettings.supportsPlatform(game.platform) && game.platform != "Nintendo 64") return artwork
+    val nes = com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(game.platform) == "Nintendo Entertainment System"
+    val snes = com.ariy.retrolauncher.model.GamePlatforms.normalizeOrNull(game.platform) == "Super Nintendo"
+    if (!HandheldCartridgeSettings.supportsPlatform(game.platform) && game.platform != "Nintendo 64" && !nes && !snes) return artwork
+    // Keep manual NES documents untouched; never let a slow picker decode trigger automatic art.
+    if ((nes || snes) && game.cartridgeLabelUri != null) return if (isCustomLabel) artwork else null
     val context = LocalContext.current
-    val identity = "label-v6:${game.platform}:${game.intentDataUri}:${game.imageUri}:" +
+    val identity = "${if (nes) "nes-label-v1" else if (snes) "snes-label-v2" else "label-v6"}:${game.platform}:${game.intentDataUri}:${game.imageUri}:" +
         "${game.cartridgeLabelUri}:${spec.drawableResourceId}"
     val blank = blankLabelCache.get(spec.drawableResourceId) ?: buildHandheldLabel(spec, null, true)
         .also { blankLabelCache.put(spec.drawableResourceId, it) }
     // Reset state when a recycled slot changes games. Never show another game's art or a temporary
     // miniature box cover before its sticker arrives. Settled labels survive fast scrolling.
     return key(identity) {
-        produceState(settledLabelCache.get(identity)?.asImageBitmap() ?: blank.asImageBitmap(),
+        produceState<ImageBitmap?>(settledLabelCache.get(identity)?.asImageBitmap() ?: blank.asImageBitmap(),
             artwork, isCustomLabel) {
             val sourced = withContext(Dispatchers.IO) {
                 try {
@@ -155,6 +181,13 @@ internal fun rememberHandheldLabel(
                 }
             }
             val source = if (isCustomLabel) artwork?.asAndroidBitmap() else sourced ?: artwork?.asAndroidBitmap()
+            if (nes || snes) {
+                // NES source already is a complete sticker. Do not compose another handheld well,
+                // infer a shell color or change the complete-cover fallback's existing geometry.
+                if (source != null) settledLabelCache.put(identity, source)
+                value = source?.asImageBitmap()
+                return@produceState
+            }
             if (source != null) {
                 value = withContext(Dispatchers.Default) {
                     val fullLabel = isCustomLabel || sourced != null

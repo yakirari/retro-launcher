@@ -52,6 +52,28 @@ class ImportedIconStore(private val context: Context) {
         return try { saveBitmap(fileName, bitmap) } finally { bitmap.recycle() }
     }
 
+    internal fun downloadNesCatalogCover(fileName: String, urls: List<String>, oldUri: String?,
+        load: ((String) -> Bitmap?)? = null,
+        cancellationCheck: () -> Unit): String? {
+        val old = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        if (oldUri != null) {
+            val uri = com.ariy.retrolauncher.resolveArtworkSourceUri(oldUri)
+            BitmapFactory.decodeFile(uri.path ?: return null, old)
+            if (old.outWidth <= 0 || old.outHeight <= 0) return null
+        }
+        for (url in urls.take(6)) {
+            cancellationCheck()
+            val bitmap = (if (load == null) downloadBitmap(url, cancellationCheck) else load(url)) ?: continue
+            try {
+                if (!NesArtworkPolicy.acceptableDimensions(bitmap.width, bitmap.height,
+                        old.outWidth.coerceAtLeast(0), old.outHeight.coerceAtLeast(0))) continue
+                cancellationCheck()
+                return saveBitmap(fileName, bitmap)
+            } finally { bitmap.recycle() }
+        }
+        return null
+    }
+
     fun downloadFirstAvailableImage(
         fileName: String,
         imageUrls: Iterable<String>,
@@ -126,6 +148,7 @@ class ImportedIconStore(private val context: Context) {
         connection.readTimeout = 15_000
         connection.instanceFollowRedirects = true
         connection.doInput = true
+        connection.setRequestProperty("User-Agent", "RetroLauncher/1.0 (artwork lookup)")
         val temporaryFile = File.createTempFile("artwork-", ".download", context.cacheDir)
         try {
             connection.connect()
@@ -158,6 +181,7 @@ class ImportedIconStore(private val context: Context) {
         }
     }.getOrElse { error ->
         if (error is CancellationException) throw error
+        android.util.Log.w("RetroLauncher", "Artwork download unavailable: $imageUrl", error)
         null
     }
 
@@ -175,7 +199,10 @@ class ImportedIconStore(private val context: Context) {
                     throw error
                 }
                 stampArtworkUri(Uri.fromFile(file).toString())
-            }.getOrNull()
+            }.getOrElse { error ->
+                android.util.Log.w("RetroLauncher", "Cannot save artwork", error)
+                null
+            }
         }
     }
 

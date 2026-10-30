@@ -194,7 +194,7 @@ fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): S
         .replace(Regex("\\([^)]*\\)"), " ")
         .replace(Regex("\\[[^]]*]"), " ")
         .replace(Regex("""\{[^}]*\}"""), " ")
-        .replace(Regex("\\b(?:usa|europe|japan|world|rev\\s*[a-z0-9]+|v\\d+(?:\\.\\d+)*)\\b", RegexOption.IGNORE_CASE), " ")
+        .replace(Regex("\\b(?:usa|europe|japan|world|rev(?:\\s+[a-z0-9]+|\\d+[a-z0-9]*)|v\\d+(?:\\.\\d+)*)\\b", RegexOption.IGNORE_CASE), " ")
         .replace(Regex("\\s+"), " ")
         .trim()
     return cleaned.ifBlank { baseName.takeIf { it.isNotBlank() } }

@@ -26,10 +26,19 @@ data class NostalgicOverlaySpec(
     val trimPlayStationSpine: Boolean = false,
     // Scale the complete cartridge and its artwork together, keeping label placement intact.
     val gridArtworkScale: Float = 1f,
-    val fitCompleteArtwork: Boolean = false
+    val fitCompleteArtwork: Boolean = false,
+    val alignCompleteArtworkToTop: Boolean = false,
+    // Visible around a fully fitted label; independent of the cartridge plastic color.
+    val artworkBackgroundColor: Int = 0xFF050505.toInt()
 ) {
     val croppedAspectRatio: Float
         get() = aspectRatio * (cropWidthFraction / cropHeightFraction)
+
+    fun artworkFitScore(artworkAspect: Float): Float {
+        val windowAspect = aspectRatio * artworkWidthFraction / artworkHeightFraction
+        val relativeAspect = artworkAspect / windowAspect
+        return minOf(relativeAspect, 1f / relativeAspect)
+    }
 }
 
 object NostalgicOverlays {
@@ -99,12 +108,22 @@ object NostalgicOverlays {
     private val snesCartridgeSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_snes,
         aspectRatio = 960f / 768f,
-        artworkLeftFraction = 198f / 960f,
-        artworkTopFraction = 107f / 768f,
-        artworkWidthFraction = 397f / 960f,
-        artworkHeightFraction = 465f / 768f,
-        artworkCornerRadiusFraction = 0f,
-        applyVintageArtwork = true
+        artworkLeftFraction = 247f / 960f,
+        artworkTopFraction = 144f / 768f,
+        artworkWidthFraction = 469f / 960f,
+        artworkHeightFraction = 223f / 768f,
+        artworkCornerRadiusFraction = 12f / 960f,
+        fitCompleteArtwork = false,
+        applyVintageArtwork = false,
+        artworkBackgroundColor = 0xFF101010.toInt()
+    )
+    private val snesJapanCartridgeSpec = snesCartridgeSpec.copy(
+        drawableResourceId = R.drawable.nostalgic_overlay_snes_japan,
+        artworkLeftFraction = 155f / 960f,
+        artworkTopFraction = 179f / 768f,
+        artworkWidthFraction = 648f / 960f,
+        artworkHeightFraction = 201f / 768f,
+        artworkCornerRadiusFraction = 14f / 960f
     )
     private val nesSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_nes,
@@ -115,7 +134,13 @@ object NostalgicOverlays {
         artworkWidthFraction = 307f / 960f,
         artworkHeightFraction = 493f / 768f,
         artworkCornerRadiusFraction = 12f / 960f,
-        applyVintageArtwork = true
+        // Use the real opening as the clipping mask, keeping plastic/rounded trim in front.
+        clipArtworkToTransparencyMask = true,
+        // Covers are only a fallback label: never crop their title or stretch their proportions.
+        fitCompleteArtwork = true,
+        alignCompleteArtworkToTop = true,
+        applyVintageArtwork = false,
+        artworkBackgroundColor = 0xFF737373.toInt()
     )
     private val gameBoySpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_shell_gb,
@@ -311,4 +336,15 @@ object NostalgicOverlays {
                 specByPlatform.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value
             }
             ?: defaultSpec
+
+    fun specForArtwork(platform: String?, artworkAspect: Float?): NostalgicOverlaySpec? {
+        val standard = specForPlatform(platform) ?: return null
+        if (GamePlatforms.normalizeOrNull(platform) != "Super Nintendo" ||
+            artworkAspect == null || !artworkAspect.isFinite() || artworkAspect <= 0f) return standard
+        return if (snesJapanCartridgeSpec.artworkFitScore(artworkAspect) > snesCartridgeSpec.artworkFitScore(artworkAspect)) {
+            snesJapanCartridgeSpec
+        } else {
+            snesCartridgeSpec
+        }
+    }
 }

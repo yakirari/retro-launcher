@@ -19,14 +19,14 @@ Modifications by Retro Launcher contributors, 2026-10-20:
 - User-selected decorative color is applied to neutral plastic at runtime.
 - Upstream plastic detail, embossing, texture, original pixel dimensions and silhouette are retained.
 
-Corresponding editable inputs and preparation source are retained with the launcher source:
+The runtime shell resources are checked into the launcher source. The upstream
+editable inputs are not retained in the current tree; the pinned source is:
 https://github.com/yakirari/retro-launcher
-artwork/slot/source/ (unmodified upstream PNGs)
 scripts/PrepareSlotHandheldShells.java (label-window adapter)
 app/src/main/java/com/ariy/retrolauncher/ui/HandheldArtwork.kt (runtime tinting)
-See artwork/slot/README.md for original SHA-256 hashes and provenance.
-Distributors must include the corresponding sources/notices for the exact version distributed;
-this project URL alone is not a source-delivery guarantee for an unpublished build.
+The original source URL, revision and license are recorded above. This project URL alone
+is not a source-delivery guarantee for an unpublished build; distributors must provide
+corresponding sources/notices for the exact version distributed.
 
 Nintendo/Game Boy branding remains the property of its respective owner.
 No affiliation, endorsement or separate trademark license is implied.

@@ -4,7 +4,10 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
-No additional changes beyond 0.1.4 below.
+- Add shared arcade presentation fronts and bundled NES/SNES cartridge artwork catalogs and
+  repair paths, while retaining artwork provenance and source files.
+- Improve adaptive gallery sizing, stacked presentation and artwork memory handling.
+- Refine console and cartridge presentation, matching, device workflows and artwork documentation.
 
 ## 0.1.4 — Experimental preview — 2026-10-20
 

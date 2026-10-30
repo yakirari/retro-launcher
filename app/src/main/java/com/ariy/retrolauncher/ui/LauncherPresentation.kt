@@ -81,14 +81,6 @@ internal fun tileTitle(raw: String, split: Boolean = true): TileTitle {
     return TileTitle(title.take(boundary), title.drop(boundary + 1))
 }
 
-/** Respect the chosen density, but never create unreadably narrow cards. */
-internal fun responsiveGridColumns(widthDp: Float, requestedColumns: Int): Int {
-    val width = widthDp.coerceAtLeast(1f)
-    val minimumWidth = if (requestedColumns >= 8) 88f else 136f
-    val fittingColumns = ((width + 10f) / (minimumWidth + 10f)).toInt().coerceAtLeast(1)
-    return requestedColumns.coerceAtLeast(1).coerceAtMost(fittingColumns)
-}
-
 internal fun responsiveGalleryWidth(widthDp: Float, heightDp: Float, fraction: Float, aspectRatio: Float): Float {
     val availableWidth = (widthDp - 16f).coerceAtLeast(1f)
     val availableHeight = (heightDp - 88f).coerceAtLeast(1f)

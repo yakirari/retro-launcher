@@ -189,12 +189,6 @@ APK_PATH="$ROOT_DIR/app/build/outputs/apk/$VARIANT_LOWER/app-$VARIANT_LOWER.apk"
 
 WATCH_CANDIDATES=(
     "$ROOT_DIR/app/src"
-    "$ROOT_DIR/artwork/backgrounds"
-    "$ROOT_DIR/artwork/overlays"
-    "$ROOT_DIR/artwork/arcade-overlays"
-    "$ROOT_DIR/artwork/cabinet-references"
-    "$ROOT_DIR/artwork/full-cabinets"
-    "$ROOT_DIR/artwork/slot/source"
     "$ROOT_DIR/app/build.gradle.kts"
     "$ROOT_DIR/app/proguard-rules.pro"
     "$ROOT_DIR/build.gradle.kts"

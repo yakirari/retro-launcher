@@ -4,6 +4,34 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class GlobalGallerySettingsTest {
+    @Test fun namedSizesMapExistingPreferencesWithoutResettingOtherSettings() {
+        val sizes = mapOf(1 to GalleryTileSize.LARGE, 2 to GalleryTileSize.MEDIUM,
+            3 to GalleryTileSize.MEDIUM, 4 to GalleryTileSize.SMALL, 8 to GalleryTileSize.SMALL)
+        for (preset in listOf(GlobalGallerySettings.GRID, GlobalGallerySettings.STACKED, GlobalGallerySettings.SHELF)) {
+            for ((count, size) in sizes) {
+                val old = GlobalGallerySettings(tileBackgroundMode = "glossy", showGameCaptions = false)
+                    .selectPreset(preset).withTileCount(count)
+                val loaded = GlobalGallerySettings.fromPreferenceValues(old.toPreferenceValues())
+                assertEquals(size, loaded.tileSize)
+                assertEquals(old, loaded)
+            }
+        }
+        assertEquals(GalleryTileSize.MEDIUM, GlobalGallerySettings().tileSize)
+        assertEquals(GalleryTileSize.SMALL, GlobalGallerySettings().selectPreset(GlobalGallerySettings.STACKED).tileSize)
+    }
+
+    @Test fun eachLayoutRemembersNamedSizesAcrossReloads() {
+        val settings = GlobalGallerySettings().withTileSize(GalleryTileSize.LARGE)
+            .selectPreset(GlobalGallerySettings.STACKED).withTileSize(GalleryTileSize.MEDIUM)
+            .selectPreset(GlobalGallerySettings.SHELF).withTileSize(GalleryTileSize.SMALL)
+        val loaded = GlobalGallerySettings.fromPreferenceValues(settings.toPreferenceValues())
+        assertEquals(GalleryTileSize.LARGE, loaded.selectPreset(GlobalGallerySettings.GRID).tileSize)
+        assertEquals(GalleryTileSize.MEDIUM, loaded.selectPreset(GlobalGallerySettings.STACKED).tileSize)
+        assertEquals(GalleryTileSize.SMALL, loaded.selectPreset(GlobalGallerySettings.SHELF).tileSize)
+        assertEquals(listOf("Small", "Medium", "Large"), GalleryTileSize.entries.map { it.label })
+        assertEquals(listOf(3, 2, 1), GalleryTileSize.entries.map { it.minimumVisibleItems })
+    }
+
     @Test fun freshDefaultsAreGridTwoTilesAndTransparent() {
         val settings = GlobalGallerySettings.fromPreferenceValues(emptyMap<String, Any>())
         assertEquals(GlobalGallerySettings.GRID, settings.layoutMode)
@@ -49,9 +77,9 @@ class GlobalGallerySettingsTest {
         assertEquals(3, changedGrid.selectPreset(GlobalGallerySettings.SHELF).tileCount)
     }
 
-    @Test fun onlyRequestedCountsAndTwoPresetsAreAccepted() {
+    @Test fun onlyRequestedCountsAndSupportedPresetsAreAccepted() {
         assertEquals(listOf(1, 2, 3, 4, 8), GlobalGallerySettings.ALLOWED_TILE_COUNTS)
-        for (preset in listOf(GlobalGallerySettings.GRID, GlobalGallerySettings.SHELF)) {
+        for (preset in listOf(GlobalGallerySettings.GRID, GlobalGallerySettings.SHELF, GlobalGallerySettings.STACKED)) {
             for (count in GlobalGallerySettings.ALLOWED_TILE_COUNTS) {
                 val settings = GlobalGallerySettings().selectPreset(preset).withTileCount(count)
                 assertEquals(count, settings.tileCount)
@@ -64,6 +92,20 @@ class GlobalGallerySettingsTest {
         for (mode in listOf("grid", "gallery", "nostalgic", "samestalgic", "gallerystalgic", "unknown")) {
             assertEquals(GlobalGallerySettings.GRID, GlobalGallerySettings().selectPreset(mode).layoutMode)
         }
+    }
+
+    @Test fun stackedRemembersItsOwnColumnsWithoutMigratingExistingSettings() {
+        val old = GlobalGallerySettings().withTileCount(3).selectPreset(GlobalGallerySettings.SHELF).withTileCount(8)
+        val oldValues = old.toPreferenceValues() - GlobalGallerySettings.STACKED_COUNT_KEY
+        assertFalse(GlobalGallerySettings.needsMigration(oldValues))
+        val stacked = GlobalGallerySettings.fromPreferenceValues(oldValues).selectPreset(GlobalGallerySettings.STACKED)
+        assertEquals(4, stacked.tileCount)
+        val saved = stacked.withTileCount(2)
+        val loaded = GlobalGallerySettings.fromPreferenceValues(saved.toPreferenceValues())
+        assertEquals(saved, loaded)
+        assertEquals(2, loaded.tileCount)
+        assertEquals(3, loaded.selectPreset(GlobalGallerySettings.GRID).tileCount)
+        assertEquals(8, loaded.selectPreset(GlobalGallerySettings.SHELF).tileCount)
     }
 
     @Test fun malformedOrMissingSavedValuesFallBackIndependently() {

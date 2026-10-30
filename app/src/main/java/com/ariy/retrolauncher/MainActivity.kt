@@ -150,8 +150,10 @@ import com.ariy.retrolauncher.ui.AdaptiveLauncherDialog
 import com.ariy.retrolauncher.ui.curatedDisplayTitle
 import com.ariy.retrolauncher.ui.tileTitle
 import com.ariy.retrolauncher.ui.libraryDisplayTitle
-import com.ariy.retrolauncher.ui.cabinetBackgroundMask
-import com.ariy.retrolauncher.ui.responsiveGridColumns
+import com.ariy.retrolauncher.model.GalleryTileSize
+import com.ariy.retrolauncher.ui.GalleryTileSizeSelector
+import com.ariy.retrolauncher.ui.galleryGridSizing
+import androidx.compose.ui.platform.LocalDensity
 import com.ariy.retrolauncher.ui.responsiveGalleryWidth
 import com.ariy.retrolauncher.ui.artworkContentBounds
 import com.ariy.retrolauncher.ui.CoverArtwork
@@ -184,6 +186,8 @@ import com.ariy.retrolauncher.launch.InstalledShortcutOption
 import com.ariy.retrolauncher.launch.arcadeOverlayAssetBaseNames
 import com.ariy.retrolauncher.launch.arcadeRomShortNameForArtworkSearch
 import com.ariy.retrolauncher.model.GlobalGallerySettings
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.ariy.retrolauncher.model.validated
 import com.ariy.retrolauncher.ui.libraryGameCaption
 import com.ariy.retrolauncher.ui.playStationCoverBounds
@@ -233,14 +237,8 @@ private val AppBackgroundColor = Color(0xFF0D1117)
 private const val APP_BACKGROUND_COLOR_ARGB = 0xFF0D1117.toInt()
 private const val FEATURED_GALLERY_CARD_ASPECT_RATIO = 2.5f / 3.5f
 private const val NOSTALGIC_OVERLAY_REFERENCE_ASPECT_RATIO = 960f / 768f
-private const val MAME_CABINET_CANVAS_ASPECT_RATIO = 960f / 768f
 private const val GALLERYSTALGIC_CONTENT_HEIGHT_FRACTION = 0.8f
 private const val GALLERYSTALGIC_CONTENT_MAX_WIDTH_FRACTION = 0.86f
-private const val MAME_CABINET_CANVAS_WIDTH = 960
-private const val MAME_CABINET_CANVAS_HEIGHT = 768
-private const val MAME_CABINET_TARGET_MAX_WIDTH = 760f
-private const val MAME_CABINET_TARGET_MAX_HEIGHT = 700f
-private const val MAME_CABINET_BOTTOM_PADDING = 18f
 private const val TILE_BITMAP_CACHE_BYTES = 48 * 1024 * 1024
 private const val TILE_ARTWORK_MAX_DIMENSION = 1024
 private const val GALLERY_ARTWORK_PREFETCH_BEHIND = 2
@@ -280,7 +278,7 @@ private data class RenderedBitmapData(
     val offsetY: Int
 )
 
-private data class SameNostalgicLayoutMetrics(
+internal data class SameNostalgicLayoutMetrics(
     val targetAspectRatio: Float,
     val occupiedWidthFraction: Float
 )
@@ -305,13 +303,13 @@ private data class RecommendationAddTileUi(
     val collectionFilter: String? = null
 )
 
-private data class RecommendationTileActions(
+internal data class RecommendationTileActions(
     val onPlay: () -> Unit,
     val onAdd: () -> Unit,
     val onSkip: (() -> Unit)? = null
 )
 
-private enum class RecommendationActionKey {
+internal enum class RecommendationActionKey {
     Play,
     Add,
     Skip
@@ -350,31 +348,13 @@ internal data class TransparentRegionBounds(
         get() = bottom - top
 }
 
-private data class MameFallbackScreenRegion(
-    val bounds: android.graphics.Rect,
-    val clearOverlayWindow: Boolean
-)
-
-private data class MameCabinetForeground(
-    val bitmap: Bitmap,
-    val sourceBounds: android.graphics.Rect
-)
-
-private data class MameCabinetLayout(
-    val drawLeft: Float,
-    val drawTop: Float,
-    val drawWidth: Float,
-    val drawHeight: Float,
-    val scale: Float
-)
-
 private data class LauncherBackgroundMotion(
     val scale: Float,
     val panXFraction: Float,
     val panYFraction: Float
 )
 
-private data class ShelfstalgicItemLayout(
+internal data class ShelfstalgicItemLayout(
     val slotWidth: Dp,
     val width: Dp,
     val compactMode: Boolean,
@@ -394,12 +374,27 @@ private val recentTileBitmapCache = object : LruCache<String, Bitmap>(TILE_BITMA
         }
 }
 
-private val nostalgicOverlayRenderCache = java.util.concurrent.ConcurrentHashMap<String, NostalgicOverlayRenderData>()
+// Auto cartridge colors create a distinct shell per game, not just per platform.
+// Keeping every variant forever can retain hundreds of MB after browsing a library.
+private val nostalgicOverlayRenderCache = com.ariy.retrolauncher.ui.ArtworkMemoryCache<NostalgicOverlayRenderData>(24 * 1024 * 1024) {
+    val overlay = it.overlayBitmap
+    val mask = it.artworkMaskBitmap
+    overlay.width * overlay.height * 4 + (mask?.let { image -> image.width * image.height * 4 } ?: 0)
+}
 private val sameNostalgicOverlayAspectRatioCache = java.util.concurrent.ConcurrentHashMap<Int, Float>()
-private val sameNostalgicMameAspectRatioCache = java.util.concurrent.ConcurrentHashMap<String, Float>()
 private val sameNostalgicOverlayOccupiedWidthCache = java.util.concurrent.ConcurrentHashMap<Int, Float>()
-private val sameNostalgicMameOccupiedWidthCache = java.util.concurrent.ConcurrentHashMap<String, Float>()
-private val platformBadgeBitmapCache = java.util.concurrent.ConcurrentHashMap<String, ImageBitmap>()
+private val platformBadgeBitmapCache = com.ariy.retrolauncher.ui.ArtworkMemoryCache<ImageBitmap>(2 * 1024 * 1024) {
+    it.width * it.height * 4
+}
+
+internal fun releaseLauncherArtworkMemory() {
+    // Drop cache references only: visible Compose nodes can still own these bitmaps.
+    recentTileBitmapCache.evictAll()
+    nostalgicOverlayRenderCache.clear()
+    platformBadgeBitmapCache.clear()
+    com.ariy.retrolauncher.ui.clearHandheldArtworkMemory()
+}
+
 private const val LAUNCHER_LAYOUT_MODE_GRIDSTALGIC = "gridstalgic"
 private const val LAUNCHER_LAYOUT_MODE_GALLERY = "gallery"
 private const val LAUNCHER_LAYOUT_MODE_NOSTALGIC = "nostalgic"
@@ -450,7 +445,8 @@ private fun showsNostalgicGalleryInfo(mode: String?): Boolean =
     mode.equals(LAUNCHER_LAYOUT_MODE_GALLERYSTALGIC, ignoreCase = true)
 
 private fun showsGridNostalgicTiles(mode: String?): Boolean =
-    mode.equals(LAUNCHER_LAYOUT_MODE_GRIDSTALGIC, ignoreCase = true)
+    mode.equals(LAUNCHER_LAYOUT_MODE_GRIDSTALGIC, ignoreCase = true) ||
+        mode.equals(GlobalGallerySettings.STACKED, ignoreCase = true)
 
 private fun availableLauncherBackgroundAssets(context: Context): List<String> =
     runCatching {
@@ -619,6 +615,18 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         viewModel.onLauncherPaused()
         super.onPause()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            releaseLauncherArtworkMemory()
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        releaseLauncherArtworkMemory()
     }
 }
 
@@ -1050,7 +1058,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
     val recommendationActions: RecommendationTileActions? = null
     val activePlatformFilter = remember(effectiveGenreFilter) { GamePlatforms.filterLabel(effectiveGenreFilter) }
     val launcherLayoutMode = gallerySettings.layoutMode
-    val gridColumns = gallerySettings.tileCount
+    val tileSize = gallerySettings.tileSize
     val launcherTileBackgroundMode = gallerySettings.tileBackgroundMode
     val activeCollectionFilter = remember(effectiveGenreFilter, collectionOptions, activePlatformFilter) {
         if (
@@ -1282,7 +1290,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
             HeaderRow(
-                gridColumns = gridColumns,
+                tileSize = tileSize,
                 gameSortOrder = gameSortOrder,
                 onGameSortOrderSelected = { order ->
                     gameSortOrder = order
@@ -1313,7 +1321,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                 showTop10Badges = showTop10Badges,
                 launcherTileBackgroundMode = launcherTileBackgroundMode,
                 hasCustomLauncherBackground = hasCustomLauncherBackground,
-                onGridSelected = { updateGallerySettings(gallerySettings.withTileCount(it)) },
+                onTileSizeSelected = { updateGallerySettings(gallerySettings.withTileSize(it)) },
                 onGenreSelected = { filter -> selectFilter(filter, 0) },
                 onAdd = {
                     viewModel.refreshInstalledTargets()
@@ -1420,7 +1428,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                             }
                             GameGallery(
                                 games = filteredGamesWithRecommendation,
-                                tileSizeColumns = gridColumns,
+                                tileSizeColumns = tileSize.legacyCount,
                                 editMode = editMode,
                                 artworkLoading = artworkLoading,
                                 artworkPending = artworkPending,
@@ -1480,6 +1488,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                         }
                     } else {
                         val gridNostalgicModeEnabled = showsGridNostalgicTiles(launcherLayoutMode)
+                        val stackedMode = launcherLayoutMode == GlobalGallerySettings.STACKED
                         val gridFilterOverlayPlatform = remember(effectiveGenreFilter) {
                             val filter = GamePlatforms.filterLabel(effectiveGenreFilter) ?: return@remember null
                             val matchingOverlayDrawableIds = GamePlatforms.values
@@ -1495,7 +1504,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                         val gridNostalgicLayoutMetrics = rememberSameNostalgicLayoutMetrics(
                             games = visibleGames,
                             filterOverlayPlatform = gridFilterOverlayPlatform,
-                            enabled = gridNostalgicModeEnabled
+                            enabled = gridNostalgicModeEnabled && !stackedMode
                         )
                         val gridState = rememberLazyGridState()
                         val gridScope = rememberCoroutineScope()
@@ -1556,12 +1565,27 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                     }
                                 }
                         ) {
-                            val visibleColumns = responsiveGridColumns(maxWidth.value, gridColumns)
+                            val tileAspectRatio = remember(stackedMode, visibleGames) {
+                                if (!stackedMode) 1f else visibleGames.minOfOrNull { game ->
+                                    if (supportsMameCabinetNostalgia(game.platform)) 0.46f
+                                    else NostalgicOverlays.specForPlatform(game.platform)?.croppedAspectRatio ?: (2f / 3f)
+                                } ?: (2f / 3f)
+                            }
+                            val gridSpacing = if (stackedMode) 4.dp else 10.dp
+                            val sizing = galleryGridSizing(
+                                maxWidth.value, maxHeight.value, tileSize, tileAspectRatio,
+                                gridSpacing.value, LocalDensity.current.density
+                            )
+                            val visibleColumns = sizing.columns
+                            val tileHeight = sizing.itemHeightDp.dp
+                            LaunchedEffect(sizing) {
+                                gridState.scrollToItem(gridState.firstVisibleItemIndex)
+                            }
                             LazyVerticalGrid(
                                 state = gridState,
                                 columns = GridCells.Fixed(visibleColumns),
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(gridSpacing),
+                                horizontalArrangement = Arrangement.spacedBy(gridSpacing),
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 items(
@@ -1583,6 +1607,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                             RecommendationAddCard(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                tileHeight = tileHeight,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
                                                 onAdd = {
                                                     viewModel.refreshInstalledTargets()
@@ -1660,14 +1685,36 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                                     Modifier
                                                 }
                                             )
-                                        if (gridNostalgicModeEnabled) {
+                                        if (stackedMode && !isRecommendation) {
+                                            StackedArtworkTile(
+                                                game = game,
+                                                columns = visibleColumns,
+                                                tileHeight = tileHeight,
+                                                editMode = editMode,
+                                                tileBackgroundMode = launcherTileBackgroundMode,
+                                                isArtworkLoading = game.id in artworkLoading,
+                                                isArtworkPending = game.hasPendingArtworkBadge(artworkLoading, artworkPending, activeArtworkBackfillPlatforms),
+                                                topTenRank = if (showTop10Badges) PlatformTopTen.rankFor(game) else null,
+                                                onLaunch = {
+                                                    if (draggingId == null && !editMode) {
+                                                        if (game.allTargets().size > 1 && game.preferredTarget() == null) {
+                                                            launchChooserGameId = game.id
+                                                        } else viewModel.launch(game)
+                                                    }
+                                                },
+                                                onEdit = { editGameId = game.id },
+                                                modifier = gameCardModifier
+                                            )
+                                        } else if (gridNostalgicModeEnabled) {
                                             GridNostalgicCard(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                tileHeight = tileHeight,
                                                 editMode = editMode,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
                                                 normalizeCanvasSize = true,
                                                 normalizedLayoutMetrics = gridNostalgicLayoutMetrics,
+                                                stacked = stackedMode,
                                                 isArtworkLoading = game.id in artworkLoading,
                                                 isArtworkPending = game.hasPendingArtworkBadge(
                                                     artworkLoading = artworkLoading,
@@ -1707,6 +1754,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                             GameCard(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                tileHeight = tileHeight,
                                                 editMode = editMode,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
                                                 isArtworkLoading = game.id in artworkLoading,
@@ -1943,7 +1991,7 @@ private fun gameTileSubtitle(game: GameEntry): String? = listOfNotNull(
 
 @Composable
 private fun HeaderRow(
-    gridColumns: Int,
+    tileSize: GalleryTileSize,
     gameSortOrder: GameSortOrder,
     onGameSortOrderSelected: (GameSortOrder) -> Unit,
     artworkPlatforms: List<String>,
@@ -1969,7 +2017,7 @@ private fun HeaderRow(
     hasCustomLauncherBackground: Boolean,
     showGameCaptions: Boolean,
     onShowGameCaptionsChanged: (Boolean) -> Unit,
-    onGridSelected: (Int) -> Unit,
+    onTileSizeSelected: (GalleryTileSize) -> Unit,
     onGenreSelected: (String) -> Unit,
     onAdd: () -> Unit,
     onConfigureRomFolder: () -> Unit,
@@ -2132,7 +2180,7 @@ private fun HeaderRow(
 
     if (optionsOpen) {
         OptionsDialog(
-            gridColumns = gridColumns,
+            tileSize = tileSize,
             artworkPlatforms = artworkPlatforms,
             artworkRefreshPlatforms = artworkRefreshPlatforms,
             initialArtworkPlatform = GamePlatforms.normalizeOrNull(activePlatformFilter),
@@ -2152,7 +2200,7 @@ private fun HeaderRow(
             showGameCaptions = showGameCaptions,
             onShowGameCaptionsChanged = onShowGameCaptionsChanged,
             onDismiss = { optionsOpen = false },
-            onGridSelected = onGridSelected,
+            onTileSizeSelected = onTileSizeSelected,
             onToggleEditMode = onToggleEditMode,
             onConfigureRomFolder = onConfigureRomFolder,
             onScanLibrary = { optionsOpen = false; onScanLibrary() },
@@ -2227,7 +2275,7 @@ private fun InfoDialog(onDismiss: () -> Unit) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun OptionsDialog(
-    gridColumns: Int,
+    tileSize: GalleryTileSize,
     artworkPlatforms: List<String>,
     artworkRefreshPlatforms: Set<String>,
     initialArtworkPlatform: String?,
@@ -2247,7 +2295,7 @@ private fun OptionsDialog(
     showGameCaptions: Boolean,
     onShowGameCaptionsChanged: (Boolean) -> Unit,
     onDismiss: () -> Unit,
-    onGridSelected: (Int) -> Unit,
+    onTileSizeSelected: (GalleryTileSize) -> Unit,
     onToggleEditMode: () -> Unit,
     onConfigureRomFolder: () -> Unit,
     onScanLibrary: () -> Unit,
@@ -2271,8 +2319,8 @@ private fun OptionsDialog(
     var confirmArtworkRefresh by rememberSaveable { mutableStateOf(false) }
     var confirmReset by remember { mutableStateOf(false) }
     val selectedPlatform = artworkPlatform?.takeIf { it in selectablePlatforms } ?: selectablePlatforms.firstOrNull()
-    val displayControls: @Composable (String, Int, String, Boolean, (String) -> Unit, (Int) -> Unit, (String) -> Unit, (Boolean) -> Unit) -> Unit =
-        { layout, columns, tileBackground, captions, onLayout, onColumns, onTileBackground, onCaptions ->
+    val displayControls: @Composable (String, GalleryTileSize, String, Boolean, (String) -> Unit, (GalleryTileSize) -> Unit, (String) -> Unit, (Boolean) -> Unit) -> Unit =
+        { layout, size, tileBackground, captions, onLayout, onSize, onTileBackground, onCaptions ->
             Text("Layout", color = Color.White, style = MaterialTheme.typography.titleSmall)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -2281,20 +2329,14 @@ private fun OptionsDialog(
             ) {
                 listOf(
                     GlobalGallerySettings.GRID to "Grid",
+                    GlobalGallerySettings.STACKED to "Stacked",
                     GlobalGallerySettings.SHELF to "Shelf"
                 ).forEach { (mode, label) ->
                     FilterChip(selected = layout == mode, onClick = { onLayout(mode) }, label = { Text(label) })
                 }
             }
-            Text("Tile count", color = Color.White, style = MaterialTheme.typography.titleSmall)
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                GlobalGallerySettings.ALLOWED_TILE_COUNTS.forEach { count ->
-                    FilterChip(selected = columns == count, onClick = { onColumns(count) }, label = { Text("$count") })
-                }
-            }
+            Text("Tile size", color = Color.White, style = MaterialTheme.typography.titleSmall)
+            GalleryTileSizeSelector(size, onSize)
             Text("Tile transparency", color = Color.White, style = MaterialTheme.typography.titleSmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(
@@ -2399,12 +2441,12 @@ private fun OptionsDialog(
                         }
                         Text("Global gallery", color = Color.White, style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "Grid and Shelf each remember their tile count (default 2). Layout, tile transparency and captions apply to every platform and collection; tiles are transparent by default.",
+                            "Grid, Stacked and Shelf remember separate counts. Stacked uses the number as items per row (default 4), closely fits each template, and uses front-facing arcade artwork. Layout settings apply to every platform and collection.",
                             color = Color(0xFF98A2B3), style = MaterialTheme.typography.bodySmall
                         )
                         displayControls(
-                            launcherLayoutMode, gridColumns, launcherTileBackgroundMode, showGameCaptions,
-                            onLauncherLayoutModeSelected, onGridSelected, onLauncherTileBackgroundModeSelected, onShowGameCaptionsChanged
+                            launcherLayoutMode, tileSize, launcherTileBackgroundMode, showGameCaptions,
+                            onLauncherLayoutModeSelected, onTileSizeSelected, onLauncherTileBackgroundModeSelected, onShowGameCaptionsChanged
                         )
                         HorizontalDivider(color = Color(0xFF293548))
                         Text("Global launcher options", color = Color.White, style = MaterialTheme.typography.titleMedium)
@@ -3021,10 +3063,12 @@ private fun GameGallery(
         } else {
             nostalgicItemWidth
         }
+        val shelfTileSize = GalleryTileSize.fromLegacyCount(tileSizeColumns)
+        val shelfDensity = LocalDensity.current.density
         val shelfstalgicSlotWidth = com.ariy.retrolauncher.ui.shelfSlotWidth(
-            maxWidth.value, maxHeight.value, tileSizeColumns).dp
+            maxWidth.value, maxHeight.value, shelfTileSize, shelfDensity).dp
         val shelfstalgicArtworkHeight = com.ariy.retrolauncher.ui.shelfArtworkHeight(
-            maxHeight.value, tileSizeColumns).dp
+            maxHeight.value, shelfTileSize).dp
         val sameNostalgicOverlayHeight = if (sameNostalgicCanvasEnabled) {
             sameNostalgicReferenceWidth / sameNostalgicTargetAspectRatio
         } else {
@@ -3048,13 +3092,16 @@ private fun GameGallery(
             nostalgicMode -> ((maxWidth - nostalgicItemWidth) / 2f).coerceAtLeast(0.dp)
             else -> (maxWidth - cardWidth) / 2f
         }
+        LaunchedEffect(shelfTileSize, maxWidth, maxHeight) {
+            if (shelfNostalgicModeEnabled) listState.scrollToItem(focusedIndex)
+        }
 
         LazyRow(
             state = listState,
             flingBehavior = flingBehavior,
             horizontalArrangement = Arrangement.spacedBy(
                 when {
-                    shelfNostalgicModeEnabled -> shelfstalgicItemSpacing(tileSizeColumns)
+                    shelfNostalgicModeEnabled -> com.ariy.retrolauncher.ui.SHELF_ITEM_SPACING_DP.dp
                     sameNostalgicCanvasEnabled -> sameNostalgicSpacing
                     mixedNostalgicMode -> 4.dp
                     nostalgicMode -> 0.dp
@@ -3085,9 +3132,7 @@ private fun GameGallery(
                 val overlaySpec = if (nostalgicMode) NostalgicOverlays.specForPlatform(overlayPlatform) else null
                 val mameCabinetRenderData = if (nostalgicMode) {
                     rememberMameNostalgicCabinetRenderData(
-                        game = game,
-                        normalizeCanvasSize = sameNostalgicCanvasEnabled || shelfNostalgicModeEnabled,
-                        glassEffectEnabled = nostalgicGlassEffectEnabled
+                        game = game
                     )
                 } else {
                     null
@@ -3108,7 +3153,7 @@ private fun GameGallery(
                 val shelfAspectRatio = mameCabinetRenderData?.aspectRatio ?: shelfOverlayData?.aspectRatio
                     ?: overlaySpec?.croppedAspectRatio ?: FEATURED_GALLERY_CARD_ASPECT_RATIO
                 val shelfObjectWidth = com.ariy.retrolauncher.ui.shelfArtworkWidth(
-                    maxWidth.value, maxHeight.value, shelfAspectRatio, tileSizeColumns).dp
+                    maxWidth.value, maxHeight.value, shelfAspectRatio, shelfTileSize, shelfDensity).dp
                 val shelfstalgicLayout = rememberShelfstalgicItemLayout(
                     enabled = shelfNostalgicModeEnabled,
                     relativeOffset = relativeOffset,
@@ -3121,6 +3166,7 @@ private fun GameGallery(
                             RecommendationAddCard(
                                 game = game,
                                 columns = tileSizeColumns,
+                                tileHeight = shelfstalgicArtworkHeight,
                                 tileBackgroundMode = launcherTileBackgroundMode,
                                 onAdd = { onLaunch(game) },
                                 modifier = Modifier.width(shelfstalgicLayout.width)
@@ -3800,16 +3846,20 @@ private fun NostalgicGalleryItem(
 ) {
     val handheld = com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)
     val cover = rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
-    val label = if (handheld && game.cartridgeLabelUri != null) {
+    val label = if (com.ariy.retrolauncher.model.CartridgeLabelSettings.supportsPlatform(game.platform) && game.cartridgeLabelUri != null) {
         com.ariy.retrolauncher.ui.rememberHandheldLabelSource(game.cartridgeLabelUri)
     } else null
     val image = com.ariy.retrolauncher.ui.rememberHandheldLabel(game, overlaySpec, label ?: cover, label != null)
+    val renderedOverlaySpec = NostalgicOverlays.specForArtwork(
+        game.platform, image?.let { it.width.toFloat() / it.height }
+    ) ?: overlaySpec
     val overlayRenderData = rememberNostalgicOverlayRenderData(
-        overlaySpec = overlaySpec,
+        overlaySpec = renderedOverlaySpec,
         normalizeCanvasSize = normalizeCanvasSize,
-        shellColor = if (handheld) com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, label ?: cover) else null
+        shellColor = if (handheld) com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, label ?: cover)
+            else com.ariy.retrolauncher.launch.SnesCartridgeScans.shellColor(game)
     )
-    val artworkPlacement = overlayRenderData?.artworkPlacement ?: overlaySpec.defaultArtworkPlacement()
+    val artworkPlacement = overlayRenderData?.artworkPlacement ?: renderedOverlaySpec.defaultArtworkPlacement()
     val artworkMaskBitmap = overlayRenderData?.artworkMaskBitmap
     val platformBadge = rememberPlatformBadgeBitmap(showBadge = image == null, platform = game.platform)
     val grayscaleFilter = rememberRecommendationGrayscaleFilter()
@@ -3835,7 +3885,7 @@ private fun NostalgicGalleryItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        val overlayAspectRatio = overlayRenderData?.aspectRatio ?: overlaySpec.aspectRatio
+        val overlayAspectRatio = overlayRenderData?.aspectRatio ?: renderedOverlaySpec.aspectRatio
         BoxWithConstraints(
             modifier = if (normalizedOverlayHeight != null) {
                 Modifier
@@ -3907,13 +3957,14 @@ private fun NostalgicGalleryItem(
                         .padding(start = artworkStart, top = artworkTop)
                         .size(artworkWidth, artworkHeight)
                         .then(artworkMaskModifier)
-                        .background(Color(0xFF050505))
+                        .background(Color(renderedOverlaySpec.artworkBackgroundColor))
                 ) {
                     if (image != null) {
                         Image(
                             painter = BitmapPainter(image),
                             contentDescription = game.title,
-                            contentScale = if (handheld || overlaySpec.fitCompleteArtwork) ContentScale.Fit else if (overlaySpec.fitArtworkToWindow) ContentScale.FillWidth else ContentScale.Crop,
+                            contentScale = if (handheld || renderedOverlaySpec.fitCompleteArtwork) ContentScale.Fit else if (renderedOverlaySpec.fitArtworkToWindow) ContentScale.FillWidth else ContentScale.Crop,
+                            alignment = if (renderedOverlaySpec.alignCompleteArtworkToTop) Alignment.TopCenter else Alignment.Center,
                             colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -4161,7 +4212,7 @@ private fun NostalgicGalleryInfoPanel(
 }
 
 @Composable
-private fun ShelfstalgicSlot(
+internal fun ShelfstalgicSlot(
     layout: ShelfstalgicItemLayout,
     artworkHeight: Dp,
     modifier: Modifier = Modifier,
@@ -4588,11 +4639,6 @@ private fun sameNostalgicOverlapPressure(
     return max(aspectPressure, occupiedPressure)
 }
 
-private fun shelfstalgicItemSpacing(tileSizeColumns: Int): Dp = when (tileSizeColumns) {
-    8 -> 10.dp
-    else -> 16.dp
-}
-
 @Composable
 private fun rememberShelfstalgicItemLayout(
     enabled: Boolean,
@@ -4634,6 +4680,7 @@ private fun GameCard(
     columns: Int,
     editMode: Boolean,
     tileBackgroundMode: String,
+    tileHeight: Dp? = null,
     shelfMode: Boolean = false,
     shelfCompactMode: Boolean = false,
     isArtworkLoading: Boolean = false,
@@ -4652,12 +4699,12 @@ private fun GameCard(
     modifier: Modifier = Modifier
 ) {
     val image = previewImage ?: rememberDecodedBitmap(game.imageUri)
-    val showText = if (shelfMode) false else columns != 8 || isRecommendation
+    val showText = if (shelfMode) false else columns < 8 || isRecommendation
     val showSubtitle = showText && !shelfCompactMode
     val grayscaleFilter = remember {
         ColorMatrix().apply { setToSaturation(0f) }
     }
-    val shapeModifier = Modifier.aspectRatio(
+    val shapeModifier = tileHeight?.let { Modifier.height(it) } ?: Modifier.aspectRatio(
         if (game.platform.equals(GamePlatforms.ANDROID, ignoreCase = true) || (!shelfMode && !showText)) 1f
         else FEATURED_GALLERY_CARD_ASPECT_RATIO
     )
@@ -4924,15 +4971,38 @@ private fun GridstalgicOverlayFrame(
     }
 }
 
+/** Compact, template-shaped tile shared by the Stacked grid and isolated layout tests. */
+@Composable
+internal fun StackedArtworkTile(
+    game: GameEntry,
+    columns: Int,
+    editMode: Boolean = false,
+    tileBackgroundMode: String = "transparent",
+    tileHeight: Dp? = null,
+    isArtworkLoading: Boolean = false,
+    isArtworkPending: Boolean = false,
+    topTenRank: Int? = null,
+    onLaunch: () -> Unit,
+    onEdit: () -> Unit,
+    modifier: Modifier = Modifier
+) = GridNostalgicCard(
+    game = game, columns = columns, editMode = editMode,
+    tileBackgroundMode = tileBackgroundMode, normalizeCanvasSize = true, stacked = true,
+    isArtworkLoading = isArtworkLoading, isArtworkPending = isArtworkPending, topTenRank = topTenRank,
+    onLaunch = onLaunch, onEdit = onEdit, tileHeight = tileHeight, modifier = modifier
+)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun GridNostalgicCard(
+internal fun GridNostalgicCard(
     game: GameEntry,
     columns: Int,
     editMode: Boolean,
     tileBackgroundMode: String,
     normalizeCanvasSize: Boolean,
+    tileHeight: Dp? = null,
     normalizedLayoutMetrics: SameNostalgicLayoutMetrics? = null,
+    stacked: Boolean = false,
     isArtworkLoading: Boolean = false,
     isArtworkPending: Boolean = false,
     topTenRank: Int? = null,
@@ -4948,17 +5018,20 @@ private fun GridNostalgicCard(
     onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val overlaySpec = NostalgicOverlays.specForPlatform(game.platform)
-    val nostalgicImage = if (overlaySpec != null) {
-        val cover = rememberNostalgicArtworkBitmap(game.imageUri, overlaySpec) ?: previewImage
-        val label = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform) && game.cartridgeLabelUri != null) {
+    val platformOverlaySpec = NostalgicOverlays.specForPlatform(game.platform)
+    val nostalgicImage = if (platformOverlaySpec != null) {
+        val cover = rememberNostalgicArtworkBitmap(game.imageUri, platformOverlaySpec) ?: previewImage
+        val label = if (com.ariy.retrolauncher.model.CartridgeLabelSettings.supportsPlatform(game.platform) && game.cartridgeLabelUri != null) {
             com.ariy.retrolauncher.ui.rememberHandheldLabelSource(game.cartridgeLabelUri)
         } else null
-        com.ariy.retrolauncher.ui.rememberHandheldLabel(game, overlaySpec, label ?: cover, label != null)
+        com.ariy.retrolauncher.ui.rememberHandheldLabel(game, platformOverlaySpec, label ?: cover, label != null)
     } else {
         null
     }
-    val defaultImage = if (overlaySpec == null) {
+    val overlaySpec = NostalgicOverlays.specForArtwork(
+        game.platform, nostalgicImage?.let { it.width.toFloat() / it.height }
+    ) ?: platformOverlaySpec
+    val defaultImage = if (platformOverlaySpec == null) {
         previewImage ?: rememberDecodedBitmap(game.imageUri)
     } else {
         null
@@ -4969,21 +5042,25 @@ private fun GridNostalgicCard(
             normalizeCanvasSize = normalizeCanvasSize,
             shellColor = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
                 com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, nostalgicImage)
-            } else null
+            } else com.ariy.retrolauncher.launch.SnesCartridgeScans.shellColor(game)
         )
     }
     val mameCabinetRenderData = rememberMameNostalgicCabinetRenderData(
-        game = game,
-        normalizeCanvasSize = normalizeCanvasSize
+        game = game
     )
     val platformBadge = rememberPlatformBadgeBitmap(
         showBadge = nostalgicImage == null && defaultImage == null,
         platform = game.platform
     )
-    val showText = columns != 8 || isRecommendation
+    val showText = (!stacked && columns < 8) || isRecommendation
     val showSubtitle = showText
     val grayscaleFilter = rememberRecommendationGrayscaleFilter()
-    val shapeModifier = if (columns == 1) {
+    val shapeModifier = if (tileHeight != null) {
+        Modifier.height(tileHeight)
+    } else if (stacked) {
+        Modifier.aspectRatio(if (supportsMameCabinetNostalgia(game.platform)) 0.46f
+            else overlayRenderData?.aspectRatio ?: overlaySpec?.aspectRatio ?: (2f / 3f))
+    } else if (columns == 1) {
         Modifier.aspectRatio(FEATURED_GALLERY_CARD_ASPECT_RATIO)
     } else {
         Modifier.aspectRatio(1f)
@@ -5015,6 +5092,7 @@ private fun GridNostalgicCard(
         colors = CardDefaults.cardColors(containerColor = containerColor),
         modifier = modifier
             .fillMaxWidth()
+            .semantics { contentDescription = game.libraryDisplayTitle() }
             .then(shapeModifier)
             .then(
                 if (cardClick != null) {
@@ -5041,14 +5119,14 @@ private fun GridNostalgicCard(
                             GridstalgicOverlayFrame(
                                 itemAspectRatio = mameCabinetRenderData.aspectRatio,
                                 itemOccupiedWidthFraction = mameCabinetRenderData.occupiedWidthFraction,
-                                normalizedLayoutMetrics = normalizedLayoutMetrics,
+                                normalizedLayoutMetrics = normalizedLayoutMetrics.takeUnless { stacked },
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(tilePadding)
                             ) {
                                 Image(
                                     painter = BitmapPainter(mameCabinetRenderData.bitmap),
-                                    contentDescription = game.platform,
+                                    contentDescription = game.title,
                                     contentScale = ContentScale.Fit,
                                     colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                                     modifier = Modifier
@@ -5106,12 +5184,13 @@ private fun GridNostalgicCard(
                                         .padding(start = artworkStart, top = artworkTop)
                                         .size(artworkWidth, artworkHeight)
                                         .then(artworkMaskModifier)
-                                        .background(Color(0xFF050505))
+                                        .background(Color(overlaySpec.artworkBackgroundColor))
                                 ) {
                                     if (nostalgicImage != null) {
                                         Image(
                                             painter = BitmapPainter(nostalgicImage),
                                             contentDescription = game.title,
+                                            alignment = if (overlaySpec.alignCompleteArtworkToTop) Alignment.TopCenter else Alignment.Center,
                                             contentScale = if (overlaySpec.fitCompleteArtwork || com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
                                                 ContentScale.Fit
                                             } else if (overlaySpec.fitArtworkToWindow) {
@@ -5305,17 +5384,20 @@ private fun GridNostalgicCard(
 }
 
 @Composable
-private fun RecommendationAddCard(
+internal fun RecommendationAddCard(
     game: GameEntry,
     columns: Int,
     tileBackgroundMode: String,
+    tileHeight: Dp? = null,
     onAdd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val showText = columns != 8
+    val showText = columns < 8
     val showSubtitle = columns < 4
     val glossyTileBackground = isGlossyTileBackgroundMode(tileBackgroundMode)
-    val shapeModifier = if (columns == 1) {
+    val shapeModifier = if (tileHeight != null) {
+        Modifier.height(tileHeight)
+    } else if (columns == 1) {
         Modifier.aspectRatio(FEATURED_GALLERY_CARD_ASPECT_RATIO)
     } else {
         Modifier.aspectRatio(1f)
@@ -5909,29 +5991,15 @@ private suspend fun resolveSameNostalgicLayoutMetrics(
     filterOverlayPlatform: String?
 ): SameNostalgicLayoutMetrics {
     val coroutineContext = kotlinx.coroutines.currentCoroutineContext()
-    val availableAssets = runCatching {
-        context.assets.list("overlay_mame")
-            ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-            ?.associateBy { it.lowercase() }
-            .orEmpty()
-    }.getOrDefault(emptyMap())
     val resolvedMetrics = games.asSequence()
         .mapNotNull { game ->
             coroutineContext.ensureActive()
             when {
                 supportsMameCabinetNostalgia(game.platform) -> {
-                    val aspectRatio = resolveSameNostalgicMameAspectRatio(
-                        context = context,
-                        game = game,
-                        availableAssets = availableAssets
-                    ) ?: return@mapNotNull null
+                    resolveMameCabinetAssetName(context, game) ?: return@mapNotNull null
                     SameNostalgicLayoutMetrics(
-                        targetAspectRatio = aspectRatio,
-                        occupiedWidthFraction = resolveSameNostalgicMameOccupiedWidthFraction(
-                            context = context,
-                            game = game,
-                            availableAssets = availableAssets
-                        ) ?: 1f
+                        targetAspectRatio = 0.46f,
+                        occupiedWidthFraction = 1f
                     )
                 }
 
@@ -6001,86 +6069,6 @@ private fun resolveSameNostalgicOverlayOccupiedWidthFraction(
     return resolved
 }
 
-private fun resolveSameNostalgicMameAspectRatio(
-    context: Context,
-    game: GameEntry,
-    availableAssets: Map<String, String>
-): Float? {
-    val assetName = resolveMameCabinetAssetName(context, game, availableAssets)
-    val fallbackAssetName = resolveMameFallbackCabinetAssetName(game.platform, availableAssets)
-    val selectedAssetName = assetName?.takeIf { it.isNotBlank() }
-        ?: fallbackAssetName?.takeIf { it.isNotBlank() }
-        ?: return null
-    sameNostalgicMameAspectRatioCache[selectedAssetName]?.let { return it }
-    val renderedBitmap = when {
-        !assetName.isNullOrBlank() -> {
-            buildMameFallbackCabinetBitmap(
-                context = context,
-                assetName = assetName,
-                artworkUriString = null,
-                backgroundColor = APP_BACKGROUND_COLOR_ARGB,
-                drawScreenBackdrop = false
-            )
-        }
-
-        !fallbackAssetName.isNullOrBlank() -> {
-            buildMameFallbackCabinetBitmap(
-                context = context,
-                assetName = fallbackAssetName,
-                artworkUriString = null,
-                backgroundColor = APP_BACKGROUND_COLOR_ARGB
-            )
-        }
-
-        else -> null
-    } ?: return null
-    val aspectRatio = cropBitmapToVisibleOverlayBounds(renderedBitmap).bitmap.run {
-        width.toFloat() / height.toFloat()
-    }
-    sameNostalgicMameAspectRatioCache[selectedAssetName] = aspectRatio
-    return aspectRatio
-}
-
-private fun resolveSameNostalgicMameOccupiedWidthFraction(
-    context: Context,
-    game: GameEntry,
-    availableAssets: Map<String, String>
-): Float? {
-    val assetName = resolveMameCabinetAssetName(context, game, availableAssets)
-    val fallbackAssetName = resolveMameFallbackCabinetAssetName(game.platform, availableAssets)
-    val selectedAssetName = assetName?.takeIf { it.isNotBlank() }
-        ?: fallbackAssetName?.takeIf { it.isNotBlank() }
-        ?: return null
-    sameNostalgicMameOccupiedWidthCache[selectedAssetName]?.let { return it }
-    val renderedBitmap = when {
-        !assetName.isNullOrBlank() -> {
-            buildMameFallbackCabinetBitmap(
-                context = context,
-                assetName = assetName,
-                artworkUriString = null,
-                backgroundColor = APP_BACKGROUND_COLOR_ARGB,
-                drawScreenBackdrop = false
-            )
-        }
-
-        !fallbackAssetName.isNullOrBlank() -> {
-            buildMameFallbackCabinetBitmap(
-                context = context,
-                assetName = fallbackAssetName,
-                artworkUriString = null,
-                backgroundColor = APP_BACKGROUND_COLOR_ARGB
-            )
-        }
-
-        else -> null
-    } ?: return null
-    val occupiedWidthFraction = resolveRenderedOverlayOccupiedWidthFraction(
-        cropBitmapToVisibleOverlayBounds(renderedBitmap).bitmap
-    )
-    sameNostalgicMameOccupiedWidthCache[selectedAssetName] = occupiedWidthFraction
-    return occupiedWidthFraction
-}
-
 private fun resolveRenderedOverlayOccupiedWidthFraction(renderedBitmap: Bitmap): Float =
     findNostalgicOverlayOccupiedBounds(renderedBitmap)
         ?.width
@@ -6091,75 +6079,30 @@ private fun resolveRenderedOverlayOccupiedWidthFraction(renderedBitmap: Bitmap):
 
 @Composable
 private fun rememberMameNostalgicCabinetRenderData(
-    game: GameEntry,
-    normalizeCanvasSize: Boolean = false,
-    glassEffectEnabled: Boolean = false
+    game: GameEntry
 ): MameCabinetRenderData? {
     val context = LocalContext.current
-    val availableAssets = remember(context) {
-        runCatching {
-            context.assets.list("overlay_mame")
-                ?.filterNot { it.contains("Zone.Identifier", ignoreCase = true) }
-                ?.associateBy { it.lowercase() }
-                .orEmpty()
-        }.getOrDefault(emptyMap())
-    }
-    val assetName = remember(game.platform, game.intentDataUri, availableAssets) {
-        resolveMameCabinetAssetName(context, game, availableAssets)
-    }
-    val fallbackAssetName = remember(game.platform, availableAssets) {
-        resolveMameFallbackCabinetAssetName(game.platform, availableAssets)
+    val assetName = remember(game.platform, game.intentDataUri, game.title) {
+        resolveMameCabinetAssetName(context, game)
     }
     return produceState<MameCabinetRenderData?>(
         initialValue = null,
-        assetName,
-        fallbackAssetName,
-        game.imageUri,
-        normalizeCanvasSize,
-        glassEffectEnabled
+        assetName
     ) {
-        if (assetName.isNullOrBlank() && fallbackAssetName.isNullOrBlank()) {
+        if (assetName.isNullOrBlank()) {
             value = null
             return@produceState
         }
         value = withContext(Dispatchers.IO) {
             runCatching {
-                when {
-                    !assetName.isNullOrBlank() -> {
-                        buildMameFallbackCabinetBitmap(
-                            context = context,
-                            assetName = assetName,
-                            artworkUriString = null,
-                            backgroundColor = APP_BACKGROUND_COLOR_ARGB,
-                            drawScreenBackdrop = false,
-                            glassEffectEnabled = glassEffectEnabled
-                        )
-                    }
-
-                    !fallbackAssetName.isNullOrBlank() -> {
-                        buildMameFallbackCabinetBitmap(
-                            context = context,
-                            assetName = fallbackAssetName,
-                            artworkUriString = game.imageUri,
-                            backgroundColor = APP_BACKGROUND_COLOR_ARGB,
-                            glassEffectEnabled = glassEffectEnabled
-                        )
-                    }
-
-                    else -> null
+                decodeMameFrontCabinetBitmap(context, assetName)?.let { displayBitmap ->
+                    // Preserve the supplied canvas, trim and marquee in every layout.
+                    MameCabinetRenderData(
+                        bitmap = displayBitmap.asImageBitmap(),
+                        aspectRatio = displayBitmap.width.toFloat() / displayBitmap.height.toFloat(),
+                        occupiedWidthFraction = resolveRenderedOverlayOccupiedWidthFraction(displayBitmap)
+                    )
                 }
-                    ?.let { renderedBitmap ->
-                        val displayBitmap = if (normalizeCanvasSize) {
-                            cropBitmapToVisibleOverlayBounds(renderedBitmap).bitmap
-                        } else {
-                            renderedBitmap
-                        }
-                        MameCabinetRenderData(
-                            bitmap = displayBitmap.asImageBitmap(),
-                            aspectRatio = displayBitmap.width.toFloat() / displayBitmap.height.toFloat(),
-                            occupiedWidthFraction = resolveRenderedOverlayOccupiedWidthFraction(displayBitmap)
-                        )
-                    }
             }.getOrNull()
         }
     }.value
@@ -6173,9 +6116,15 @@ private fun rememberNostalgicOverlayRenderData(
 ): NostalgicOverlayRenderData? {
     val resources = LocalContext.current.resources
     val handheld = overlaySpec.drawableResourceId in setOf(R.drawable.nostalgic_shell_gb, R.drawable.nostalgic_shell_gbc, R.drawable.nostalgic_shell_gba)
-    val effectiveShellColor = if (handheld) shellColor ?: 0xFFBDBDB5.toInt() else null
-    val cacheKey = "${overlaySpec.drawableResourceId}:$normalizeCanvasSize:$effectiveShellColor"
+    val snesUsa = overlaySpec.drawableResourceId == R.drawable.nostalgic_overlay_snes
+    val effectiveShellColor = when {
+        handheld -> shellColor ?: 0xFFBDBDB5.toInt()
+        snesUsa -> shellColor
+        else -> null
+    }
+    val cacheKey = "${overlaySpec.drawableResourceId}:$normalizeCanvasSize:$effectiveShellColor:fixed-window-v1"
     return produceState<NostalgicOverlayRenderData?>(initialValue = nostalgicOverlayRenderCache[cacheKey], cacheKey, overlaySpec) {
+        value = nostalgicOverlayRenderCache[cacheKey]
         nostalgicOverlayRenderCache[cacheKey]?.let { cached ->
             value = cached
             return@produceState
@@ -6190,7 +6139,9 @@ private fun rememberNostalgicOverlayRenderData(
                     val transparentBounds = findNostalgicArtworkWindowBounds(source)
                     val baseArtworkPlacement = detectNostalgicArtworkPlacement(source, overlaySpec, transparentBounds)
                         ?: overlaySpec.defaultArtworkPlacement()
-                    val recoloredOverlay = if (effectiveShellColor != null) {
+                    val recoloredOverlay = if (snesUsa && effectiveShellColor != null) {
+                        com.ariy.retrolauncher.ui.tintSnesCartridgeShell(source, effectiveShellColor)
+                    } else if (effectiveShellColor != null) {
                         com.ariy.retrolauncher.ui.tintHandheldShell(source, effectiveShellColor)
                     } else recolorNostalgicOverlayBitmap(source, APP_BACKGROUND_COLOR_ARGB)
                     val renderedOverlay = if (normalizeCanvasSize) {
@@ -6627,8 +6578,7 @@ private fun applyVintageArtworkBitmap(source: Bitmap): Bitmap {
 
 private fun resolveMameCabinetAssetName(
     context: Context,
-    game: GameEntry,
-    availableAssets: Map<String, String>
+    game: GameEntry
 ): String? {
     if (!supportsMameCabinetNostalgia(game.platform)) {
         return null
@@ -6640,30 +6590,12 @@ private fun resolveMameCabinetAssetName(
     }
     for (rom in assetBaseNames + game.title) {
         com.ariy.retrolauncher.launch.ArcadeCabinetArtStore.find(context, rom)?.let {
-            return "full_cabinets/${it.asset}"
+            com.ariy.retrolauncher.launch.ArcadePresentationArtStore.path(context, it.asset)?.let { path ->
+                return path
+            }
         }
     }
-    // Exact ROM/clone references and exact catalog parents precede legacy fuzzy matching.
-    for (rom in assetBaseNames) {
-        val name = "$rom.png"
-        if (runCatching { context.assets.open("cabinets_mame/$name").use { true } }.getOrDefault(false)) return name
-    }
-    if (assetBaseNames.isEmpty()) return null
-    // A sequel without its own cabinet must not inherit a predecessor by prefix.
-    return assetBaseNames.firstNotNullOfOrNull { stem ->
-        listOf("png", "jpg", "jpeg").firstNotNullOfOrNull { extension -> availableAssets["${stem.lowercase()}.$extension"] }
-    }?.takeUnless(::isGenericArcadeFallbackAssetName)
-}
-
-private fun resolveMameFallbackCabinetAssetName(
-    platform: String?,
-    availableAssets: Map<String, String>
-): String? {
-    if (!supportsMameCabinetNostalgia(platform) || availableAssets.isEmpty()) {
-        return null
-    }
-    return listOf("mame.png", "mame.jpg", "mame.jpeg")
-        .firstNotNullOfOrNull { candidate -> availableAssets[candidate] }
+    return null
 }
 
 private fun supportsMameCabinetNostalgia(platform: String?): Boolean =
@@ -6697,372 +6629,11 @@ private fun extractArcadeRomShortName(context: Context, uriString: String?): Str
         .takeIf { it.isNotBlank() }
 }
 
-private fun buildMameFallbackCabinetBitmap(
+private fun decodeMameFrontCabinetBitmap(
     context: Context,
-    assetName: String,
-    artworkUriString: String?,
-    backgroundColor: Int,
-    drawScreenBackdrop: Boolean = true,
-    glassEffectEnabled: Boolean = false
-): Bitmap? {
-    if (assetName.startsWith("full_cabinets/")) {
-        // Complete silhouettes are already composed; never insert title cards or covers into their CRTs.
-        return runCatching { context.assets.open(assetName).use(BitmapFactory::decodeStream) }.getOrNull()
-    }
-    if (artworkUriString.isNullOrBlank() && assetName.substringBeforeLast('.') != "mame") {
-        val premade = runCatching {
-            context.assets.open("cabinets_mame/$assetName").use(BitmapFactory::decodeStream)
-        }.getOrNull()
-        if (premade != null) return premade
-    }
-    val overlay = context.assets.open("overlay_mame/$assetName").use { stream ->
-        BitmapFactory.decodeStream(stream)
-    } ?: return null
-    val screenRegion = resolveMameFallbackScreenRegion(assetName, overlay)
-        ?: return normalizeMameCabinetBitmap(overlay, backgroundColor)
-    val screenBounds = screenRegion.bounds
-    val artwork = artworkUriString
-        ?.takeIf { it.isNotBlank() }
-        ?.let { uriString ->
-            ensureArtworkBitmapCached(
-                contentResolver = context.contentResolver,
-                uriString = uriString,
-                applyVintageArtwork = true
-            )
-        }
-
-    val overlayToDraw = if (screenRegion.clearOverlayWindow) {
-        clearBitmapRect(overlay, screenBounds)
-    } else {
-        overlay
-    }
-    val foreground = extractMameCabinetForeground(overlayToDraw)
-        ?: return normalizeMameCabinetBitmap(overlayToDraw, backgroundColor)
-    val layout = calculateMameCabinetLayout(foreground.bitmap.width, foreground.bitmap.height)
-    val normalizedScreenBounds = android.graphics.RectF(
-        (screenBounds.left - foreground.sourceBounds.left).toFloat().coerceIn(0f, foreground.bitmap.width.toFloat()),
-        (screenBounds.top - foreground.sourceBounds.top).toFloat().coerceIn(0f, foreground.bitmap.height.toFloat()),
-        (screenBounds.right - foreground.sourceBounds.left).toFloat().coerceIn(0f, foreground.bitmap.width.toFloat()),
-        (screenBounds.bottom - foreground.sourceBounds.top).toFloat().coerceIn(0f, foreground.bitmap.height.toFloat())
-    )
-    val targetScreenBounds = android.graphics.RectF(
-        layout.drawLeft + (normalizedScreenBounds.left * layout.scale),
-        layout.drawTop + (normalizedScreenBounds.top * layout.scale),
-        layout.drawLeft + (normalizedScreenBounds.right * layout.scale),
-        layout.drawTop + (normalizedScreenBounds.bottom * layout.scale)
-    )
-
-    val composed = Bitmap.createBitmap(MAME_CABINET_CANVAS_WIDTH, MAME_CABINET_CANVAS_HEIGHT, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(composed)
-    val paint = android.graphics.Paint(
-        android.graphics.Paint.ANTI_ALIAS_FLAG or
-            android.graphics.Paint.FILTER_BITMAP_FLAG or
-            android.graphics.Paint.DITHER_FLAG
-    )
-
-    if (!shouldTreatDarkBaseColorAsTransparent(backgroundColor)) {
-        canvas.drawColor(backgroundColor)
-    }
-    if (drawScreenBackdrop) {
-        canvas.drawRect(
-            targetScreenBounds.left,
-            targetScreenBounds.top,
-            targetScreenBounds.right,
-            targetScreenBounds.bottom,
-            android.graphics.Paint().apply { color = android.graphics.Color.BLACK }
-        )
-    }
-    if (artwork != null) {
-        canvas.drawBitmap(
-            artwork,
-            coverSourceRect(
-                sourceWidth = artwork.width,
-                sourceHeight = artwork.height,
-                targetWidth = targetScreenBounds.width().roundToInt(),
-                targetHeight = targetScreenBounds.height().roundToInt()
-            ),
-            targetScreenBounds,
-            paint
-        )
-    }
-    if (glassEffectEnabled) {
-        drawGlassPane(
-            canvas = canvas,
-            bounds = targetScreenBounds,
-            preserveTransparentBase = artwork == null && !drawScreenBackdrop
-        )
-    }
-    canvas.drawBitmap(
-        foreground.bitmap,
-        null,
-        android.graphics.RectF(
-            layout.drawLeft,
-            layout.drawTop,
-            layout.drawLeft + layout.drawWidth,
-            layout.drawTop + layout.drawHeight
-        ),
-        paint
-    )
-    return composed
-}
-
-private fun drawGlassPane(
-    canvas: Canvas,
-    bounds: android.graphics.RectF,
-    preserveTransparentBase: Boolean = false
-) {
-    if (bounds.width() <= 0f || bounds.height() <= 0f) return
-
-    val rimThickness = (min(bounds.width(), bounds.height()) * 0.014f).coerceAtLeast(1.5f)
-    val topGlowPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        shader = android.graphics.LinearGradient(
-            bounds.left,
-            bounds.top,
-            bounds.left,
-            bounds.bottom,
-            intArrayOf(
-                android.graphics.Color.argb(52, 255, 255, 255),
-                android.graphics.Color.argb(20, 255, 255, 255),
-                android.graphics.Color.TRANSPARENT
-            ),
-            floatArrayOf(0f, 0.38f, 1f),
-            android.graphics.Shader.TileMode.CLAMP
-        )
-    }
-    val diagonalHighlightPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        shader = android.graphics.LinearGradient(
-            bounds.left + (bounds.width() * 0.04f),
-            bounds.top,
-            bounds.left + (bounds.width() * 0.92f),
-            bounds.bottom,
-            intArrayOf(
-                android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.argb(56, 255, 255, 255),
-                android.graphics.Color.argb(16, 255, 255, 255),
-                android.graphics.Color.TRANSPARENT
-            ),
-            floatArrayOf(0f, 0.36f, 0.58f, 1f),
-            android.graphics.Shader.TileMode.CLAMP
-        )
-    }
-    val bottomShadePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        shader = android.graphics.LinearGradient(
-            bounds.left,
-            bounds.top + (bounds.height() * 0.58f),
-            bounds.left,
-            bounds.bottom,
-            intArrayOf(
-                android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.argb(18, 0, 0, 0),
-                android.graphics.Color.argb(38, 0, 0, 0)
-            ),
-            floatArrayOf(0f, 0.55f, 1f),
-            android.graphics.Shader.TileMode.CLAMP
-        )
-    }
-    val topRimPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = android.graphics.Color.argb(46, 255, 255, 255)
-    }
-    val bottomRimPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = android.graphics.Color.argb(15, 255, 255, 255)
-    }
-
-    if (!preserveTransparentBase) {
-        canvas.drawRect(bounds, bottomShadePaint)
-    }
-    canvas.drawRect(bounds, topGlowPaint)
-    canvas.drawRect(bounds, diagonalHighlightPaint)
-    canvas.drawRect(bounds.left, bounds.top, bounds.right, bounds.top + rimThickness, topRimPaint)
-    canvas.drawRect(bounds.left, bounds.bottom - rimThickness, bounds.right, bounds.bottom, bottomRimPaint)
-}
-
-private fun resolveMameFallbackScreenRegion(
-    assetName: String,
-    source: Bitmap
-): MameFallbackScreenRegion? =
-    findTransparentMameScreenBounds(source)?.let { bounds ->
-        MameFallbackScreenRegion(bounds = bounds, clearOverlayWindow = false)
-    } ?: defaultMameFallbackScreenRegion(assetName, source.width, source.height)
-
-private fun findTransparentMameScreenBounds(source: Bitmap): android.graphics.Rect? {
-    val transparentBounds = findLargestTransparentRegion(source)
-        ?.takeIf {
-            it.pixelCount >= MIN_NOSTALGIC_ARTWORK_WINDOW_PIXELS &&
-                !it.touchesEdge
-        }
-        ?: return null
-    return android.graphics.Rect(
-        transparentBounds.left,
-        transparentBounds.top,
-        transparentBounds.right,
-        transparentBounds.bottom
-    )
-}
-
-private fun defaultMameFallbackScreenRegion(
-    assetName: String,
-    width: Int,
-    height: Int
-): MameFallbackScreenRegion? {
-    val assetStem = assetName.substringBeforeLast('.', assetName).lowercase()
-    if (assetStem != "mame") return null
-
-    val left = (width * (190f / 1073f)).roundToInt().coerceIn(0, width)
-    val top = (height * (532f / 1536f)).roundToInt().coerceIn(0, height)
-    val right = (width * (795f / 1073f)).roundToInt().coerceIn(left + 1, width)
-    val bottom = (height * (991f / 1536f)).roundToInt().coerceIn(top + 1, height)
-
-    return MameFallbackScreenRegion(
-        bounds = android.graphics.Rect(left, top, right, bottom),
-        clearOverlayWindow = true
-    )
-}
-
-private fun clearBitmapRect(source: Bitmap, bounds: android.graphics.Rect): Bitmap {
-    val cleared = source.copy(Bitmap.Config.ARGB_8888, true) ?: return source
-    val width = cleared.width
-    val height = cleared.height
-    val safeLeft = bounds.left.coerceIn(0, width)
-    val safeTop = bounds.top.coerceIn(0, height)
-    val safeRight = bounds.right.coerceIn(safeLeft, width)
-    val safeBottom = bounds.bottom.coerceIn(safeTop, height)
-    if (safeLeft >= safeRight || safeTop >= safeBottom) {
-        return cleared
-    }
-
-    val rowPixels = IntArray(safeRight - safeLeft) { android.graphics.Color.TRANSPARENT }
-    for (y in safeTop until safeBottom) {
-        cleared.setPixels(rowPixels, 0, rowPixels.size, safeLeft, y, rowPixels.size, 1)
-    }
-    return cleared
-}
-
-private fun extractMameCabinetForeground(source: Bitmap): MameCabinetForeground? {
-    val width = source.width
-    val height = source.height
-    val sourcePixels = IntArray(width * height)
-    source.getPixels(sourcePixels, 0, width, 0, 0, width, height)
-    val backgroundMask = cabinetBackgroundMask(sourcePixels, width, height)
-
-    var left = width
-    var top = height
-    var right = -1
-    var bottom = -1
-    sourcePixels.forEachIndexed { index, pixel ->
-        if (backgroundMask[index] || android.graphics.Color.alpha(pixel) <= 8) return@forEachIndexed
-        val x = index % width
-        val y = index / width
-        if (x < left) left = x
-        if (x > right) right = x
-        if (y < top) top = y
-        if (y > bottom) bottom = y
-    }
-
-    if (right < left || bottom < top) {
-        return null
-    }
-
-    val objectWidth = right - left + 1
-    val objectHeight = bottom - top + 1
-    val cleaned = Bitmap.createBitmap(objectWidth, objectHeight, Bitmap.Config.ARGB_8888)
-    val cleanedPixels = IntArray(objectWidth * objectHeight)
-
-    for (y in 0 until objectHeight) {
-        for (x in 0 until objectWidth) {
-            val pixel = sourcePixels[((top + y) * width) + left + x]
-            cleanedPixels[(y * objectWidth) + x] = if (backgroundMask[((top + y) * width) + left + x]) {
-                android.graphics.Color.TRANSPARENT
-            } else {
-                pixel
-            }
-        }
-    }
-    cleaned.setPixels(cleanedPixels, 0, objectWidth, 0, 0, objectWidth, objectHeight)
-    return MameCabinetForeground(
-        bitmap = cleaned,
-        sourceBounds = android.graphics.Rect(left, top, right + 1, bottom + 1)
-    )
-}
-
-private fun calculateMameCabinetLayout(objectWidth: Int, objectHeight: Int): MameCabinetLayout {
-    val scale = min(
-        MAME_CABINET_TARGET_MAX_WIDTH / objectWidth.toFloat(),
-        MAME_CABINET_TARGET_MAX_HEIGHT / objectHeight.toFloat()
-    )
-    val drawWidth = objectWidth * scale
-    val drawHeight = objectHeight * scale
-    val drawLeft = (MAME_CABINET_CANVAS_WIDTH - drawWidth) / 2f
-    val drawTop = (MAME_CABINET_CANVAS_HEIGHT - drawHeight - MAME_CABINET_BOTTOM_PADDING)
-        .coerceAtLeast(0f)
-    return MameCabinetLayout(
-        drawLeft = drawLeft,
-        drawTop = drawTop,
-        drawWidth = drawWidth,
-        drawHeight = drawHeight,
-        scale = scale
-    )
-}
-
-private fun coverSourceRect(
-    sourceWidth: Int,
-    sourceHeight: Int,
-    targetWidth: Int,
-    targetHeight: Int
-): android.graphics.Rect {
-    if (sourceWidth <= 0 || sourceHeight <= 0 || targetWidth <= 0 || targetHeight <= 0) {
-        return android.graphics.Rect(0, 0, sourceWidth.coerceAtLeast(1), sourceHeight.coerceAtLeast(1))
-    }
-    val sourceAspect = sourceWidth.toFloat() / sourceHeight.toFloat()
-    val targetAspect = targetWidth.toFloat() / targetHeight.toFloat()
-    return if (sourceAspect > targetAspect) {
-        val croppedWidth = (sourceHeight * targetAspect).roundToInt().coerceIn(1, sourceWidth)
-        val left = ((sourceWidth - croppedWidth) / 2f).roundToInt().coerceAtLeast(0)
-        android.graphics.Rect(left, 0, (left + croppedWidth).coerceAtMost(sourceWidth), sourceHeight)
-    } else {
-        val croppedHeight = (sourceWidth / targetAspect).roundToInt().coerceIn(1, sourceHeight)
-        val top = ((sourceHeight - croppedHeight) / 2f).roundToInt().coerceAtLeast(0)
-        android.graphics.Rect(0, top, sourceWidth, (top + croppedHeight).coerceAtMost(sourceHeight))
-    }
-}
-
-private fun normalizeMameCabinetBitmap(source: Bitmap, backgroundColor: Int): Bitmap {
-    val output = Bitmap.createBitmap(
-        MAME_CABINET_CANVAS_WIDTH,
-        MAME_CABINET_CANVAS_HEIGHT,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(output)
-    if (!shouldTreatDarkBaseColorAsTransparent(backgroundColor)) {
-        canvas.drawColor(backgroundColor)
-    }
-    val foreground = extractMameCabinetForeground(source) ?: return output
-    val layout = calculateMameCabinetLayout(foreground.bitmap.width, foreground.bitmap.height)
-    val paint = android.graphics.Paint(
-        android.graphics.Paint.ANTI_ALIAS_FLAG or
-            android.graphics.Paint.FILTER_BITMAP_FLAG or
-            android.graphics.Paint.DITHER_FLAG
-    )
-    canvas.drawBitmap(
-        foreground.bitmap,
-        null,
-        android.graphics.RectF(
-            layout.drawLeft,
-            layout.drawTop,
-            layout.drawLeft + layout.drawWidth,
-            layout.drawTop + layout.drawHeight
-        ),
-        paint
-    )
-    return output
-}
-
-private fun isMameCabinetBackgroundPixel(pixel: Int): Boolean {
-    val alpha = android.graphics.Color.alpha(pixel)
-    if (alpha == 0) return true
-    return android.graphics.Color.red(pixel) == 255 &&
-        android.graphics.Color.green(pixel) == 255 &&
-        android.graphics.Color.blue(pixel) == 255
-}
+    assetName: String
+): Bitmap? =
+    runCatching { com.ariy.retrolauncher.ui.decodeSampledArtworkAsset(context, assetName) }.getOrNull()
 
 private fun vintageChannel(channel: Float, vignette: Float, grain: Float): Int =
     (((channel * vignette) + grain).toInt()).coerceIn(0, 255)

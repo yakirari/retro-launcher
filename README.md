@@ -5,15 +5,12 @@ platform galleries, nostalgic cartridge/case templates, ROM scanning, and Androi
 
 ## Device demo
 
-[![Animated preview of Retro Launcher's platform galleries](vids/gallery-preview.gif)](vids/retro-launcher-demo.mp4)
+![Animated preview of Retro Launcher's platform galleries](vids/gallery-preview.gif)
+· [Media details](vids/README.md)
 
-**[Watch or download the full demo](https://github.com/yakirari/retro-launcher/raw/refs/heads/main/vids/retro-launcher-demo.mp4)**
-· [Gallery screenshots](vids/gallery-screenshots.jpg)
-
-Recorded on an RG477M: approximately 39 seconds, 1280×960, 30 fps, no audio. Shows gallery
-browsing and a game-launch handoff into a separately installed PC hub, not completed gameplay
-or a performance benchmark. The animated preview is shortened and played at 2× speed;
-the full MP4 retains the original timing. [Media details](vids/README.md).
+The short preview was recorded on an RG477M and shows the current arcade gallery. It is
+480×360, 6 fps, played at 2× speed, with no audio. It is not a performance benchmark or
+certification of gameplay compatibility.
 
 ## Requirements
 
@@ -127,7 +124,7 @@ Rescanning a ROM folder cannot discover hub games that have not been shared as s
 | Current preview | [0.1.4 changes, installation and limitations](docs/releases/0.1.4.md) |
 | Repository administrators | [Hosting, security settings and audit scope](docs/HOSTING.md) |
 | Security reporters | [Security reporting policy](SECURITY.md) |
-| Asset contributors | [Artwork organization and preparation](artwork/README.md), [licensing and third-party notices](THIRD_PARTY_NOTICES.md) |
+| Asset contributors | [Packaged artwork and attribution](docs/ARTWORK.md), [licensing and third-party notices](THIRD_PARTY_NOTICES.md) |
 
 ## Status and licensing
 
