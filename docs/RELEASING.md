@@ -63,9 +63,9 @@ the same debug key and retaining the production-signing, live-provider and artwo
 4. Test an upgrade without clearing data: titles/artwork/history/targets/settings/grants must survive.
 5. Complete the device smoke checks below, noting device/Android/emulator versions.
 6. Verify packaged artwork indexes, checksums and notices; do not implicitly fetch new third-party art.
-7. Run the [production release workflow](../.github/workflows/release.yml) for the version tag;
-   verify the draft APK, signature, package/version, checksum and upgrade installation.
-8. Publish the reviewed draft with changelog, source tag and required notices through the selected channel.
+7. Build and sign the APK manually on a trusted JDK 17 environment; verify its signature,
+   package/version, checksum and upgrade installation.
+8. Create a GitHub draft release manually with the APK, checksum, changelog, source tag and required notices.
 9. State known issues/tested versions; avoid unsupported gameplay or benchmark claims.
 
 ## Signing
@@ -82,30 +82,20 @@ Without signing properties the output can be unsigned. A successful assembly doe
 release. Inspect `app/build/outputs/apk/release/` and verify with the SDK's `apksigner`. Keep the same key
 for updates; replacing it can require uninstalling and lose library data.
 
-## Production CI signing
+## Manual production release
 
-The [production release workflow](../.github/workflows/release.yml) runs only when manually dispatched
-from `main`. It checks out an existing `vX.Y.Z` tag on `main`, confirms the tag matches `versionName`
-and has matching `docs/releases/X.Y.Z.md` notes, runs unit tests and builds the release APK with JDK 17.
-It verifies the APK package and version and compares the signer fingerprint before creating a **draft**
-GitHub release with the APK and `SHA256SUMS`. A maintainer must review and publish that draft manually.
+Use the existing GitHub Releases process: build and sign the production APK locally or on a trusted
+JDK 17 machine, then create and review a draft release manually. This differs from earlier debug-signed
+previews only in the signing identity; never ship a debug-signed APK as a production release.
 
-Before using it:
-
-1. Create a GitHub Actions environment named `production` and configure required reviewers. Review the
-   tagged source before approving a run: the build executes repository code while signing secrets are
-   available. Do not expose these secrets to pull-request workflows or untrusted branches.
-2. Add these environment secrets: `ANDROID_RELEASE_KEYSTORE_BASE64`,
-   `ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS` and `ANDROID_RELEASE_KEY_PASSWORD`.
-   The keystore secret must be single-line Base64 (for example, GNU `base64 -w0 < release-key.jks`).
-   The workflow decodes it into the ignored `keystore/` directory and creates the ignored
-   `release-keystore.properties` file on an ephemeral runner. Never commit either file.
-3. Add the expected public SHA-256 signing-certificate fingerprint as the environment variable
-   `ANDROID_RELEASE_CERT_SHA256`. Obtain it from the correct production key; do not infer it from an
-   arbitrary APK. The workflow fails closed if it is missing or does not match the APK signer.
-4. Increase `versionCode` and `versionName`, update the changelog and add matching release notes, then
-   create and push the `vX.Y.Z` source tag. Dispatch the workflow from `main` and provide that tag.
-5. Review the draft, test installation/upgrade on a device, then publish it manually.
+1. Configure the ignored `release-keystore.properties` file and keystore on the trusted build machine.
+2. Increase `versionCode` and `versionName`, update the changelog and add matching release notes.
+3. Run the JVM tests and `:app:assembleRelease`, then verify the APK signature with `apksigner`,
+   confirm the expected production certificate fingerprint, application ID and version, and calculate
+   `SHA256SUMS`.
+4. Create and push the `vX.Y.Z` tag, then create a GitHub draft release and attach the APK, checksum,
+   release notes and required notices.
+5. Test installation/upgrade on a device, review the draft, and publish it manually.
 
 The build-and-test workflow remains read-only and has no release credentials. The production workflow
 is not ready to run until the environment protection and signing secrets/fingerprint are configured.
@@ -126,10 +116,10 @@ is not ready to run until the environment protection and signing secrets/fingerp
 ## CI and ongoing maintenance
 
 [Android checks](../.github/workflows/build.yml) uses JDK 17/SDK 36 and the wrapper for JVM tests and
-debug assembly, with read-only permissions and no release credentials. The separate production workflow
-is described above; its environment must require reviewer approval and its credentials must not be made
-available to pull-request jobs. Lint remains a separate check because of the documented metadata-reader
-issue; no lint pass is implied. UI jobs need an unlocked Android 13+ emulator and timeouts.
+debug assembly, with read-only permissions and no release credentials. Production signing and GitHub
+Release creation remain manual as described above. Lint remains a separate check because of the
+documented metadata-reader issue; no lint pass is implied. UI jobs need an unlocked Android 13+ emulator
+and timeouts.
 
 Review dependencies, launch contracts, Home/SAF behavior and artwork service failures regularly.
 Separate verified maintainer notes from user-facing compatibility promises.
