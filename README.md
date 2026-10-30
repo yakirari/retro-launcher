@@ -46,9 +46,9 @@ name is not a guarantee that every game will boot.
 
 ## Start here
 
-1. Install an APK from a trusted maintainer-published release **if one is available**, or
-   [build a debug APK](docs/DEVELOPMENT.md). Check [GitHub Releases](https://github.com/yakirari/retro-launcher/releases)
-   for published artifacts; documentation does not imply a release already exists.
+1. Install the [current 0.1.5 experimental preview](https://github.com/yakirari/retro-launcher/releases/tag/v0.1.5)
+   if you accept its limitations, or [build a debug APK](docs/DEVELOPMENT.md). The preview is
+   debug-signed and is not production-signed.
 2. Install/configure the emulators or PC hubs you intend to use. Test your games in those apps;
    install required RetroArch cores inside RetroArch, not inside Retro Launcher.
 3. Open Retro Launcher and choose it in Android's **default Home app** settings. Keep it as Home
@@ -121,14 +121,14 @@ Rescanning a ROM folder cannot discover hub games that have not been shared as s
 | Contributors | [Contribution workflow](CONTRIBUTING.md) |
 | Release maintainers | [Publication and release checklist](docs/RELEASING.md) |
 | First preview | [0.1.0 release notes and known limitations](docs/releases/0.1.0.md) |
-| Current preview | [0.1.4 changes, installation and limitations](docs/releases/0.1.4.md) |
+| Current preview | [0.1.5 changes, installation and limitations](docs/releases/0.1.5.md) · [GitHub release and APK](https://github.com/yakirari/retro-launcher/releases/tag/v0.1.5) |
 | Repository administrators | [Hosting, security settings and audit scope](docs/HOSTING.md) |
 | Security reporters | [Security reporting policy](SECURITY.md) |
 | Asset contributors | [Packaged artwork and attribution](docs/ARTWORK.md), [licensing and third-party notices](THIRD_PARTY_NOTICES.md) |
 
 ## Status and licensing
 
-Experimental, version 0.1.4. Preview downloads are debug-signed testing builds, not production-signed
+Experimental, version 0.1.5. Preview downloads are debug-signed testing builds, not production-signed
 artifacts. The root Gradle project builds only `:app`; no emulator source tree
 or engine is bundled. JVM tests cover policies/parsing/merging/artwork/paging;
 real-device UI and game-launch tests remain necessary.
