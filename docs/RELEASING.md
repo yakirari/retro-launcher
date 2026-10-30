@@ -97,7 +97,8 @@ Before using it:
    available. Do not expose these secrets to pull-request workflows or untrusted branches.
 2. Add these environment secrets: `ANDROID_RELEASE_KEYSTORE_BASE64`,
    `ANDROID_RELEASE_STORE_PASSWORD`, `ANDROID_RELEASE_KEY_ALIAS` and `ANDROID_RELEASE_KEY_PASSWORD`.
-   The workflow decodes the keystore into the ignored `keystore/` directory and creates the ignored
+   The keystore secret must be single-line Base64 (for example, GNU `base64 -w0 < release-key.jks`).
+   The workflow decodes it into the ignored `keystore/` directory and creates the ignored
    `release-keystore.properties` file on an ephemeral runner. Never commit either file.
 3. Add the expected public SHA-256 signing-certificate fingerprint as the environment variable
    `ANDROID_RELEASE_CERT_SHA256`. Obtain it from the correct production key; do not infer it from an
