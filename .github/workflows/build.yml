@@ -25,6 +25,49 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Build and unit tests
         run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --console=plain
+      - name: Prepare tagged debug preview
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import re
+          import shutil
+          from pathlib import Path
+
+          tag = os.environ["RELEASE_TAG"]
+          gradle = Path("app/build.gradle.kts").read_text()
+          version_name = re.search(r'versionName\s*=\s*"([^"]+)"', gradle)
+          if not version_name or tag != f"v{version_name.group(1)}":
+              raise SystemExit("Tag version does not match app/build.gradle.kts.")
+
+          artifact_dir = Path("release-assets")
+          artifact_dir.mkdir()
+          apk_name = f"retro-launcher-{version_name.group(1)}-preview-debug.apk"
+          apk = artifact_dir / apk_name
+          shutil.copy2("app/build/outputs/apk/debug/app-debug.apk", apk)
+
+          digest = hashlib.sha256()
+          with apk.open("rb") as stream:
+              for block in iter(lambda: stream.read(1024 * 1024), b""):
+                  digest.update(block)
+          (artifact_dir / "SHA256SUMS").write_text(
+              f"{digest.hexdigest()}  {apk_name}\n",
+              encoding="ascii",
+          )
+          PY
+      - name: Upload tagged debug preview
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: retro-launcher-${{ github.ref_name }}-debug-preview
+          path: |
+            release-assets/*.apk
+            release-assets/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
