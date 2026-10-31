@@ -91,5 +91,4 @@ More details: [user guide](docs/USER_GUIDE.md) ·
 Some code and documentation in this project were written with AI assistance. AI-generated content
 can contain errors; changes should be reviewed and tested before use.
 
-Original launcher code is [MIT-licensed](LICENSE). Some artwork and other third-party material have
-separate terms; see [third-party notices](THIRD_PARTY_NOTICES.md).
+Original launcher code is [MIT-licensed](LICENSE).
