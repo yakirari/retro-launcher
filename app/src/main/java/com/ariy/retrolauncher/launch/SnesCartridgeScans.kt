@@ -8,7 +8,7 @@ import com.ariy.retrolauncher.model.NostalgicOverlays
 import org.json.JSONObject
 
 internal object SnesCartridgeScans {
-    const val MANIFEST = "snes_labels/index.json"
+    const val MANIFEST = "artwork/snes/labels/index.json"
     data class Label(
         val title: String,
         val path: String,
@@ -88,6 +88,6 @@ internal object SnesCartridgeScans {
             cached ?: run { context.assets.open(MANIFEST).bufferedReader().use { parse(it.readText()) } }
                 .also { cached = it }
         }
-        return findWithFallback(labels, rom)?.let { "snes_labels/${it.path}" }
+        return findWithFallback(labels, rom)?.let { "artwork/snes/labels/${it.path}" }
     }
 }

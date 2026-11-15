@@ -9,9 +9,9 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const sharp=createRequire(import.meta.url)(process.env.SHARP_MODULE??'/tmp/retro-art-handoff-tools/node_modules/sharp');
 const read=async p=>JSON.parse(await fs.readFile(path.join(root,p),'utf8'));
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
-const packaged='app/src/main/assets/arcade_presentations';
+const packaged='app/src/main/assets/artwork/arcade/presentations';
 const index=await read(`${packaged}/index.json`);
-const aliases=(await read('app/src/main/assets/arcade-metadata/cabinet-art.json')).mappings;
+const aliases=(await read('app/src/main/assets/artwork/arcade/cabinet-art.json')).mappings;
 const jobs=(await read('artwork/arcade-presentations-review/plan.json')).games;
 const out=path.join(root,'artwork/current-arcade-fronts');
 await fs.mkdir(out); // Refuse overwrite: retain any user changes.

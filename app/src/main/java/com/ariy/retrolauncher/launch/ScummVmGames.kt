@@ -36,6 +36,14 @@ internal object ScummVmGames {
 
     fun title(raw: String?): String? = gameId(raw)?.let(titles::get)
 
+    fun artworkGameId(raw: String?): String? {
+        gameId(raw)?.let { return it }
+        val titleKey = raw?.let { LibretroArtworkCatalog.scummVmArtworkMatchKey(artworkTitle(it)) } ?: return null
+        return titles.entries.firstOrNull {
+            LibretroArtworkCatalog.scummVmArtworkMatchKey(it.value) == titleKey
+        }?.key
+    }
+
     /** Prefer actual marker contents; conflicting markers must not depend on filesystem ordering. */
     fun detect(folderName: String, files: List<Pair<String, String?>>): String? {
         val contentIds = files.filter { it.first.endsWith(".scummvm", true) || it.first.endsWith(".svm", true) }
@@ -103,6 +111,32 @@ internal object ScummVmGames {
         .replace(Regex("""\s*\((?i:[^)]*(?:DOS|Windows|English|Floppy|CD|Demo)[^)]*)\)\s*$"""), "")
         .replace(Regex("(?i),\\s*The$"), "")
         .let { if (raw.substringBefore('(').trim().endsWith(", The", true)) "The $it" else it }.trim()
+
+    fun usesLegacyCatalogArtwork(game: GameEntry): Boolean {
+        return catalogArtworkFilename(game) == "${game.id}-scummvm-cover-v1.png"
+    }
+
+    fun usesCatalogArtwork(game: GameEntry): Boolean {
+        val filename = catalogArtworkFilename(game) ?: return false
+        return filename == "${game.id}-scummvm-cover-v1.png" ||
+            filename == "${game.id}-scummvm-cover-v2.png"
+    }
+
+    fun usesBundledArtwork(game: GameEntry): Boolean {
+        val filename = catalogArtworkFilename(game) ?: return false
+        val prefix = "${game.id}-scummvm-bundled-"
+        if (!filename.startsWith(prefix)) return false
+        return filename.removePrefix(prefix)
+            .matches(Regex("(?:alpha-v[12]-)?[a-z0-9_-]+-[a-f0-9]{64}\\.png"))
+    }
+
+    private fun catalogArtworkFilename(game: GameEntry): String? {
+        if (GamePlatforms.normalizeOrNull(game.platform) != "ScummVM") return null
+        return game.imageUri
+            ?.substringBefore('#')
+            ?.substringBefore('?')
+            ?.substringAfterLast('/')
+    }
 
     fun repairTitle(game: GameEntry): GameEntry {
         if (GamePlatforms.normalizeOrNull(game.platform) != "ScummVM") return game

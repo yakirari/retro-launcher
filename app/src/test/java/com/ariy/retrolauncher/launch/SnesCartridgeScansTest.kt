@@ -6,7 +6,7 @@ import org.junit.Test
 class SnesCartridgeScansTest {
     private val scan = SnesCartridgeScans.Label("Future Game (Europe)", "labels/future-europe.jpg", 570, 200)
     @Test fun bundledScansSupportRegionlessCompactFilenames() {
-        val labels = SnesCartridgeScans.parse(java.io.File("src/main/assets/snes_labels/index.json").readText())
+        val labels = SnesCartridgeScans.parse(java.io.File("src/main/assets/artwork/snes/labels/index.json").readText())
         assertEquals(109, labels.size)
         assertTrue(labels.all { it.path.startsWith("labels/") && it.path.endsWith(".jpg") })
         assertEquals(48, labels.count { it.sourcePack == "supplied-jpeg-pack" })
@@ -24,7 +24,7 @@ class SnesCartridgeScansTest {
         }
     }
     @Test fun suppliedLabelCatalogMatchesKnownAndMissingRegions() {
-        val labels = SnesCartridgeScans.parse(java.io.File("src/main/assets/snes_labels/index.json").readText())
+        val labels = SnesCartridgeScans.parse(java.io.File("src/main/assets/artwork/snes/labels/index.json").readText())
             .filter { it.sourcePack == "game-labels-batch2-final" }
         assertEquals(61, labels.size)
         for (label in labels) {

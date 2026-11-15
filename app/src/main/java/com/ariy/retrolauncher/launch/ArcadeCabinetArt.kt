@@ -27,7 +27,7 @@ internal object ArcadeCabinetArtStore {
         if (raw.isNullOrBlank()) return null
         val mappings = cached ?: synchronized(this) {
             cached ?: run {
-                context.assets.open("arcade-metadata/cabinet-art.json").bufferedReader().use { parseArcadeCabinetArt(it.readText()) }
+                context.assets.open("artwork/arcade/cabinet-art.json").bufferedReader().use { parseArcadeCabinetArt(it.readText()) }
             }.also { cached = it }
         }
         val stem = raw.trim().lowercase(Locale.ROOT).replace(Regex("\\.(zip|7z|chd)$"), "")

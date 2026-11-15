@@ -10,7 +10,7 @@ object ArcadePresentationArtStore {
     fun path(context: Context, originalAsset: String): String? {
         val rows = entries ?: synchronized(this) {
             entries ?: run {
-                val json = context.assets.open("arcade_presentations/index.json").bufferedReader().use { JSONObject(it.readText()) }
+                val json = context.assets.open("artwork/arcade/presentations/index.json").bufferedReader().use { JSONObject(it.readText()) }
                 val array = json.getJSONArray("mappings")
                 buildMap {
                     for (i in 0 until array.length()) {
@@ -24,6 +24,6 @@ object ArcadePresentationArtStore {
             }.also { entries = it }
         }
         val row = rows[originalAsset] ?: return null
-        return "arcade_presentations/$row"
+        return "artwork/arcade/presentations/$row"
     }
 }

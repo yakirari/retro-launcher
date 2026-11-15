@@ -97,15 +97,26 @@ class LibrarySetupPolicyTest {
         assertTrue(platforms("com.explusalpha.MdEmu").containsAll(listOf("Sega Master System", "Sega CD", "Sega 32X")))
     }
 
-    @Test fun edenOptimizedRemainsSelectableEvenWithSameInstalledPackage() = kotlinx.coroutines.runBlocking {
+    @Test fun x1BoxIsAvailableAsAnXboxSystemInManualGameSetup() {
+        val templates = CustomIntentTemplates.all
+        val xboxOptions = buildGameSystemEmulatorOptions(templates).filter { it.platform == "Microsoft Xbox" }
+
+        assertEquals(1, xboxOptions.size)
+        val option = xboxOptions.single()
+        assertEquals("Microsoft Xbox", option.systemLabel)
+        assertEquals("xbox", option.romFolderHint)
+        assertEquals("com.izzy2lost.x1box", templates[option.templateIndex].packageName)
+    }
+
+    @Test fun edenOptimizedRemainsSelectableAlongsideStable() = kotlinx.coroutines.runBlocking {
         val templates = CustomIntentTemplates.all
         val options = LibrarySetupPolicy.standaloneChoices(buildGameSystemEmulatorOptions(templates), templates,
-            setOf("Nintendo Switch"), setOf("dev.eden.eden_emulator"))
+            setOf("Nintendo Switch"), setOf("dev.eden.eden_emulator", "com.miHoYo.Yuanshen"))
         assertEquals(setOf("Eden preset", "Eden optimized preset"), options.map { templates[it.templateIndex].label }.toSet())
         assertEquals(2, options.map { it.key }.toSet().size)
         val optimized = options.single { templates[it.templateIndex].label == "Eden optimized preset" }
         var prompted = false
-        assertEquals(optimized, LibrarySetupPolicy.chooseStandalone(options, templates, "dev.eden.eden_emulator") {
+        assertEquals(optimized, LibrarySetupPolicy.chooseStandalone(options, templates, null) {
             prompted = true
             optimized
         })

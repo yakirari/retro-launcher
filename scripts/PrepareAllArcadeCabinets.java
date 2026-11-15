@@ -226,7 +226,7 @@ public class PrepareAllArcadeCabinets {
             alias.put("kind",base.get("asset")==null?base.get("kind"):"catalogue-canonical-alias");
             alias.put("notes",base.get("notes")+" Metadata alias "+rom+" of "+canonical+"; cabinet appearance/set controls may differ.");mappings.put(rom,alias);
         }
-        Json.write(root.resolve("app/src/main/assets/arcade-metadata/cabinet-art.json"),Map.of("mappings",new ArrayList<>(mappings.values())));
+        Json.write(root.resolve("app/src/main/assets/artwork/arcade/cabinet-art.json"),Map.of("mappings",new ArrayList<>(mappings.values())));
         Json.write(review.resolve("gaps.json"),Map.of("gaps",gaps));Json.write(Path.of("/tmp/full-cabinet-gaps.json"),Map.of("gaps",gaps));
         long covered=inventory.size()-gaps.size(),assets=results.values().stream().filter(r->r.get("asset")!=null).count();
         System.out.println("Prepared "+assets+" unique real-photo assets; "+covered+"/"+inventory.size()+" inventory ROMs covered; "+gaps.size()+" gaps; "+mappings.size()+" total lookup keys.");

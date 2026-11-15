@@ -13,7 +13,7 @@ const verifyOnly = process.argv.includes('--verify');
 const review = path.join(root, 'artwork/cabinet-references/full-cabinet-review');
 const dir = path.join(review, 'conversions');
 const out = path.join(root, 'artwork/full-cabinets');
-const mappingFile = path.join(root, 'app/src/main/assets/arcade-metadata/cabinet-art.json');
+const mappingFile = path.join(root, 'app/src/main/assets/artwork/arcade/cabinet-art.json');
 const read = async p => JSON.parse(await fs.readFile(p, 'utf8'));
 const write = async (p, value) => fs.writeFile(p, JSON.stringify(value, null, 2) + '\n');
 const sha = async p => crypto.createHash('sha256').update(await fs.readFile(p)).digest('hex');

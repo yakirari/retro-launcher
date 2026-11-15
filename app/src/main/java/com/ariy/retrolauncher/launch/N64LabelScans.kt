@@ -11,7 +11,7 @@ internal object N64LabelScans {
             "N64_Art_Collection_images.zip/" + URLEncoder.encode(filename, "UTF-8").replace("+", "%20")
     }
 
-    const val MANIFEST = "cartridge-artwork/n64-scans.json"
+    const val MANIFEST = "artwork/n64/scans.json"
 
     /** Fail closed: unreviewed crops, duplicate identities and unsafe filenames never ship. */
     fun parse(text: String): Map<String, Scan> {

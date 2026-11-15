@@ -42,12 +42,16 @@ internal object LibretroArtworkCatalog {
         "Sony PlayStation" to "Sony - PlayStation",
         "Sony PlayStation 2" to "Sony - PlayStation 2",
         "Sony PlayStation Portable" to "Sony - PlayStation Portable",
-        "Sony PlayStation Vita" to "Sony - PlayStation Vita"
+        "Sony PlayStation Vita" to "Sony - PlayStation Vita",
+        "Microsoft Xbox" to "Microsoft - Xbox"
     )
+
+    internal fun systemDirectoryForPlatform(platform: String?): String? =
+        GamePlatforms.normalizeOrNull(platform)?.let(systemDirectories::get)
 
     fun fetchCandidates(platform: String?, rawTitle: String, romName: String? = null): List<ArtworkCandidate> {
         val normalizedPlatform = GamePlatforms.normalizeOrNull(platform) ?: return emptyList()
-        val directoryName = systemDirectories[normalizedPlatform] ?: return emptyList()
+        val directoryName = systemDirectoryForPlatform(normalizedPlatform) ?: return emptyList()
         val isPsp = normalizedPlatform == "Sony PlayStation Portable"
         val isScummVm = normalizedPlatform == "ScummVM"
         val isNes = normalizedPlatform == "Nintendo Entertainment System"

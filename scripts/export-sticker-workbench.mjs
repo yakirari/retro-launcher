@@ -82,9 +82,9 @@ for (const row of inventory.games) {
 for (const template of Object.values(templates)) {
     template.sha256 = hash(await fs.readFile(path.join(root, template.file)));
 }
-const snesCatalog = JSON.parse(await fs.readFile(path.join(root, 'app/src/main/assets/snes_labels/index.json'), 'utf8'));
+const snesCatalog = JSON.parse(await fs.readFile(path.join(root, 'app/src/main/assets/artwork/snes/labels/index.json'), 'utf8'));
 const availableSnesScans = snesCatalog.labels.map(scan => ({
-    title: scan.romTitle, file: `app/src/main/assets/snes_labels/${scan.path}`,
+    title: scan.romTitle, file: `app/src/main/assets/artwork/snes/labels/${scan.path}`,
     sha256: scan.sha256, width: scan.width, height: scan.height, source: scan.sourceUrl,
     representation: scan.representation || 'User-supplied cartridge label; review title, region and edition before use.'
 }));

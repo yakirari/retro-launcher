@@ -20,7 +20,7 @@ class NesLibraryRepairTest {
                 platform = "Super Nintendo", sourceType = com.ariy.retrolauncher.model.GameSourceType.CUSTOM_INTENT,
                 intentDataUri = "file:///roms/${row.getString("romTitle")}.sfc")
             val path = requireNotNull(catalog.path(context, game)) { row.getString("romTitle") }
-            assertEquals("snes_labels/${row.getString("path")}", path)
+            assertEquals("artwork/snes/labels/${row.getString("path")}", path)
             val bytes = context.assets.open(path).use { it.readBytes() }
             assertEquals(row.getString("sha256"), java.security.MessageDigest.getInstance("SHA-256")
                 .digest(bytes).joinToString("") { "%02x".format(it) })
@@ -49,7 +49,7 @@ class NesLibraryRepairTest {
         assertTrue(rows.length() > 0)
         for (index in 0 until rows.length()) {
             val row = rows.getJSONObject(index)
-            val bytes = context.assets.open("nes_covers/${row.getString("path")}").use { it.readBytes() }
+            val bytes = context.assets.open("artwork/nes/covers/${row.getString("path")}").use { it.readBytes() }
             val digest = java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
             assertEquals(row.getString("sha256"), digest)
             val image = requireNotNull(android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size))

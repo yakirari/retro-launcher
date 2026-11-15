@@ -33,6 +33,13 @@ class ArtworkAspectRatioTest {
     }
 
     @Test
+    fun xboxUsesPortraitGameBoxArtwork() {
+        val ratio = preferredArtworkAspectRatio("Microsoft Xbox")
+        assertEquals(0.70f, ratio)
+        assertTrue(compareArtworkAspectRatios(7, 10, 1, 1, ratio) < 0)
+    }
+
+    @Test
     fun artworkRatioTargetsReflectPlatformArtStyle() {
         assertTrue(preferredArtworkAspectRatio("Nintendo Switch") < 1f)
         assertTrue(preferredArtworkAspectRatio("DOS Games") > 1f)

@@ -10,7 +10,7 @@ const sharp = require('sharp');
 const cheerio = require('cheerio');
 const sourcePage = 'https://www.vgmuseum.com/scans/nes.html';
 const staging = process.env.NES_COVER_CACHE || '/tmp/retro-vgmuseum-nes';
-const output = path.join(root, 'app/src/main/assets/nes_covers');
+const output = path.join(root, 'app/src/main/assets/artwork/nes/covers');
 const reviewPath = path.join(root, 'artwork/nes/vgmuseum.json');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const write = async (file, value) => {

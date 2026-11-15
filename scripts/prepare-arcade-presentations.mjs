@@ -14,7 +14,7 @@ const write = async (p, v) => fs.writeFile(p, JSON.stringify(v, null, 2) + '\n')
 const sha = b => crypto.createHash('sha256').update(b).digest('hex');
 const assert = (v, s) => { if (!v) throw Error(s); };
 await fs.mkdir(cache, { recursive: true }); await fs.mkdir(out, { recursive: true });
-const mappings = (await read(path.join(root, 'app/src/main/assets/arcade-metadata/cabinet-art.json'))).mappings;
+const mappings = (await read(path.join(root, 'app/src/main/assets/artwork/arcade/cabinet-art.json'))).mappings;
 const sets = (await read(path.join(root, 'app/src/main/assets/arcade-metadata/metadata.json'))).sets;
 const meta = new Map(sets.map(x => [x.rom, x]));
 const plans = (await read(path.join(root, 'artwork/cabinet-references/full-cabinet-review/conversions/plan.json'))).games;

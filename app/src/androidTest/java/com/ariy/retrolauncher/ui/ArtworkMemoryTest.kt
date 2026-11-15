@@ -38,11 +38,11 @@ class ArtworkMemoryTest {
 
     @Test fun oversizedCabinetDecodeIsBoundedAndNormalFrontRemainsFullResolution() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val files = requireNotNull(context.assets.list("arcade_presentations/front"))
+        val files = requireNotNull(context.assets.list("artwork/arcade/presentations/front"))
         var testedLarge = false
         var testedNormal = false
         for (file in files) {
-            val path = "arcade_presentations/front/$file"
+            val path = "artwork/arcade/presentations/front/$file"
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             context.assets.open(path).use { BitmapFactory.decodeStream(it, null, bounds) }
             val large = maxOf(bounds.outWidth, bounds.outHeight) > 1024

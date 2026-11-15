@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.documentfile.provider.DocumentFile
 import com.ariy.retrolauncher.data.GameRepository
 import com.ariy.retrolauncher.launch.CustomIntentTemplates
+import com.ariy.retrolauncher.launch.EdenPackages
 import com.ariy.retrolauncher.launch.ArtworkCandidate
 import com.ariy.retrolauncher.launch.ArtworkSuggestionService
 import com.ariy.retrolauncher.launch.GameRecommendation
@@ -33,6 +34,7 @@ import com.ariy.retrolauncher.launch.ImportedIconStore
 import com.ariy.retrolauncher.launch.InstalledActivityOption
 import com.ariy.retrolauncher.launch.InstalledShortcutOption
 import com.ariy.retrolauncher.launch.InstalledTargets
+import com.ariy.retrolauncher.launch.ScummVmBundledArtwork
 import com.ariy.retrolauncher.launch.ScummVmGames
 import com.ariy.retrolauncher.launch.detectScummVmFolder
 import com.ariy.retrolauncher.launch.arcadeOverlayAssetBaseNames
@@ -338,21 +340,43 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 currentCoroutineContext().ensureActive()
                 try { upgradeScummVmShortcutArtwork(original) }
                 catch (cancelled: CancellationException) { throw cancelled }
-                catch (_: Exception) { /* Keep the existing image when offline; retry next startup. */ }
+                catch (error: Exception) {
+                    Log.w("RetroLauncher", "ScummVM artwork refresh failed for ${original.title}", error)
+                }
             }
         }
     }
 
     private suspend fun upgradeScummVmShortcutArtwork(original: GameEntry) {
         if (GamePlatforms.normalizeOrNull(original.platform) != "ScummVM") return
+        val isAutomaticArtwork = ScummVmGames.usesCatalogArtwork(original) ||
+            ScummVmGames.usesBundledArtwork(original) ||
+            original.imageUri.isNullOrBlank() ||
+            importedIconStore.isLegacyScummVmPlaceholder(original) ||
+            installedTargets.isImportedShortcutIcon(original)
+        val application = getApplication<Application>()
+        val bundledAssetId = ScummVmBundledArtwork.assetId(application, original)
+        if (bundledAssetId != null && isAutomaticArtwork) {
+            val saved = ScummVmBundledArtwork.save(application, original, bundledAssetId, importedIconStore)
+            updateGamesFromBackground { games -> games.map { game ->
+                if (game.id == original.id && game.imageUri == original.imageUri) game.copy(imageUri = saved) else game
+            } }
+            return
+        }
         // Manual replacements share the same filename: compare pixels, never just the path.
-        if (!importedIconStore.isLegacyScummVmPlaceholder(original) && !installedTargets.isImportedShortcutIcon(original)) return
+        if (!ScummVmGames.usesLegacyCatalogArtwork(original) &&
+            !importedIconStore.isLegacyScummVmPlaceholder(original) &&
+            !installedTargets.isImportedShortcutIcon(original)) return
         val candidates = com.ariy.retrolauncher.launch.LibretroArtworkCatalog.fetchCandidates(
             "ScummVM", ScummVmGames.artworkTitle(original.title))
         val workerContext = currentCoroutineContext()
-        val saved = importedIconStore.downloadBestAspectImage("${original.id}-scummvm-cover-v1",
-            candidates.map(ArtworkCandidate::imageUrl), preferredArtworkAspectRatio("ScummVM"),
-            cancellationCheck = { workerContext.ensureActive() }) ?: return
+        val fileName = "${original.id}-scummvm-cover-v2"
+        val saved = importedIconStore.existingBitmapUri(fileName) ?: importedIconStore.downloadBestAspectImage(
+            fileName,
+            candidates.map(ArtworkCandidate::imageUrl),
+            preferredArtworkAspectRatio("ScummVM"),
+            cancellationCheck = { workerContext.ensureActive() }
+        ) ?: return
         updateGamesFromBackground { games -> games.map { game ->
             if (game.id == original.id && game.imageUri == original.imageUri) game.copy(imageUri = saved) else game
         } }
@@ -1855,9 +1879,11 @@ private fun GameEntry.buildIntent(app: Application, target: LaunchTarget): Inten
     extrasObject?.remove(ScummVmGames.REGISTERED_TARGET)
     val action = effectiveTarget.intentAction?.takeIf { it.isNotBlank() }
         ?.let { existingAction ->
-            if (isEdenCustomConfigLaunch) EDEN_CUSTOM_CONFIG_ACTION else existingAction
+            if (isEdenCustomConfigLaunch) {
+                EdenPackages.customConfigAction(effectiveTarget.packageName) ?: existingAction
+            } else existingAction
         }
-        ?: EDEN_CUSTOM_CONFIG_ACTION.takeIf { isEdenCustomConfigLaunch }
+        ?: EdenPackages.customConfigAction(effectiveTarget.packageName).takeIf { isEdenCustomConfigLaunch }
         ?: Intent.ACTION_MAIN.takeIf { isRetroArchTarget }
         ?: effectiveTarget.intentDataUri?.takeIf { it.isNotBlank() }?.let { Intent.ACTION_VIEW }
         ?: Intent.ACTION_MAIN
@@ -2514,7 +2540,7 @@ private fun String?.isDrasticPackage(): Boolean = this == "com.dsemu.drastic"
 
 private fun String?.isScummVmPackage(): Boolean = this == "org.scummvm.scummvm"
 
-private fun String?.isEdenPackage(): Boolean = this == EDEN_PACKAGE_NAME
+private fun String?.isEdenPackage(): Boolean = EdenPackages.isEdenPackage(this)
 
 private fun buildEdenCustomSettings(resolutionSetup: Int): String =
     buildString {
@@ -2527,8 +2553,6 @@ private fun buildEdenCustomSettings(resolutionSetup: Int): String =
     }
 
 private const val SCUMMVM_EXTRA_GAME_ID = "scummvmGameId"
-private const val EDEN_PACKAGE_NAME = "dev.eden.eden_emulator"
-private const val EDEN_CUSTOM_CONFIG_ACTION = "dev.eden.eden_emulator.LAUNCH_WITH_CUSTOM_CONFIG"
 private const val EDEN_EXTRA_TITLE_ID = "title_id"
 private const val EDEN_EXTRA_CUSTOM_SETTINGS = "custom_settings"
 private const val RETRO_LAUNCHER_EDEN_RESOLUTION_SETUP = "_retroLauncherEdenResolutionSetup"

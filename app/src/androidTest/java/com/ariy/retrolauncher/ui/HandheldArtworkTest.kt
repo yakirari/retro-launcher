@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.ariy.retrolauncher.launch.HandheldCartridgeArtwork
 import com.ariy.retrolauncher.model.HandheldCartridgeSettings
 import com.ariy.retrolauncher.model.GameEntry
 import com.ariy.retrolauncher.model.GameSourceType
@@ -21,6 +22,23 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class HandheldArtworkTest {
+    @Test fun bundledLabelsDecodeAndMatchManifest() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val labels = listOf("GB", "GBC", "GBA").flatMap {
+            HandheldCartridgeArtwork.catalog(context, it).values
+        }
+        assertEquals(347, labels.size)
+        for (label in labels) {
+            val decoded = HandheldCartridgeArtwork.load(context, label)
+            try {
+                assertEquals(label.path, label.width, decoded.width)
+                assertEquals(label.path, label.height, decoded.height)
+            } finally {
+                decoded.recycle()
+            }
+        }
+    }
+
     /** Optional, read-only integration check against a real, authorized ROM on the device. */
     @Test fun exactHostedStickerIsVisibleThroughShell() {
         val uri = InstrumentationRegistry.getArguments().getString("cartridgeRomUri")

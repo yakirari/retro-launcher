@@ -111,6 +111,7 @@ launch contracts; use a compatible installed build or a manually verified launch
 | NetherSX2 | PlayStation 2; preset uses the compatible AetherSX2 package identity |
 | ARMSX2 | PlayStation 2; `com.armsx2.Main` with `ACTION_VIEW` and the selected ROM URI |
 | ARMSX3 | PlayStation 3; package `com.armsx3`, activity `com.armsx2.Main`, `ACTION_VIEW` with game URI |
+| X1 BOX | Original Xbox; package `com.izzy2lost.x1box`, activity `com.izzy2lost.x1box.LauncherActivity`, `ACTION_VIEW` with game URI |
 | Vita3K | PS Vita; manual setup, no supported automatic bulk folder scanner |
 | NES.emu / Snes9x EX+ | NES / Super Nintendo |
 | Mupen64Plus AE / DraStic | Nintendo 64 / Nintendo DS |
@@ -125,6 +126,18 @@ launch contracts; use a compatible installed build or a manually verified launch
 PC hubs **GameNative, GameHub and GameHub Lite** integrate through Android-published game shortcuts,
 not a full-library folder scanner. GameNative also has a documented manual intent preset, but
 publishing a shortcut avoids entering or guessing game IDs.
+
+### Original Xbox (X1 BOX)
+
+X1 BOX (`com.izzy2lost.x1box`) is available as **Microsoft Xbox** in platform selection and
+uses its exported `LauncherActivity` with `ACTION_VIEW` and the selected game URI. The installed
+build on the connected device advertises `content://` and `file://` VIEW handlers; this verifies
+the URI handoff contract, not successful game boot or gameplay. Put disc images in an `xbox`
+folder under the selected ROM root; automatic scanning accepts **ISO and XISO** files only.
+Standalone XBE files and CHD files are not imported. Configure X1 BOX's required BIOS and game
+access inside the emulator first. Retro Launcher does not provide BIOS or game files.
+Artwork lookup now checks the exact-title **Microsoft - Xbox** box-art catalog before falling
+back to platform-qualified image search; verify suggestions before applying them.
 
 ### ARMSX2
 

@@ -11,7 +11,7 @@ class ArcadeCabinetArtTest {
     @Test fun everyInventoryRomHasASuppliedFrontAndAliasesResolve() {
         val root = File("..").canonicalFile
         val assets = File(root, "app/src/main/assets")
-        val mappings = parseArcadeCabinetArt(File(assets, "arcade-metadata/cabinet-art.json").readText())
+        val mappings = parseArcadeCabinetArt(File(assets, "artwork/arcade/cabinet-art.json").readText())
         val sets = JSONObject(File(assets, "arcade-metadata/metadata.json").readText()).getJSONArray("sets")
         val inventory = (0 until sets.length()).map { sets.getJSONObject(it) }.filter { it.optBoolean("inventory") }
         assertEquals(383, inventory.size)
@@ -20,11 +20,11 @@ class ArcadeCabinetArtTest {
         }
         val kinds = inventory.groupingBy { mappings.getValue(it.getString("rom")).kind }.eachCount()
         assertEquals(131, kinds["period-style-conversion"])
-        val presentations = JSONObject(File(assets, "arcade_presentations/index.json").readText())
+        val presentations = JSONObject(File(assets, "artwork/arcade/presentations/index.json").readText())
             .getJSONArray("mappings")
             .let { rows -> (0 until rows.length()).associate { rows.getJSONObject(it).getString("asset") to rows.getJSONObject(it) } }
         mappings.values.distinctBy { it.asset }.forEach { art ->
-            val packaged = File(assets, "arcade_presentations/front/${art.asset}")
+            val packaged = File(assets, "artwork/arcade/presentations/front/${art.asset}")
             assertTrue("Missing packaged ${art.asset}", packaged.isFile)
             val bytes = packaged.readBytes()
             val expectedHash = presentations.getValue(art.asset).getString("frontSha256")

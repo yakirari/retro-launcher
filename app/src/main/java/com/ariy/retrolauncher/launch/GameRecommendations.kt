@@ -145,6 +145,7 @@ private val explicitPlatformScanPlatforms = setOf(
     "Neo Geo Pocket Color",
     "Sony PlayStation 2",
     "Sony PlayStation 3",
+    "Microsoft Xbox",
     "Game Boy Advance",
     "Nintendo GameCube",
     "Nintendo DS",
@@ -374,6 +375,10 @@ private fun explicitPlatformScanSpec(
             allowedExtensions = ps3ScanExtensions,
             extensionPriority = listOf("iso")
         )
+        "Microsoft Xbox" -> PlatformScanSpec(
+            allowedExtensions = xboxScanExtensions,
+            extensionPriority = listOf("iso", "xiso")
+        )
         "Game Boy Advance" -> PlatformScanSpec(
             allowedExtensions = setOf("gba", "agb") +
                 if (discoveryOnly || usesRetroArch || normalizedPackageName == "com.explusalpha.GbaEmu") archiveExtensions else emptySet(),
@@ -576,6 +581,11 @@ object GameRecommendations {
             preferredTemplatePackages = listOf("com.armsx3")
         ),
         platformRecommendationSource(
+            platform = "Microsoft Xbox",
+            romFolderHint = "xbox",
+            preferredTemplatePackages = listOf("com.izzy2lost.x1box")
+        ),
+        platformRecommendationSource(
             platform = "Game Boy Advance",
             romFolderHint = "gba",
             preferredTemplatePackages = listOf("com.explusalpha.GbaEmu"),
@@ -611,7 +621,11 @@ object GameRecommendations {
         platformRecommendationSource(
             platform = "Nintendo Switch",
             romFolderHint = "switch",
-            preferredTemplatePackages = listOf("dev.eden.eden_emulator")
+            preferredTemplatePackages = listOf(
+                EdenPackages.STABLE,
+                EdenPackages.NIGHTLY,
+                EdenPackages.OPTIMIZED
+            )
         )
     )
 

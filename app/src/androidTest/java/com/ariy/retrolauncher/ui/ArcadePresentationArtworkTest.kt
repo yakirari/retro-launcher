@@ -14,7 +14,7 @@ import java.security.MessageDigest
 class ArcadePresentationArtworkTest {
     @Test fun everyPackagedFrontMatchesItsManifestForAllLayouts() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val rows = context.assets.open("arcade_presentations/index.json").bufferedReader().use {
+        val rows = context.assets.open("artwork/arcade/presentations/index.json").bufferedReader().use {
             JSONObject(it.readText()).getJSONArray("mappings")
         }
         assertEquals(381, rows.length())
@@ -28,7 +28,7 @@ class ArcadePresentationArtworkTest {
             assertEquals(row.optInt("frontWidth", 460), bounds.outWidth)
             assertEquals(row.optInt("frontHeight", 1000), bounds.outHeight)
             val hash = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
-            assertEquals("arcade_presentations/${row.getString("front")}", path)
+            assertEquals("artwork/arcade/presentations/${row.getString("front")}", path)
             assertEquals("Supplied front bytes: $asset", row.getString("frontSha256"), hash)
         }
         assertNull(ArcadePresentationArtStore.path(context, "unknown.png"))
@@ -37,15 +37,15 @@ class ArcadePresentationArtworkTest {
     @Test fun obsoleteCabinetAssetsAreNotPackaged() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         for (folder in listOf("full_cabinets", "cabinets_mame", "overlay_mame",
-            "arcade_presentations/lit", "arcade_presentations/front-transparent")) {
+            "artwork/arcade/presentations/lit", "artwork/arcade/presentations/front-transparent")) {
             assertTrue("Obsolete artwork: $folder", context.assets.list(folder).isNullOrEmpty())
         }
     }
 
     @Test fun everyFrontHasTransparentSurroundAndUnchangedCabinetPixels() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        for (name in requireNotNull(context.assets.list("arcade_presentations/front"))) {
-            val path = "arcade_presentations/front/$name"
+        for (name in requireNotNull(context.assets.list("artwork/arcade/presentations/front"))) {
+            val path = "artwork/arcade/presentations/front/$name"
             val original = context.assets.open(path).use { BitmapFactory.decodeStream(it) }
             val rendered = requireNotNull(decodeSampledArtworkAsset(context, path))
             assertEquals(original.width, rendered.width)

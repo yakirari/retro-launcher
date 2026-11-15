@@ -179,7 +179,7 @@ fun normalizedArtworkTitle(raw: String?, stripFileExtension: Boolean = false): S
     val trimmed = raw?.trim().orEmpty()
     val normalizedInput = stripUriPathNoise(trimmed)
     val baseName = if (stripFileExtension) {
-        normalizedInput.replace(Regex("""(?i)\.(?:nsp|xci|nsz|xcz|iso|rvz|gcz|ciso|wbfs|cso|chd|cue|bin|pbp|zip|7z|nes|sfc|smc|gba|gbc|gb|nds|3ds|cia|n64|z64|v64|rom|exe|lnk|url|png|jpe?g|webp)$"""), "")
+        normalizedInput        .replace(Regex("""(?i)\.(?:nsp|xci|nsz|xcz|iso|xiso|rvz|gcz|ciso|wbfs|cso|chd|cue|bin|pbp|zip|7z|nes|sfc|smc|gba|gbc|gb|nds|3ds|cia|n64|z64|v64|rom|exe|lnk|url|png|jpe?g|webp)$"""), "")
     } else {
         normalizedInput
     }
@@ -236,6 +236,7 @@ private fun artworkPlatformSearchTerms(rawPlatform: String?): List<String> {
         "Sony PlayStation Portable" -> listOf("PlayStation Portable", "PSP")
         "Sony PlayStation 3" -> listOf("PlayStation 3", "PS3")
         "Sony PlayStation Vita" -> listOf("PlayStation Vita", "PS Vita")
+        "Microsoft Xbox" -> listOf("Xbox")
         "PC Engine / TurboGrafx-16" -> listOf("PC Engine", "TurboGrafx-16")
         "Neo Geo Pocket" -> listOf("Neo Geo Pocket", "NGP")
         "Neo Geo Pocket Color" -> listOf("Neo Geo Pocket Color", "NGPC")

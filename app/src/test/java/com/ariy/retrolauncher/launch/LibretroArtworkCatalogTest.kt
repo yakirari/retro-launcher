@@ -5,6 +5,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LibretroArtworkCatalogTest {
+    @Test fun xboxUsesItsLibretroNamedBoxartDirectory() {
+        assertEquals("Microsoft - Xbox", LibretroArtworkCatalog.systemDirectoryForPlatform("xbox"))
+
+        val entries = LibretroArtworkCatalog.parseDirectoryIndex(
+            """<a href="Halo%20-%20Combat%20Evolved%20(USA).png">Halo - Combat Evolved</a>"""
+        )
+        assertEquals(
+            LibretroArtworkCatalog.artworkMatchKey("Halo - Combat Evolved"),
+            entries.single().matchKey
+        )
+    }
+
     @Test fun nesSelectionIsGenericAndRejectsWrongRegionsPublishersAndUnknownVariants() {
         val entries = LibretroArtworkCatalog.parseDirectoryIndex("""
             <a href="Future%20Game%20(Japan).png">jp</a>

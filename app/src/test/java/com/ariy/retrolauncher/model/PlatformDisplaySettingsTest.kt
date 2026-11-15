@@ -28,6 +28,19 @@ class PlatformDisplaySettingsTest {
             assertEquals(platform, 1f, requireNotNull(NostalgicOverlays.specForPlatform(platform)).gridArtworkScale, 0.001f)
         }
     }
+    @Test fun xboxUsesFullBoxArtInsteadOfTheGenericSquareArtworkWindow() {
+        assertNull(NostalgicOverlays.specForPlatform("Microsoft Xbox"))
+        assertNull(NostalgicOverlays.specForPlatform("xbox"))
+        assertFalse(NostalgicOverlays.hasOverlay("Microsoft Xbox"))
+    }
+    @Test fun gameCubeTileUsesVisibleCaseAspectRatioAndScummVmShowsCuratedArtworkDirectly() {
+        val gameCube = requireNotNull(NostalgicOverlays.specForPlatform("Nintendo GameCube"))
+        assertEquals(375f / 533f, gameCube.croppedAspectRatio, 0.001f)
+
+        assertNull(NostalgicOverlays.specForPlatform("ScummVM"))
+        assertNull(NostalgicOverlays.specForPlatform("scummvm"))
+        assertFalse(requireNotNull(NostalgicOverlays.specForPlatform("DOS Games")).fitCompleteArtwork)
+    }
     @Test fun malformedAndUnsupportedSettingsFallBackSafely() {
         assertTrue(parsePlatformDisplaySettings("bad json").isEmpty())
         val profile = parsePlatformDisplaySettings("""{"MAME Arcade":{"layoutMode":"bad","gridColumns":99,"tileBackgroundMode":"bad"},"unknown":{"gridColumns":1}}""")

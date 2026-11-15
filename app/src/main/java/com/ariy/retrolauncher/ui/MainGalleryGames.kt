@@ -11,3 +11,13 @@ internal fun mainGalleryGames(games: List<GameEntry>, filter: String): List<Game
         it.sourceType == GameSourceType.ACTIVITY || it.platform.equals(GamePlatforms.EMULATORS, ignoreCase = true)
     }
     else games
+
+internal fun searchGalleryGames(games: List<GameEntry>, rawQuery: String): List<GameEntry> {
+    val query = rawQuery.trim()
+    if (query.isEmpty()) return games
+    return games.filter { game ->
+        sequenceOf(game.title, game.subtitle, game.platform, game.genre)
+            .filterNotNull()
+            .any { value -> value.contains(query, ignoreCase = true) }
+    }
+}

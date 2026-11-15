@@ -13,6 +13,16 @@ class PlatformScanRulesTest {
         }
     }
 
+    @Test fun xboxScanImportsOnlySupportedDiscImageFormats() {
+        assertTrue(GameRecommendations.supportsPlatformScan("xbox"))
+        assertTrue(GameRecommendations.supportsFilter("Microsoft Xbox"))
+        assertTrue(hasAllowedRomExtension("Halo.ISO", xboxScanExtensions))
+        assertTrue(hasAllowedRomExtension("Halo.xiso", xboxScanExtensions))
+        for (name in listOf("default.xbe", "game.chd", "game.iso.bak", "readme.txt")) {
+            assertFalse(name, hasAllowedRomExtension(name, xboxScanExtensions))
+        }
+    }
+
     @Test fun onlySupportedExtensionsAreCandidates() {
         val extensions = setOf("sfc", "smc")
         assertTrue(hasAllowedRomExtension("Game.SFC", extensions))

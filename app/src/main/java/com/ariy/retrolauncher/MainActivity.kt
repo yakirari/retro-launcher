@@ -71,6 +71,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -92,7 +94,13 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -135,6 +143,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
@@ -153,6 +162,7 @@ import com.ariy.retrolauncher.ui.libraryDisplayTitle
 import com.ariy.retrolauncher.model.GalleryTileSize
 import com.ariy.retrolauncher.ui.GalleryTileSizeSelector
 import com.ariy.retrolauncher.ui.galleryGridSizing
+import com.ariy.retrolauncher.ui.usesThreeColumnStackedLarge
 import androidx.compose.ui.platform.LocalDensity
 import com.ariy.retrolauncher.ui.responsiveGalleryWidth
 import com.ariy.retrolauncher.ui.artworkContentBounds
@@ -178,6 +188,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ariy.retrolauncher.launch.CustomIntentTemplate
+import com.ariy.retrolauncher.launch.CustomIntentTemplates
+import com.ariy.retrolauncher.launch.EdenPackages
 import com.ariy.retrolauncher.launch.ArtworkCandidate
 import com.ariy.retrolauncher.launch.GameRecommendation
 import com.ariy.retrolauncher.launch.GameRecommendations
@@ -198,8 +210,10 @@ import com.ariy.retrolauncher.launch.findMatchingArcadeOverlayAssetName
 import com.ariy.retrolauncher.launch.isGenericArcadeFallbackAssetName
 import com.ariy.retrolauncher.launch.artworkSearchQuery
 import com.ariy.retrolauncher.model.GameEntry
+import com.ariy.retrolauncher.audio.GameLaunchCuePlayer
 import com.ariy.retrolauncher.model.GameFilters
 import com.ariy.retrolauncher.model.GamePlatforms
+import com.ariy.retrolauncher.ui.usesSquareAppIconTile
 import com.ariy.retrolauncher.model.NostalgicOverlaySpec
 import com.ariy.retrolauncher.model.NostalgicOverlays
 import com.ariy.retrolauncher.model.PlatformSvgIcons
@@ -209,6 +223,8 @@ import com.ariy.retrolauncher.model.LaunchTarget
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect as AndroidRect
 import android.graphics.drawable.Drawable
 import androidx.documentfile.provider.DocumentFile
 import androidx.compose.foundation.text.KeyboardActions
@@ -218,6 +234,7 @@ import java.io.InputStream
 import java.net.URLDecoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -236,6 +253,7 @@ import kotlin.math.sqrt
 private val AppBackgroundColor = Color(0xFF0D1117)
 private const val APP_BACKGROUND_COLOR_ARGB = 0xFF0D1117.toInt()
 private const val FEATURED_GALLERY_CARD_ASPECT_RATIO = 2.5f / 3.5f
+private const val ANDROID_SHORTCUT_GALLERY_MIN_COLUMNS = 4
 private const val NOSTALGIC_OVERLAY_REFERENCE_ASPECT_RATIO = 960f / 768f
 private const val GALLERYSTALGIC_CONTENT_HEIGHT_FRACTION = 0.8f
 private const val GALLERYSTALGIC_CONTENT_MAX_WIDTH_FRACTION = 0.86f
@@ -789,6 +807,16 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
     val launcherResumeNonce by viewModel.launcherResumeNonce.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val launchCuePlayer = remember(context.applicationContext) {
+        GameLaunchCuePlayer(context.applicationContext)
+    }
+    DisposableEffect(launchCuePlayer) {
+        onDispose(launchCuePlayer::release)
+    }
+    val launchGame: (GameEntry) -> Unit = { game ->
+        launchCuePlayer.play(game)
+        viewModel.launch(game)
+    }
     val prefs = remember(context) { context.getSharedPreferences("retro_launcher", Context.MODE_PRIVATE) }
     var gallerySettings by remember(prefs) { mutableStateOf(loadGlobalGallerySettings(prefs)) }
     val updateGallerySettings: (GlobalGallerySettings) -> Unit = { settings ->
@@ -962,8 +990,14 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
         }
     }
     var gameSortOrder by rememberSaveable { mutableStateOf(GameSortOrder.fromStored(prefs.getString("game_sort_order", null))) }
+    var searchExpanded by rememberSaveable { mutableStateOf(false) }
+    var gameSearchQuery by rememberSaveable { mutableStateOf("") }
+    var searchKeyboardVisible by rememberSaveable { mutableStateOf(true) }
+    var searchKeyboardSymbols by rememberSaveable { mutableStateOf(false) }
     val preparedGames = rememberPreparedGames(games, effectiveGenreFilter, gameSortOrder)
-    val visibleGames = preparedGames.games
+    val visibleGames = remember(preparedGames.games, gameSearchQuery) {
+        com.ariy.retrolauncher.ui.searchGalleryGames(preparedGames.games, gameSearchQuery)
+    }
     var skippedRecommendationIds by rememberSaveable(effectiveGenreFilter) {
         mutableStateOf(emptySet<String>())
     }
@@ -1041,7 +1075,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
     ) {
         recommendationAddTileForFilter(effectiveGenreFilter, collectionOptions)
     }
-    val visibleGamesWithRecommendation = remember(visibleGames, activeRecommendationAddTile) {
+    val visibleGamesWithRecommendation = remember(visibleGames, activeRecommendationAddTile, gameSearchQuery) {
         buildList {
             val addTileId = activeRecommendationAddTile?.entry?.id
             addAll(
@@ -1049,7 +1083,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                     addTileId != null && game.id == addTileId
                 }
             )
-            activeRecommendationAddTile?.entry?.let(::add)
+            if (gameSearchQuery.isBlank()) activeRecommendationAddTile?.entry?.let(::add)
         }
     }
     val recommendationId = activeRecommendationTile?.entry?.id
@@ -1281,6 +1315,19 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
 
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                if (searchExpanded && searchKeyboardVisible) {
+                    SearchInputKeyboard(
+                        symbols = searchKeyboardSymbols,
+                        onToggleSymbols = { searchKeyboardSymbols = !searchKeyboardSymbols },
+                        onInput = { gameSearchQuery += it },
+                        onBackspace = {
+                            if (gameSearchQuery.isNotEmpty()) gameSearchQuery = gameSearchQuery.dropLast(1)
+                        },
+                        onDone = { searchKeyboardVisible = false }
+                    )
+                }
+            },
             containerColor = Color.Transparent
         ) { padding ->
             Column(
@@ -1313,6 +1360,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                 configuredRomFolderPath = configuredRomFolderPath,
                 isDefaultLauncher = isDefaultLauncher,
                 editMode = editMode,
+                searchOpen = searchExpanded,
                 launcherLayoutMode = launcherLayoutMode,
                 launcherBackground = launcherBackground,
                 launcherBackgroundOptions = launcherBackgroundOptions,
@@ -1330,6 +1378,18 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                 onConfigureRomFolder = { romFolderPicker.launch(null) },
                 onScanLibrary = { setupOpen = true },
                 onToggleEditMode = { editMode = !editMode },
+                onSearchClick = {
+                    if (searchExpanded) {
+                        searchExpanded = false
+                        gameSearchQuery = ""
+                        searchKeyboardVisible = false
+                        searchKeyboardSymbols = false
+                    } else {
+                        searchExpanded = true
+                        searchKeyboardVisible = true
+                        searchKeyboardSymbols = false
+                    }
+                },
                 onLauncherLayoutModeSelected = { mode ->
                     updateGallerySettings(gallerySettings.selectPreset(mode))
                 },
@@ -1364,6 +1424,53 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                     launcherBackgroundPicker.launch(arrayOf("image/*"))
                 }
             )
+            if (searchExpanded) {
+                OutlinedTextField(
+                    value = gameSearchQuery,
+                    onValueChange = { gameSearchQuery = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Search games") },
+                    singleLine = true,
+                    readOnly = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = null,
+                            tint = Color(0xFF98A2B3)
+                        )
+                    },
+                    trailingIcon = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (gameSearchQuery.isNotEmpty()) {
+                                IconButton(onClick = { gameSearchQuery = "" }) {
+                                    Icon(Icons.Filled.Close, contentDescription = "Clear search")
+                                }
+                            }
+                            IconButton(onClick = { searchKeyboardVisible = !searchKeyboardVisible }) {
+                                Icon(
+                                    imageVector = if (searchKeyboardVisible) {
+                                        Icons.Filled.KeyboardArrowDown
+                                    } else {
+                                        Icons.Filled.KeyboardArrowUp
+                                    },
+                                    contentDescription = if (searchKeyboardVisible) "Hide search keys" else "Show search keys"
+                                )
+                            }
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color(0xFF111927),
+                        unfocusedContainerColor = Color(0xFF111927),
+                        cursorColor = Color(0xFFF2AA4C),
+                        focusedBorderColor = Color(0xFFF2AA4C),
+                        unfocusedBorderColor = Color(0xFF475467),
+                        focusedLabelColor = Color(0xFFF2AA4C),
+                        unfocusedLabelColor = Color(0xFF98A2B3)
+                    )
+                )
+            }
             Spacer(modifier = Modifier.height(12.dp))
             if (!preparedGames.ready && visibleGames.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1374,7 +1481,11 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                     openAddDialog(0, null, null)
                 })
             } else if (visibleGamesWithRecommendation.isEmpty()) {
-                EmptyGenreState(activeGenre = effectiveGenreFilter)
+                if (gameSearchQuery.isNotBlank()) {
+                    EmptySearchState(query = gameSearchQuery, onClear = { gameSearchQuery = "" })
+                } else {
+                    EmptyGenreState(activeGenre = effectiveGenreFilter)
+                }
             } else {
                 Box(modifier = Modifier.fillMaxSize()) {
                     if (isGalleryLayoutMode(launcherLayoutMode)) {
@@ -1395,8 +1506,11 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                             },
                             label = "galleryFilterTransition"
                         ) { activeFilter ->
-                            val filteredGames = if (activeFilter == effectiveGenreFilter) visibleGames
+                            val preparedForFilter = if (activeFilter == effectiveGenreFilter) preparedGames.games
                                 else rememberPreparedGames(games, activeFilter, gameSortOrder).games
+                            val filteredGames = remember(preparedForFilter, gameSearchQuery) {
+                                com.ariy.retrolauncher.ui.searchGalleryGames(preparedForFilter, gameSearchQuery)
+                            }
                             val galleryGames = remember(filteredGames, activeFilter) {
                                 com.ariy.retrolauncher.ui.mainGalleryGames(filteredGames, activeFilter)
                             }
@@ -1414,7 +1528,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                             val galleryRecommendationAddTile = recommendationAddTileForFilter(activeFilter, collectionOptions)
                             val galleryRecommendationId = galleryRecommendationTile?.entry?.id
                             val galleryRecommendationAddId = galleryRecommendationAddTile?.entry?.id
-                            val filteredGamesWithRecommendation = remember(galleryGames, galleryRecommendationTile, galleryRecommendationAddTile) {
+                            val filteredGamesWithRecommendation = remember(galleryGames, galleryRecommendationTile, galleryRecommendationAddTile, gameSearchQuery) {
                                 buildList {
                                     addAll(
                                         galleryGames.filterNot { game ->
@@ -1423,7 +1537,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                         }
                                     )
                                     galleryRecommendationTile?.entry?.let(::add)
-                                    galleryRecommendationAddTile?.entry?.let(::add)
+                                    if (gameSearchQuery.isBlank()) galleryRecommendationAddTile?.entry?.let(::add)
                                 }
                             }
                             GameGallery(
@@ -1455,7 +1569,10 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                 onGenreSelected = { nextFilter, direction -> selectFilter(nextFilter, direction) },
                                 onLaunch = { game ->
                                     if (galleryRecommendationId != null && game.id == galleryRecommendationId) {
-                                        galleryRecommendationTile.recommendation?.let(viewModel::playRecommendation)
+                                        galleryRecommendationTile.recommendation?.let { recommendation ->
+                                            launchCuePlayer.play(recommendation.launchEntry)
+                                            viewModel.playRecommendation(recommendation)
+                                        }
                                     } else if (game.id == galleryRecommendationAddId) {
                                         viewModel.refreshInstalledTargets()
                                         val addPlatformFilter = GamePlatforms.filterLabel(activeFilter)
@@ -1475,7 +1592,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                         if (game.allTargets().size > 1 && game.preferredTarget() == null) {
                                             launchChooserGameId = game.id
                                         } else {
-                                            viewModel.launch(game)
+                                            launchGame(game)
                                         }
                                     }
                                 },
@@ -1565,16 +1682,27 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                     }
                                 }
                         ) {
-                            val tileAspectRatio = remember(stackedMode, visibleGames) {
-                                if (!stackedMode) 1f else visibleGames.minOfOrNull { game ->
+                            val shortcutPlatform = GamePlatforms.normalizeOrNull(effectiveGenreFilter)
+                            val androidShortcutGallery = shortcutPlatform == GamePlatforms.ANDROID ||
+                                shortcutPlatform == GamePlatforms.EMULATORS
+                            val tileAspectRatio = remember(stackedMode, visibleGames, androidShortcutGallery) {
+                                if (androidShortcutGallery || !stackedMode) 1f else visibleGames.minOfOrNull { game ->
                                     if (supportsMameCabinetNostalgia(game.platform)) 0.46f
                                     else NostalgicOverlays.specForPlatform(game.platform)?.croppedAspectRatio ?: (2f / 3f)
                                 } ?: (2f / 3f)
                             }
                             val gridSpacing = if (stackedMode) 4.dp else 10.dp
+                            val threeColumnStackedLarge = stackedMode && tileSize == GalleryTileSize.LARGE &&
+                                visibleGames.isNotEmpty() && visibleGames.all { usesThreeColumnStackedLarge(it.platform) }
                             val sizing = galleryGridSizing(
                                 maxWidth.value, maxHeight.value, tileSize, tileAspectRatio,
-                                gridSpacing.value, LocalDensity.current.density
+                                gridSpacing.value, LocalDensity.current.density,
+                                maximumColumns = if (threeColumnStackedLarge) 3 else null,
+                                minimumColumns = when {
+                                    threeColumnStackedLarge -> 3
+                                    androidShortcutGallery -> ANDROID_SHORTCUT_GALLERY_MIN_COLUMNS
+                                    else -> null
+                                }
                             )
                             val visibleColumns = sizing.columns
                             val tileHeight = sizing.itemHeightDp.dp
@@ -1689,6 +1817,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                             StackedArtworkTile(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                appIconGallery = androidShortcutGallery,
                                                 tileHeight = tileHeight,
                                                 editMode = editMode,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
@@ -1699,7 +1828,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                                     if (draggingId == null && !editMode) {
                                                         if (game.allTargets().size > 1 && game.preferredTarget() == null) {
                                                             launchChooserGameId = game.id
-                                                        } else viewModel.launch(game)
+                                                        } else launchGame(game)
                                                     }
                                                 },
                                                 onEdit = { editGameId = game.id },
@@ -1709,6 +1838,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                             GridNostalgicCard(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                appIconGallery = androidShortcutGallery,
                                                 tileHeight = tileHeight,
                                                 editMode = editMode,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
@@ -1734,12 +1864,15 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                                 recommendationActions = recommendationActions.takeIf { isRecommendation },
                                                 onLaunch = {
                                                     if (isRecommendation) {
-                                                        activeRecommendationTile?.recommendation?.let(viewModel::playRecommendation)
+                                                        activeRecommendationTile?.recommendation?.let { recommendation ->
+                                                            launchCuePlayer.play(recommendation.launchEntry)
+                                                            viewModel.playRecommendation(recommendation)
+                                                        }
                                                     } else if (draggingId == null && !editMode) {
                                                         if (game.allTargets().size > 1 && game.preferredTarget() == null) {
                                                             launchChooserGameId = game.id
                                                         } else {
-                                                            viewModel.launch(game)
+                                                            launchGame(game)
                                                         }
                                                     }
                                                 },
@@ -1754,6 +1887,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                             GameCard(
                                                 game = game,
                                                 columns = visibleColumns,
+                                                appIconGallery = androidShortcutGallery,
                                                 tileHeight = tileHeight,
                                                 editMode = editMode,
                                                 tileBackgroundMode = launcherTileBackgroundMode,
@@ -1776,12 +1910,15 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
                                                 recommendationActions = recommendationActions.takeIf { isRecommendation },
                                                 onLaunch = {
                                                     if (isRecommendation) {
-                                                        activeRecommendationTile?.recommendation?.let(viewModel::playRecommendation)
+                                                        activeRecommendationTile?.recommendation?.let { recommendation ->
+                                                            launchCuePlayer.play(recommendation.launchEntry)
+                                                            viewModel.playRecommendation(recommendation)
+                                                        }
                                                     } else if (draggingId == null && !editMode) {
                                                         if (game.allTargets().size > 1 && game.preferredTarget() == null) {
                                                             launchChooserGameId = game.id
                                                         } else {
-                                                            viewModel.launch(game)
+                                                            launchGame(game)
                                                         }
                                                     }
                                                 },
@@ -1960,6 +2097,7 @@ private fun LauncherScreen(viewModel: LauncherViewModel, session: Long) {
             game = selected,
             onDismiss = { launchChooserGameId = null },
             onLaunch = { target ->
+                launchCuePlayer.play(selected, target)
                 viewModel.launchGroupedTarget(selected, target)
                 launchChooserGameId = null
             }
@@ -1993,6 +2131,7 @@ private fun gameTileSubtitle(game: GameEntry): String? = listOfNotNull(
 private fun HeaderRow(
     tileSize: GalleryTileSize,
     gameSortOrder: GameSortOrder,
+    searchOpen: Boolean,
     onGameSortOrderSelected: (GameSortOrder) -> Unit,
     artworkPlatforms: List<String>,
     artworkRefreshPlatforms: Set<String>,
@@ -2023,6 +2162,7 @@ private fun HeaderRow(
     onConfigureRomFolder: () -> Unit,
     onScanLibrary: () -> Unit,
     onToggleEditMode: () -> Unit,
+    onSearchClick: () -> Unit,
     onLauncherLayoutModeSelected: (String) -> Unit,
     onLauncherBackgroundSelected: (String) -> Unit,
     onLauncherBackgroundAnimationEnabledChanged: (Boolean) -> Unit,
@@ -2079,6 +2219,22 @@ private fun HeaderRow(
                     modifier = headerButtonModifier
                 ) {
                     Text("ROM folder")
+                }
+            }
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF111927),
+                border = BorderStroke(1.dp, Color(0xFF475467))
+            ) {
+                IconButton(
+                    onClick = onSearchClick,
+                    modifier = headerButtonModifier
+                ) {
+                    Icon(
+                        imageVector = if (searchOpen) Icons.Filled.Close else Icons.Filled.Search,
+                        contentDescription = if (searchOpen) "Close search" else "Search games",
+                        tint = Color(0xFF98A2B3)
+                    )
                 }
             }
             Surface(
@@ -2777,6 +2933,132 @@ private fun EmptyGenreState(activeGenre: String) {
     }
 }
 
+@Composable
+private fun EmptySearchState(query: String, onClear: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "No games found",
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Nothing matches \"$query\".",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color(0xFF98A2B3),
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        TextButton(onClick = onClear) {
+            Text("Clear search")
+        }
+    }
+}
+
+@Composable
+private fun SearchInputKeyboard(
+    symbols: Boolean,
+    onToggleSymbols: () -> Unit,
+    onInput: (String) -> Unit,
+    onBackspace: () -> Unit,
+    onDone: () -> Unit
+) {
+    val rows = if (symbols) {
+        listOf(
+            listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
+            listOf("-", "_", ".", ",", ":", ";", "!", "?", "&"),
+            listOf("(", ")", "'", "\"", "/", "+", "=")
+        )
+    } else {
+        listOf(
+            listOf("Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"),
+            listOf("A", "S", "D", "F", "G", "H", "J", "K", "L"),
+            listOf("Z", "X", "C", "V", "B", "N", "M")
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF0D1520))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        rows.forEachIndexed { index, row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (index == 1) Spacer(Modifier.weight(0.5f))
+                if (index == 2) Spacer(Modifier.weight(0.7f))
+                row.forEach { key ->
+                    SearchKeyboardKey(
+                        label = key,
+                        onClick = { onInput(key) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (index == 2) {
+                    SearchKeyboardKey("Del", onBackspace, Modifier.weight(1.6f), emphasized = true)
+                    Spacer(Modifier.weight(0.7f))
+                }
+                if (index == 1) Spacer(Modifier.weight(0.5f))
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SearchKeyboardKey(
+                label = if (symbols) "ABC" else "?123",
+                onClick = onToggleSymbols,
+                modifier = Modifier.weight(1.5f),
+                emphasized = true
+            )
+            SearchKeyboardKey(",", onClick = { onInput(",") }, modifier = Modifier.weight(1f))
+            SearchKeyboardKey("Space", onClick = { onInput(" ") }, modifier = Modifier.weight(4f))
+            SearchKeyboardKey(".", onClick = { onInput(".") }, modifier = Modifier.weight(1f))
+            SearchKeyboardKey("Done", onDone, Modifier.weight(1.5f), emphasized = true)
+        }
+    }
+}
+
+@Composable
+private fun SearchKeyboardKey(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    emphasized: Boolean = false
+) {
+    Surface(
+        modifier = modifier
+            .height(36.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(6.dp),
+        color = if (emphasized) Color(0xFF344054) else Color(0xFF202938)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = label,
+                color = Color.White,
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private const val GAME_LAUNCH_FEEDBACK_DELAY_MS = 180L
+private const val GAME_LAUNCH_FEEDBACK_RESET_DELAY_MS = 700L
+private const val GAME_LAUNCH_FEEDBACK_ANIMATION_MS = 120
+private const val GAME_LAUNCH_FEEDBACK_SCALE = 1.08f
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GameGallery(
@@ -2804,6 +3086,8 @@ private fun GameGallery(
     onEdit: (GameEntry) -> Unit
 ) {
     val context = LocalContext.current
+    val appIconGallery = GamePlatforms.normalizeOrNull(activePlatformFilter) in
+        setOf(GamePlatforms.ANDROID, GamePlatforms.EMULATORS)
     val nostalgicModeEnabled = isNostalgicLayoutMode(launcherLayoutMode)
     val shelfNostalgicModeEnabled = isShelfNostalgicLayoutMode(launcherLayoutMode)
     val sameNostalgicCanvasEnabled = usesSameNostalgicCanvas(launcherLayoutMode)
@@ -2837,6 +3121,30 @@ private fun GameGallery(
     val focusedIndex = rawFocusedIndex.coerceIn(0, games.lastIndex.coerceAtLeast(0))
     val recommendationId = recommendationTile?.entry?.id
     val recommendationAddId = recommendationAddTile?.entry?.id
+    var launchFeedbackGameId by remember(currentFilter) { mutableStateOf<String?>(null) }
+    var launchFeedbackJob by remember { mutableStateOf<Job?>(null) }
+    LaunchedEffect(currentFilter) {
+        launchFeedbackJob?.cancel()
+        launchFeedbackJob = null
+    }
+    val launchWithFeedback: (GameEntry) -> Unit = { game ->
+        if (game.id == recommendationAddId) {
+            launchFeedbackJob?.cancel()
+            launchFeedbackGameId = null
+            onLaunch(game)
+        } else {
+            launchFeedbackJob?.cancel()
+            launchFeedbackGameId = game.id
+            launchFeedbackJob = galleryScope.launch {
+                delay(GAME_LAUNCH_FEEDBACK_DELAY_MS)
+                onLaunch(game)
+                delay(GAME_LAUNCH_FEEDBACK_RESET_DELAY_MS)
+                if (launchFeedbackGameId == game.id) {
+                    launchFeedbackGameId = null
+                }
+            }
+        }
+    }
     val recommendationPreview = rememberRecommendationPreviewBitmap(recommendationTile?.recommendation?.previewAssetPath)
     val selectedRecommendationActionKey: RecommendationActionKey? = null
     LaunchedEffect(currentFilter, games.size, launcherResumeNonce) {
@@ -2918,7 +3226,7 @@ private fun GameGallery(
                 if (isRecommendationActivateKey(event.key)) {
                     val focusedGame = games.getOrNull(focusedIndex) ?: return@onPreviewKeyEvent false
                     if (event.type == KeyEventType.KeyUp) {
-                        onLaunch(focusedGame)
+                        launchWithFeedback(focusedGame)
                     }
                     return@onPreviewKeyEvent true
                 }
@@ -3128,6 +3436,15 @@ private fun GameGallery(
                 val game = games[index]
                 val isRecommendation = game.id == recommendationId
                 val isRecommendationAdd = game.id == recommendationAddId
+                val launchFeedbackScale by animateFloatAsState(
+                    targetValue = if (launchFeedbackGameId == game.id) GAME_LAUNCH_FEEDBACK_SCALE else 1f,
+                    animationSpec = tween(durationMillis = GAME_LAUNCH_FEEDBACK_ANIMATION_MS),
+                    label = "gameLaunchFeedbackScale"
+                )
+                val launchFeedbackModifier = Modifier.graphicsLayer {
+                    scaleX = launchFeedbackScale
+                    scaleY = launchFeedbackScale
+                }
                 val overlayPlatform = filterOverlayPlatform ?: game.platform
                 val overlaySpec = if (nostalgicMode) NostalgicOverlays.specForPlatform(overlayPlatform) else null
                 val mameCabinetRenderData = if (nostalgicMode) {
@@ -3241,9 +3558,9 @@ private fun GameGallery(
                                 selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                     isRecommendation && !isRecommendationLoading && index == focusedIndex
                                 },
-                                onLaunch = { onLaunch(game) },
+                                onLaunch = { launchWithFeedback(game) },
                                 onEdit = { onEdit(game) },
-                                modifier = Modifier.width(overlayItemWidth)
+                                modifier = Modifier.width(overlayItemWidth).then(launchFeedbackModifier)
                             )
                         }
                     } else {
@@ -3285,13 +3602,13 @@ private fun GameGallery(
                                 selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                     isRecommendation && !isRecommendationLoading && index == focusedIndex
                                 },
-                                onLaunch = { onLaunch(game) },
+                                onLaunch = { launchWithFeedback(game) },
                                 onEdit = { onEdit(game) },
-                                modifier = if (mixedNostalgicMode) {
+                                modifier = (if (mixedNostalgicMode) {
                                     Modifier.width(overlayItemWidth)
                                 } else {
                                     Modifier.fillMaxWidth()
-                                }
+                                }).then(launchFeedbackModifier)
                             )
                         }
                     }
@@ -3334,14 +3651,14 @@ private fun GameGallery(
                                 selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                     isRecommendation && !isRecommendationLoading && index == focusedIndex
                                 },
-                                onLaunch = { onLaunch(game) },
+                                onLaunch = { launchWithFeedback(game) },
                                 onEdit = { onEdit(game) },
-                                modifier = Modifier.width(overlayItemWidth)
+                                modifier = Modifier.width(overlayItemWidth).then(launchFeedbackModifier)
                             )
                         }
                     } else {
                         Box(
-                            modifier = if (mixedNostalgicMode) {
+                            modifier = (if (mixedNostalgicMode) {
                                 Modifier
                                     .width(overlayItemWidth)
                                     .padding(top = 20.dp, bottom = 12.dp)
@@ -3349,7 +3666,7 @@ private fun GameGallery(
                                 Modifier
                                     .fillParentMaxWidth(nostalgicItemWidthFraction)
                                     .padding(top = 8.dp, bottom = 8.dp)
-                            },
+                            }).then(launchFeedbackModifier),
                             contentAlignment = Alignment.Center
                         ) {
                             NostalgicGalleryItem(
@@ -3382,7 +3699,7 @@ private fun GameGallery(
                                 selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                     isRecommendation && !isRecommendationLoading && index == focusedIndex
                                 },
-                                onLaunch = { onLaunch(game) },
+                                onLaunch = { launchWithFeedback(game) },
                                 onEdit = { onEdit(game) },
                                 modifier = if (mixedNostalgicMode) {
                                     Modifier.width(overlayItemWidth)
@@ -3398,6 +3715,7 @@ private fun GameGallery(
                             GameCard(
                                 game = game,
                                 columns = tileSizeColumns,
+                                appIconGallery = appIconGallery,
                                 editMode = editMode,
                                 tileBackgroundMode = launcherTileBackgroundMode,
                                 shelfMode = true,
@@ -3418,9 +3736,9 @@ private fun GameGallery(
                                 selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                     isRecommendation && index == focusedIndex
                                 },
-                                onLaunch = { onLaunch(game) },
+                                onLaunch = { launchWithFeedback(game) },
                                 onEdit = { onEdit(game) },
-                                modifier = Modifier.width(shelfstalgicLayout.width)
+                                modifier = Modifier.width(shelfstalgicLayout.width).then(launchFeedbackModifier)
                             )
                         }
                     } else {
@@ -3443,6 +3761,7 @@ private fun GameGallery(
                         GameCard(
                             game = game,
                             columns = tileSizeColumns,
+                            appIconGallery = appIconGallery,
                             editMode = editMode,
                             tileBackgroundMode = launcherTileBackgroundMode,
                             isArtworkLoading = isArtworkLoading,
@@ -3461,7 +3780,7 @@ private fun GameGallery(
                             selectedRecommendationActionKey = selectedRecommendationActionKey.takeIf {
                                 isRecommendation && index == focusedIndex
                             },
-                            onLaunch = { onLaunch(game) },
+                            onLaunch = { launchWithFeedback(game) },
                             onEdit = { onEdit(game) },
                             modifier = Modifier
                                 .width(if (mixedNostalgicMode) mixedNostalgicFallbackWidth else cardWidth)
@@ -3473,6 +3792,7 @@ private fun GameGallery(
                                     this.alpha = alpha
                                     this.translationY = translationY
                                 }
+                                .then(launchFeedbackModifier)
                         )
                     }
                 }
@@ -4487,6 +4807,14 @@ private fun GameEntry.matchesPlatformFilter(filter: String): Boolean =
         GamePlatforms.matchesFilter(platform, filter)
     }
 
+private fun GameEntry.prefersInstalledAppIcon(): Boolean =
+    sourceType == GameSourceType.ACTIVITY &&
+        (imageUri.isNullOrBlank() ||
+            resolveArtworkSourceUri(imageUri).lastPathSegment == "$id-autofill.png")
+
+private fun GameEntry.usesAppIconTile(): Boolean =
+    sourceType == GameSourceType.ACTIVITY || usesSquareAppIconTile(platform)
+
 private fun GameEntry.hasPendingArtworkBadge(
     artworkLoading: Set<String>,
     artworkPending: Set<String>,
@@ -4678,6 +5006,7 @@ private fun rememberShelfstalgicItemLayout(
 private fun GameCard(
     game: GameEntry,
     columns: Int,
+    appIconGallery: Boolean = false,
     editMode: Boolean,
     tileBackgroundMode: String,
     tileHeight: Dp? = null,
@@ -4698,14 +5027,22 @@ private fun GameCard(
     onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val prefersInstalledAppIcon = game.prefersInstalledAppIcon()
+    val usesAppIconTile = appIconGallery || game.usesAppIconTile()
     val image = previewImage ?: rememberDecodedBitmap(game.imageUri)
+    val iconArtwork = rememberNormalizedIconArtwork(image, usesAppIconTile)
+    val installedAppIcon = if (game.sourceType == GameSourceType.ACTIVITY) {
+        rememberPackageIconBitmap(game.packageName)
+    } else {
+        null
+    }
     val showText = if (shelfMode) false else columns < 8 || isRecommendation
     val showSubtitle = showText && !shelfCompactMode
     val grayscaleFilter = remember {
         ColorMatrix().apply { setToSaturation(0f) }
     }
     val shapeModifier = tileHeight?.let { Modifier.height(it) } ?: Modifier.aspectRatio(
-        if (game.platform.equals(GamePlatforms.ANDROID, ignoreCase = true) || (!shelfMode && !showText)) 1f
+        if (usesAppIconTile || (!shelfMode && !showText)) 1f
         else FEATURED_GALLERY_CARD_ASPECT_RATIO
     )
     val glossyTileBackground = isGlossyTileBackgroundMode(tileBackgroundMode)
@@ -4771,12 +5108,51 @@ private fun GameCard(
                         .background(artworkBackground)
                 ) {
                     when {
+                        prefersInstalledAppIcon && installedAppIcon != null -> Image(
+                            painter = BitmapPainter(installedAppIcon),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
+                        )
+
+                        usesAppIconTile && iconArtwork != null -> Image(
+                            painter = BitmapPainter(iconArtwork),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
+                        )
+
                         image != null -> CoverArtwork(
                             image = image,
                             contentDescription = game.title,
                             colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                             alpha = if (isRecommendation) 0.76f else 1f,
                             modifier = Modifier.fillMaxSize()
+                        )
+
+                        installedAppIcon != null -> Image(
+                            painter = BitmapPainter(installedAppIcon),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
                         )
 
                         else -> Image(
@@ -4976,6 +5352,7 @@ private fun GridstalgicOverlayFrame(
 internal fun StackedArtworkTile(
     game: GameEntry,
     columns: Int,
+    appIconGallery: Boolean = false,
     editMode: Boolean = false,
     tileBackgroundMode: String = "transparent",
     tileHeight: Dp? = null,
@@ -4988,6 +5365,7 @@ internal fun StackedArtworkTile(
 ) = GridNostalgicCard(
     game = game, columns = columns, editMode = editMode,
     tileBackgroundMode = tileBackgroundMode, normalizeCanvasSize = true, stacked = true,
+    appIconGallery = appIconGallery,
     isArtworkLoading = isArtworkLoading, isArtworkPending = isArtworkPending, topTenRank = topTenRank,
     onLaunch = onLaunch, onEdit = onEdit, tileHeight = tileHeight, modifier = modifier
 )
@@ -4997,6 +5375,7 @@ internal fun StackedArtworkTile(
 internal fun GridNostalgicCard(
     game: GameEntry,
     columns: Int,
+    appIconGallery: Boolean = false,
     editMode: Boolean,
     tileBackgroundMode: String,
     normalizeCanvasSize: Boolean,
@@ -5018,19 +5397,33 @@ internal fun GridNostalgicCard(
     onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val platformOverlaySpec = NostalgicOverlays.specForPlatform(game.platform)
+    val prefersInstalledAppIcon = game.prefersInstalledAppIcon()
+    val appIconTile = appIconGallery || game.usesAppIconTile()
+    val installedAppIcon = if (game.sourceType == GameSourceType.ACTIVITY) {
+        rememberPackageIconBitmap(game.packageName)
+    } else {
+        null
+    }
+    val presentationPlatform = if (game.sourceType == GameSourceType.ACTIVITY) {
+        com.ariy.retrolauncher.launch.standaloneActivityPlatform(game.packageName)
+    } else {
+        game.platform
+    }
+    val platformOverlaySpec = if (appIconTile) null else NostalgicOverlays.specForPlatform(presentationPlatform)
     val nostalgicImage = if (platformOverlaySpec != null) {
         val cover = rememberNostalgicArtworkBitmap(game.imageUri, platformOverlaySpec) ?: previewImage
-        val label = if (com.ariy.retrolauncher.model.CartridgeLabelSettings.supportsPlatform(game.platform) && game.cartridgeLabelUri != null) {
+        val label = if (com.ariy.retrolauncher.model.CartridgeLabelSettings.supportsPlatform(presentationPlatform) && game.cartridgeLabelUri != null) {
             com.ariy.retrolauncher.ui.rememberHandheldLabelSource(game.cartridgeLabelUri)
         } else null
         com.ariy.retrolauncher.ui.rememberHandheldLabel(game, platformOverlaySpec, label ?: cover, label != null)
     } else {
         null
     }
-    val overlaySpec = NostalgicOverlays.specForArtwork(
-        game.platform, nostalgicImage?.let { it.width.toFloat() / it.height }
-    ) ?: platformOverlaySpec
+    val overlaySpec = if (appIconTile) null else {
+        NostalgicOverlays.specForArtwork(
+            presentationPlatform, nostalgicImage?.let { it.width.toFloat() / it.height }
+        ) ?: platformOverlaySpec
+    }
     val defaultImage = if (platformOverlaySpec == null) {
         previewImage ?: rememberDecodedBitmap(game.imageUri)
     } else {
@@ -5040,25 +5433,30 @@ internal fun GridNostalgicCard(
         rememberNostalgicOverlayRenderData(
             overlaySpec = it,
             normalizeCanvasSize = normalizeCanvasSize,
-            shellColor = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
+            shellColor = if (com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(presentationPlatform)) {
                 com.ariy.retrolauncher.ui.rememberHandheldShellColor(game, nostalgicImage)
             } else com.ariy.retrolauncher.launch.SnesCartridgeScans.shellColor(game)
         )
     }
-    val mameCabinetRenderData = rememberMameNostalgicCabinetRenderData(
-        game = game
-    )
+    val mameCabinetRenderData = if (appIconTile) {
+        null
+    } else {
+        rememberMameNostalgicCabinetRenderData(game = game)
+    }
+    val iconArtwork = rememberNormalizedIconArtwork(defaultImage, appIconTile)
     val platformBadge = rememberPlatformBadgeBitmap(
         showBadge = nostalgicImage == null && defaultImage == null,
-        platform = game.platform
+        platform = presentationPlatform
     )
     val showText = (!stacked && columns < 8) || isRecommendation
     val showSubtitle = showText
     val grayscaleFilter = rememberRecommendationGrayscaleFilter()
     val shapeModifier = if (tileHeight != null) {
         Modifier.height(tileHeight)
+    } else if (appIconTile) {
+        Modifier.aspectRatio(1f)
     } else if (stacked) {
-        Modifier.aspectRatio(if (supportsMameCabinetNostalgia(game.platform)) 0.46f
+        Modifier.aspectRatio(if (supportsMameCabinetNostalgia(presentationPlatform)) 0.46f
             else overlayRenderData?.aspectRatio ?: overlaySpec?.aspectRatio ?: (2f / 3f))
     } else if (columns == 1) {
         Modifier.aspectRatio(FEATURED_GALLERY_CARD_ASPECT_RATIO)
@@ -5115,6 +5513,19 @@ internal fun GridNostalgicCard(
                         .background(artworkBackground)
                 ) {
                     when {
+                        prefersInstalledAppIcon && installedAppIcon != null -> Image(
+                            painter = BitmapPainter(installedAppIcon),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
+                        )
+
                         mameCabinetRenderData != null -> {
                             GridstalgicOverlayFrame(
                                 itemAspectRatio = mameCabinetRenderData.aspectRatio,
@@ -5191,7 +5602,7 @@ internal fun GridNostalgicCard(
                                             painter = BitmapPainter(nostalgicImage),
                                             contentDescription = game.title,
                                             alignment = if (overlaySpec.alignCompleteArtworkToTop) Alignment.TopCenter else Alignment.Center,
-                                            contentScale = if (overlaySpec.fitCompleteArtwork || com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(game.platform)) {
+                                            contentScale = if (overlaySpec.fitCompleteArtwork || com.ariy.retrolauncher.model.HandheldCartridgeSettings.supportsPlatform(presentationPlatform)) {
                                                 ContentScale.Fit
                                             } else if (overlaySpec.fitArtworkToWindow) {
                                                 ContentScale.FillWidth
@@ -5215,7 +5626,7 @@ internal fun GridNostalgicCard(
                                             if (platformBadge != null) {
                                                 Image(
                                                     painter = BitmapPainter(platformBadge),
-                                                    contentDescription = game.platform,
+                                                    contentDescription = presentationPlatform,
                                                     contentScale = ContentScale.Fit,
                                                     colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                                                     modifier = Modifier
@@ -5237,7 +5648,7 @@ internal fun GridNostalgicCard(
 
                                 Image(
                                     painter = BitmapPainter(overlayRenderData.overlayBitmap),
-                                    contentDescription = game.platform,
+                                    contentDescription = presentationPlatform,
                                     contentScale = ContentScale.Fit,
                                     colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                                     modifier = Modifier
@@ -5249,12 +5660,38 @@ internal fun GridNostalgicCard(
                             }
                         }
 
+                        appIconTile && iconArtwork != null -> Image(
+                            painter = BitmapPainter(iconArtwork),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
+                        )
+
                         defaultImage != null -> CoverArtwork(
                             image = defaultImage,
                             contentDescription = game.title,
                             colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
                             alpha = if (isRecommendation) 0.76f else 1f,
                             modifier = Modifier.fillMaxSize()
+                        )
+
+                        installedAppIcon != null -> Image(
+                            painter = BitmapPainter(installedAppIcon),
+                            contentDescription = "${game.title} app icon",
+                            contentScale = ContentScale.Fit,
+                            colorFilter = if (isRecommendation) ColorFilter.colorMatrix(grayscaleFilter) else null,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(if (columns == 1) 120.dp else 72.dp)
+                                .graphicsLayer {
+                                    alpha = if (isRecommendation) 0.76f else 1f
+                                }
                         )
 
                         else -> Image(
@@ -6716,7 +7153,8 @@ private fun normalizeBadgeSvgColors(platform: String?, svg: String): String {
         "Game Boy Color",
         "Nintendo Entertainment System",
         "Nintendo 64",
-        "Super Nintendo"
+        "Super Nintendo",
+        "Microsoft Xbox"
     )
     if (preserveOriginalColors.any { it.equals(platform, ignoreCase = true) }) {
         return svg
@@ -7688,6 +8126,62 @@ internal fun buildGameSystemEmulatorOptions(
                 )
             }
         }
+    }
+}
+
+private data class EditGameEmulatorPreset(
+    val key: String,
+    val label: String,
+    val packageName: String,
+    val activityName: String,
+    val action: String
+)
+
+private fun buildEditGameEmulatorPresets(
+    platform: String?,
+    currentPackageName: String,
+    currentActivityName: String,
+    currentAction: String,
+    templates: List<CustomIntentTemplate>
+): List<EditGameEmulatorPreset> {
+    val normalizedPlatform = GamePlatforms.normalizeOrNull(platform)
+    val knownPresets = buildGameSystemEmulatorOptions(templates)
+        .filter { option ->
+            if (normalizedPlatform != null) {
+                GamePlatforms.normalizeOrNull(option.platform) == normalizedPlatform
+            } else {
+                templates.getOrNull(option.templateIndex)?.packageName == currentPackageName
+            }
+        }
+        .distinctBy { it.templateIndex }
+        .mapNotNull { option ->
+            val draft = resolveEmulatorSelectionDraft(templates, option) ?: return@mapNotNull null
+            EditGameEmulatorPreset(
+                key = option.key,
+                label = draft.template.label.removeSuffix(" preset"),
+                packageName = draft.packageName,
+                activityName = draft.activityName,
+                action = draft.action
+            )
+        }
+        .distinctBy { it.key }
+    val currentConfigurationIsKnown = knownPresets.any { preset ->
+        preset.packageName == currentPackageName &&
+            preset.activityName == currentActivityName &&
+            preset.action == currentAction
+    }
+    return if (currentConfigurationIsKnown) {
+        knownPresets
+    } else {
+        listOf(
+            EditGameEmulatorPreset(
+                key = "current-configuration",
+                label = "Current launch configuration",
+                packageName = currentPackageName,
+                activityName = currentActivityName,
+                action = currentAction
+            )
+        ) + knownPresets
     }
 }
 
@@ -8764,11 +9258,12 @@ private fun CustomIntentEditor(
                     label = "Activity class",
                     help = "Optional. Only needed when the emulator requires a specific screen/class."
                 )
-                LabeledField(
+                IntentActionPickerField(
                     value = action,
                     onValueChange = { action = it },
-                    label = "Intent action",
-                    help = "Common values: android.intent.action.MAIN or android.intent.action.VIEW."
+                    platform = selectedSystemChoice?.platform,
+                    templates = templates,
+                    help = "Choose a known action or type a custom intent action."
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     RetroTextField(
@@ -9202,14 +9697,79 @@ private fun rememberPackageIconBitmap(packageName: String?): ImageBitmap? {
     return bitmap
 }
 
+@Composable
+private fun rememberNormalizedIconArtwork(image: ImageBitmap?, enabled: Boolean): ImageBitmap? {
+    val normalized by produceState(initialValue = image, image, enabled) {
+        value = if (enabled && image != null) {
+            withContext(Dispatchers.IO) { image.normalizeTransparentIconBounds() }
+        } else {
+            image
+        }
+    }
+    return normalized
+}
+
+private const val APP_ICON_BITMAP_SIZE = 128
+
 private fun Drawable.toImageBitmap(): ImageBitmap {
-    val width = intrinsicWidth.takeIf { it > 0 } ?: 96
-    val height = intrinsicHeight.takeIf { it > 0 } ?: 96
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(APP_ICON_BITMAP_SIZE, APP_ICON_BITMAP_SIZE, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
-    setBounds(0, 0, canvas.width, canvas.height)
-    draw(canvas)
-    return bitmap.asImageBitmap()
+    val originalBounds = AndroidRect(bounds)
+    try {
+        setBounds(0, 0, canvas.width, canvas.height)
+        draw(canvas)
+    } finally {
+        bounds = originalBounds
+    }
+    val normalized = bitmap.normalizeTransparentIconBounds()
+    if (normalized !== bitmap) bitmap.recycle()
+    return normalized.asImageBitmap()
+}
+
+private fun ImageBitmap.normalizeTransparentIconBounds(): ImageBitmap {
+    val source = asAndroidBitmap()
+    val normalized = source.normalizeTransparentIconBounds()
+    return if (normalized === source) this else normalized.asImageBitmap()
+}
+
+private fun Bitmap.normalizeTransparentIconBounds(): Bitmap {
+    val pixels = IntArray(width * height)
+    getPixels(pixels, 0, width, 0, 0, width, height)
+    var left = width
+    var top = height
+    var right = -1
+    var bottom = -1
+    pixels.forEachIndexed { index, color ->
+        if (color ushr 24 > 16) {
+            val x = index % width
+            val y = index / width
+            left = minOf(left, x)
+            top = minOf(top, y)
+            right = maxOf(right, x)
+            bottom = maxOf(bottom, y)
+        }
+    }
+    if (right < left || bottom < top || (left == 0 && top == 0 && right == width - 1 && bottom == height - 1)) {
+        return this
+    }
+
+    val sourceRect = AndroidRect(left, top, right + 1, bottom + 1)
+    val contentWidth = sourceRect.width()
+    val contentHeight = sourceRect.height()
+    val scale = minOf(width / contentWidth.toFloat(), height / contentHeight.toFloat())
+    val destinationWidth = (contentWidth * scale).roundToInt().coerceAtLeast(1)
+    val destinationHeight = (contentHeight * scale).roundToInt().coerceAtLeast(1)
+    val destinationLeft = (width - destinationWidth) / 2
+    val destinationTop = (height - destinationHeight) / 2
+    val destinationRect = AndroidRect(
+        destinationLeft,
+        destinationTop,
+        destinationLeft + destinationWidth,
+        destinationTop + destinationHeight
+    )
+    val normalized = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    Canvas(normalized).drawBitmap(this, sourceRect, destinationRect, Paint(Paint.FILTER_BITMAP_FLAG))
+    return normalized
 }
 
 private fun initialRomPickerUri(
@@ -9247,7 +9807,7 @@ private fun String?.isScummVmPackageName(): Boolean =
     this == "org.scummvm.scummvm"
 
 private fun String?.isEdenPackageName(): Boolean =
-    this == EDEN_PACKAGE_NAME
+    EdenPackages.isEdenPackage(this)
 
 private fun String?.isGameNativePackageName(): Boolean =
     this == GAMENATIVE_PACKAGE_NAME
@@ -9369,7 +9929,6 @@ private fun extractEdenTitleId(rawValue: String?): String? {
 }
 
 private const val SCUMMVM_EXTRA_GAME_ID = "scummvmGameId"
-private const val EDEN_PACKAGE_NAME = "dev.eden.eden_emulator"
 private const val EDEN_EXTRA_TITLE_ID = "title_id"
 private const val RETRO_LAUNCHER_EDEN_RESOLUTION_SETUP = "_retroLauncherEdenResolutionSetup"
 private val EDEN_TITLE_ID_REGEX = Regex("""0100[0-9A-Fa-f]{12}""")
@@ -9535,8 +10094,10 @@ private fun RetroTextField(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     singleLine: Boolean = false,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-    keyboardActions: KeyboardActions? = null
+    keyboardActions: KeyboardActions? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
@@ -9546,7 +10107,9 @@ private fun RetroTextField(
         label = label,
         modifier = modifier,
         singleLine = singleLine,
+        enabled = enabled,
         keyboardOptions = keyboardOptions,
+        trailingIcon = trailingIcon,
         keyboardActions = keyboardActions ?: KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Next) },
             onDone = { focusManager.clearFocus(); keyboard?.hide() },
@@ -9566,6 +10129,145 @@ private fun RetroTextField(
             unfocusedLabelColor = Color(0xFF98A2B3)
         )
     )
+}
+
+@Composable
+private fun LaunchValuePickerField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    suggestions: List<String>,
+    enabled: Boolean = true,
+    help: String? = null
+) {
+    var expanded by remember(label, suggestions) { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Box {
+            RetroTextField(
+                value = value,
+                onValueChange = onValueChange,
+                label = { Text(label) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                enabled = enabled,
+                trailingIcon = if (enabled && suggestions.isNotEmpty()) {{
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDropDown,
+                            contentDescription = "Show $label options"
+                        )
+                    }
+                }} else null
+            )
+            DropdownMenu(
+                expanded = enabled && expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.heightIn(max = 320.dp)
+            ) {
+                suggestions.forEach { suggestion ->
+                    DropdownMenuItem(
+                        text = { Text(suggestion) },
+                        onClick = {
+                            onValueChange(suggestion)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+        if (!help.isNullOrBlank()) {
+            Text(
+                text = help,
+                color = Color(0xFF98A2B3),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun IntentActionPickerField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    platform: String?,
+    templates: List<CustomIntentTemplate>,
+    help: String? = null
+) {
+    LaunchValuePickerField(
+        label = "Intent action",
+        value = value,
+        onValueChange = onValueChange,
+        suggestions = knownIntentActionsForPlatform(platform, templates),
+        help = help
+    )
+}
+
+@Composable
+private fun EmulatorPresetPicker(
+    presets: List<EditGameEmulatorPreset>,
+    selectedPreset: EditGameEmulatorPreset,
+    onSelect: (EditGameEmulatorPreset) -> Unit
+) {
+    var expanded by remember(presets) { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("Emulator", color = Color.White, style = MaterialTheme.typography.labelLarge)
+        Box {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedPreset.label,
+                        modifier = Modifier.weight(1f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "Choose emulator"
+                    )
+                }
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.heightIn(max = 320.dp)
+            ) {
+                presets.forEach { preset ->
+                    DropdownMenuItem(
+                        text = { Text(preset.label) },
+                        onClick = {
+                            onSelect(preset)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun knownIntentActionsForPlatform(
+    platform: String?,
+    templates: List<CustomIntentTemplate>
+): List<String> {
+    val normalizedPlatform = GamePlatforms.normalizeOrNull(platform)
+    val platformActions = if (normalizedPlatform == null) {
+        emptyList()
+    } else {
+        templates.asSequence()
+            .filter { templateSystemPlatform(it).equals(normalizedPlatform, ignoreCase = true) }
+            .map { it.action }
+            .filter(String::isNotBlank)
+            .toList()
+    }
+    return (platformActions + listOf(Intent.ACTION_VIEW, Intent.ACTION_MAIN))
+        .distinct()
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -9608,6 +10310,55 @@ private fun EditGameDialog(
     var edenResolutionSetup by rememberSaveable(game.id, primaryTargetKey, game.extrasJson) { mutableStateOf(readEdenResolutionSetupFromExtras(game.extrasJson)) }
     var gameNativeAppId by rememberSaveable(game.id, primaryTargetKey, game.extrasJson) { mutableStateOf(readGameNativeAppIdFromExtras(game.extrasJson)) }
     var gameNativeGameSource by rememberSaveable(game.id, primaryTargetKey, game.extrasJson) { mutableStateOf(readGameNativeSourceFromExtras(game.extrasJson)) }
+    val launchEditorPlatform = GamePlatforms.normalizeOrNull(game.platform)
+        ?: GamePlatforms.inferFromPackageName(game.packageName)
+        ?: GamePlatforms.inferFromUriString(game.intentDataUri)
+    val emulatorPresets = remember(game.id, primaryTargetKey, launchEditorPlatform) {
+        buildEditGameEmulatorPresets(
+            platform = launchEditorPlatform,
+            currentPackageName = game.packageName.orEmpty(),
+            currentActivityName = game.activityName.orEmpty(),
+            currentAction = game.intentAction.orEmpty(),
+            templates = CustomIntentTemplates.all
+        )
+    }
+    val initialEmulatorPresetKey = remember(emulatorPresets) {
+        emulatorPresets.firstOrNull { preset ->
+            preset.packageName == game.packageName.orEmpty() &&
+                preset.activityName == game.activityName.orEmpty() &&
+                preset.action == game.intentAction.orEmpty()
+        }?.key ?: emulatorPresets.first().key
+    }
+    var selectedEmulatorPresetKey by rememberSaveable(game.id, primaryTargetKey) {
+        mutableStateOf(initialEmulatorPresetKey)
+    }
+    var advancedLaunchEditing by rememberSaveable(game.id, primaryTargetKey) {
+        mutableStateOf(false)
+    }
+    val selectedEmulatorPreset = emulatorPresets.firstOrNull { it.key == selectedEmulatorPresetKey }
+        ?: emulatorPresets.first()
+    val selectEmulatorPreset: (EditGameEmulatorPreset) -> Unit = { preset ->
+        selectedEmulatorPresetKey = preset.key
+        packageName = preset.packageName
+        activityName = preset.activityName
+        action = preset.action
+    }
+    val packageNameSuggestions = remember(emulatorPresets) {
+        emulatorPresets.map { it.packageName }.filter(String::isNotBlank).distinct()
+    }
+    val activityNameSuggestions = remember(emulatorPresets, packageName) {
+        val matchingPackage = emulatorPresets.filter { it.packageName == packageName }
+        (matchingPackage.ifEmpty { emulatorPresets })
+            .map { it.activityName }
+            .filter(String::isNotBlank)
+            .distinct()
+    }
+    val actionSuggestions = remember(emulatorPresets, launchEditorPlatform) {
+        (
+            emulatorPresets.map { it.action } +
+                knownIntentActionsForPlatform(launchEditorPlatform, CustomIntentTemplates.all)
+            ).filter(String::isNotBlank).distinct()
+    }
     var imageUrl by rememberSaveable(game.id) { mutableStateOf("") }
     val dataUriPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         if (!sessionActive()) return@rememberLauncherForActivityResult
@@ -9677,6 +10428,12 @@ private fun EditGameDialog(
                         packageName = draft.packageName
                         activityName = draft.activityName
                         action = draft.action
+                        emulatorPresets.firstOrNull { preset ->
+                            preset.packageName == draft.packageName &&
+                                preset.activityName == draft.activityName &&
+                                preset.action == draft.action
+                        }?.let { selectedEmulatorPresetKey = it.key }
+                        advancedLaunchEditing = false
                         mimeType = draft.mimeType
                         categories = draft.categories
                         extras = if (draft.packageName == "org.scummvm.scummvm") {
@@ -9775,12 +10532,47 @@ private fun EditGameDialog(
 
                     1 -> {
                         HelpCard(
-                            title = "Advanced launch details",
-                            body = "Adjust package, action, URI, and extras for the primary target."
+                            title = "Emulator launch",
+                            body = "Choose an emulator to fill in its package, activity, and intent action. Enable Advanced to edit those fields."
                         )
-                        RetroTextField(value = packageName, onValueChange = { packageName = it }, label = { Text("Package name") }, modifier = Modifier.fillMaxWidth())
-                        RetroTextField(value = activityName, onValueChange = { activityName = it }, label = { Text("Activity class") }, modifier = Modifier.fillMaxWidth())
-                        RetroTextField(value = action, onValueChange = { action = it }, label = { Text("Intent action") }, modifier = Modifier.fillMaxWidth())
+                        EmulatorPresetPicker(
+                            presets = emulatorPresets,
+                            selectedPreset = selectedEmulatorPreset,
+                            onSelect = selectEmulatorPreset
+                        )
+                        FilterChip(
+                            selected = advancedLaunchEditing,
+                            onClick = {
+                                if (advancedLaunchEditing) {
+                                    selectEmulatorPreset(selectedEmulatorPreset)
+                                    advancedLaunchEditing = false
+                                } else {
+                                    advancedLaunchEditing = true
+                                }
+                            },
+                            label = { Text("Advanced launch fields") }
+                        )
+                        LaunchValuePickerField(
+                            label = "Package name",
+                            value = packageName,
+                            onValueChange = { packageName = it },
+                            suggestions = packageNameSuggestions,
+                            enabled = advancedLaunchEditing
+                        )
+                        LaunchValuePickerField(
+                            label = "Activity class",
+                            value = activityName,
+                            onValueChange = { activityName = it },
+                            suggestions = activityNameSuggestions,
+                            enabled = advancedLaunchEditing
+                        )
+                        LaunchValuePickerField(
+                            label = "Intent action",
+                            value = action,
+                            onValueChange = { action = it },
+                            suggestions = actionSuggestions,
+                            enabled = advancedLaunchEditing
+                        )
                         RetroTextField(value = dataUri, onValueChange = { dataUri = it }, label = { Text("Data URI") }, modifier = Modifier.fillMaxWidth())
                         OutlinedButton(onClick = { dataUriPicker.launch(arrayOf("*/*")) }) {
                             Text("Pick file")

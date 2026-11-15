@@ -85,7 +85,7 @@ for (const [id, name, resource, review] of systems) {
     : 'Current template only; no suitable finished game preview reused. No synthetic placeholder artwork inserted.'});
 }
 
-const arcadeRoot = 'app/src/main/assets/arcade_presentations';
+const arcadeRoot = 'app/src/main/assets/artwork/arcade/presentations';
 const arcadeIndex = await readJson(path.join(root, arcadeRoot, 'index.json'));
 for (const [asset, mode, file] of [
   ['ddragon.png', 'front', 'arcade-stacked-double-dragon.png'],

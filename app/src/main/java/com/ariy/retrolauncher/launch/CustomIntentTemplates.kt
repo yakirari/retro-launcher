@@ -51,10 +51,19 @@ object CustomIntentTemplates {
         ),
         CustomIntentTemplate(
             label = "Eden optimized preset",
-            description = "Variant for Eden-optimized builds on the same Switch launch contract. Keeps the same ROM URI and handoff semantics.",
+            description = "Targets the installed Eden Optimized build using its Switch launch contract.",
             emulatedPlatform = "Nintendo Switch",
             romSubfolderHint = "switch",
-            packageName = "dev.eden.eden_emulator",
+            packageName = EdenPackages.OPTIMIZED,
+            activityName = "org.yuzu.yuzu_emu.activities.EmulationActivity",
+            action = "android.nfc.action.TECH_DISCOVERED"
+        ),
+        CustomIntentTemplate(
+            label = "Eden Nightly preset",
+            description = "Targets Eden Nightly (dev.eden.eden_emulator.nightly) using its Android Switch launch contract.",
+            emulatedPlatform = "Nintendo Switch",
+            romSubfolderHint = "switch",
+            packageName = EdenPackages.NIGHTLY,
             activityName = "org.yuzu.yuzu_emu.activities.EmulationActivity",
             action = "android.nfc.action.TECH_DISCOVERED"
         ),
@@ -258,6 +267,15 @@ object CustomIntentTemplates {
             romSubfolderHint = "ps3",
             packageName = "com.armsx3",
             activityName = "com.armsx2.Main",
+            action = "android.intent.action.VIEW"
+        ),
+        CustomIntentTemplate(
+            label = "X1 BOX preset",
+            description = "Launches X1 BOX with the selected Xbox disc image URI using ACTION_VIEW. Configure BIOS and game access in X1 BOX first.",
+            emulatedPlatform = "Microsoft Xbox",
+            romSubfolderHint = "xbox",
+            packageName = "com.izzy2lost.x1box",
+            activityName = "com.izzy2lost.x1box.LauncherActivity",
             action = "android.intent.action.VIEW"
         ),
         CustomIntentTemplate(

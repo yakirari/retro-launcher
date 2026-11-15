@@ -75,7 +75,6 @@ object NostalgicOverlays {
         cropWidthFraction = 843f / 1408f,
         cropHeightFraction = 696f / 768f
     )
-    private val scummVmSpec = floppyDiskSpec(R.drawable.nostalgic_overlay_scummvm)
     private val dosGamesSpec = floppyDiskSpec(R.drawable.nostalgic_overlay_dos)
     private val compactDiscSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_cd,
@@ -218,7 +217,11 @@ object NostalgicOverlays {
         artworkHeightFraction = 517f / 768f,
         artworkCornerRadiusFraction = 0f,
         detectArtworkPlacementFromTransparency = false,
-        fitCompleteArtwork = true
+        fitCompleteArtwork = true,
+        cropLeftFraction = 284f / 960f,
+        cropTopFraction = 124f / 768f,
+        cropWidthFraction = 375f / 960f,
+        cropHeightFraction = 533f / 768f
     )
     private val nintendo3dsSpec = NostalgicOverlaySpec(
         drawableResourceId = R.drawable.nostalgic_overlay_3ds,
@@ -305,7 +308,6 @@ object NostalgicOverlays {
     )
 
     private val specByPlatform = mapOf(
-        "ScummVM" to scummVmSpec,
         "DOS Games" to dosGamesSpec,
         "Sony PlayStation" to ps1Spec,
         "Sony PlayStation 2" to ps2Spec,
@@ -330,7 +332,8 @@ object NostalgicOverlays {
         specForPlatform(platform) != null
 
     fun specForPlatform(platform: String?): NostalgicOverlaySpec? =
-        if (platform in PcGameStores.platforms || platform == "PC (Windows)") digitalGameSpec else platform
+        if (GamePlatforms.normalizeOrNull(platform)?.let { it == "Microsoft Xbox" || it == "ScummVM" } == true) null
+        else if (platform in PcGameStores.platforms || platform == "PC (Windows)") digitalGameSpec else platform
             ?.takeIf { it.isNotBlank() }
             ?.let { key ->
                 specByPlatform.entries.firstOrNull { it.key.equals(key, ignoreCase = true) }?.value

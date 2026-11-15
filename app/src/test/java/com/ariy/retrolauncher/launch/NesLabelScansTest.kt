@@ -34,7 +34,7 @@ class NesLabelScansTest {
         assertNull(NesLabelScans.identity(ByteArrayInputStream(zip("readme.txt")), true))
     }
 
-    private fun manifest() = File("src/main/assets/cartridge-artwork/nes-scans.json").readText()
+    private fun manifest() = File("src/main/assets/artwork/nes/scans.json").readText()
     @Test fun reviewedManifestMatchesOnlyVerifiedUsaOriginal() {
         val scans = NesLabelScans.parse(manifest())
         assertEquals(setOf("799459548f9636dd263200da494f04058f5540e2"), scans.keys)

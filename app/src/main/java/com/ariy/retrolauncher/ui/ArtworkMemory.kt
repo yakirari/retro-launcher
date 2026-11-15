@@ -31,7 +31,7 @@ internal fun decodeSampledArtworkAsset(context: Context, path: String, maxDimens
         }
     }
     val decoded = context.assets.open(path).use { BitmapFactory.decodeStream(it, null, options) } ?: return null
-    return if (path.startsWith("arcade_presentations/front/")) transparentArcadeFront(decoded) else decoded
+    return if (path.startsWith("artwork/arcade/presentations/front/")) transparentArcadeFront(decoded) else decoded
 }
 
 /** Alpha-only treatment for the verified flat surround; source assets and interior RGB remain intact. */

@@ -176,6 +176,7 @@ fun preferredRomFolderHintForPlatform(platform: String?): String? =
         "Nintendo Wii" -> "wii"
         "Nintendo 3DS" -> "n3ds"
         "Sony PlayStation Vita" -> "vita"
+        "Microsoft Xbox" -> "xbox"
         "Nintendo Switch" -> "switch"
         else -> null
     }
@@ -211,6 +212,8 @@ private fun romFolderHintCandidatesForRawHint(subfolderHint: String?): List<Stri
         "dreamcast", "dc", "segadreamcast" -> listOf("dreamcast", "dc", "segadreamcast")
         "ngpc", "neogeopocketcolor" -> listOf("ngpc", "neogeopocketcolor")
         "ps2", "playstation2" -> listOf("ps2", "playstation2", "sonyplaystation2")
+        "xbox", "xbox1", "xboxclassic", "originalxbox", "ogxbox", "x1box" ->
+            listOf("xbox", "xbox1", "xboxclassic", "originalxbox", "ogxbox", "x1box")
         "n3ds", "3ds" -> listOf("n3ds", "3ds", "nintendo3ds")
         "gamecube", "gc" -> listOf("gamecube", "gc", "nintendogamecube")
         "nds", "ds" -> listOf("nds", "ds", "nintendods")
@@ -340,4 +343,3 @@ private fun tokenizeRomFolderName(rawName: String?): List<String> =
         ?.split(Regex("[^a-z0-9]+"))
         ?.mapNotNull { token -> token.takeIf(String::isNotBlank) }
         .orEmpty()
-

@@ -7,7 +7,7 @@ import org.json.JSONObject
 
 /** Full-file iNES SHA-1 identities, including the header: unknown/header-edited dumps fail closed. */
 internal object NesLabelScans {
-    const val MANIFEST = "cartridge-artwork/nes-scans.json"
+    const val MANIFEST = "artwork/nes/scans.json"
     data class Scan(val url: String, val sha256: String, val sourceWidth: Int, val sourceHeight: Int,
         val left: Int, val top: Int, val width: Int, val height: Int)
 

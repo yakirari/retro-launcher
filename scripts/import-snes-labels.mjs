@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const target = path.join(root, 'app/src/main/assets/snes_labels');
+const target = path.join(root, 'app/src/main/assets/artwork/snes/labels');
 const indexPath = path.join(target, 'index.json');
 const require = createRequire(path.resolve(process.env.ARTWORK_TOOLS || '/tmp/retro-art-handoff-tools', 'package.json'));
 const sharp = require('sharp');

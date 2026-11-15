@@ -80,6 +80,8 @@ import or **Skip platform**. Choosing one game does not reveal the rest of Scumm
 
 Artwork autofill starts after the import batch, uses the existing bounded background queue, and
 preserves custom artwork. Offline lookup failures do not remove imported tiles or shortcut icons.
+Matching ScummVM shortcuts and registered targets use the bundled curated covers instead of generated
+catalog covers; manually chosen artwork is preserved.
 Retry missing covers when online; the Artwork tab's explicit refresh can replace existing covers.
 Discovery covers supported formats/recognized folders, not every possible emulator format or layout.
 Recognized DOS/Vita folders without a supported bulk scanner are reported with manual-add guidance.

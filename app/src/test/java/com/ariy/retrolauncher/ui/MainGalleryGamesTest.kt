@@ -49,4 +49,18 @@ class MainGalleryGamesTest {
         assertEquals(entries, mainGalleryGames(entries, "Android"))
         assertEquals(entries, mainGalleryGames(entries, "Favorites"))
     }
+
+    @Test fun searchMatchesTitleSubtitlePlatformAndIgnoresCaseAndOuterSpaces() {
+        val scummVm = GameEntry(title = "The Secret of Monkey Island", subtitle = "ScummVM",
+            platform = "ScummVM", sourceType = GameSourceType.SHORTCUT)
+        val other = GameEntry(title = "Sonic", subtitle = "Genesis", platform = "Sega Genesis",
+            sourceType = GameSourceType.CUSTOM_INTENT)
+        val games = listOf(scummVm, other)
+
+        assertEquals(listOf(scummVm), searchGalleryGames(games, "  MONKEY "))
+        assertEquals(listOf(scummVm), searchGalleryGames(games, "scummvm"))
+        assertEquals(listOf(other), searchGalleryGames(games, "Genesis"))
+        assertEquals(games, searchGalleryGames(games, " "))
+        assertEquals(emptyList<GameEntry>(), searchGalleryGames(games, "missing"))
+    }
 }

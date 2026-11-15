@@ -17,7 +17,7 @@ const check=(v,m)=>{if(!v)throw Error(m);};
 const safe=s=>{check(/^[a-z0-9_]+$/.test(s),`Unsafe cabinet ID ${s}`);return s;};
 const plan=await read(path.join(base,'plan.json'));
 const metadata=await read(path.join(root,'app/src/main/assets/arcade-metadata/metadata.json'));
-const mappings=(await read(path.join(root,'app/src/main/assets/arcade-metadata/cabinet-art.json'))).mappings;
+const mappings=(await read(path.join(root,'app/src/main/assets/artwork/arcade/cabinet-art.json'))).mappings;
 const references=(await read(path.join(root,'artwork/cabinet-references/cabinet-manifest.json'))).mappings;
 const conversions=(await read(path.join(root,'artwork/cabinet-references/full-cabinet-review/conversions/plan.json'))).games;
 const photos=(await read(path.join(root,'artwork/cabinet-references/full-cabinet-review/provenance.json'))).sources;

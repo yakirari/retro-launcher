@@ -4,6 +4,22 @@ Release preparation and development history. A draft is not a published APK rele
 
 ## Unreleased
 
+## 0.1.6 — Experimental preview — 2026-11-15
+
+- Add Microsoft Xbox / X1 BOX as a supported emulator platform, including launch integration,
+  scanning hints, artwork lookup and platform badges.
+- Refresh ScummVM presentation with curated game-specific artwork, transparent artwork backgrounds,
+  improved title matching and consistent cover fitting.
+- Improve GameCube and arcade artwork sizing, platform-specific gallery layouts, emulator/app icon
+  consistency, and platform badges.
+- Add live library search with an internal keyboard that keeps results visible and responsive on
+  smaller screens.
+- Add platform launch cues and refine emulator discovery, setup and shortcut handling.
+- Increase Android version code to 7.
+
+See [0.1.6 release notes](docs/releases/0.1.6.md) for validation and limitations. This is a
+debug-signed preview, not a production-signed release.
+
 ## 0.1.5 — Experimental preview — 2026-10-30
 
 - Add shared arcade presentation fronts and bundled NES/SNES cartridge artwork catalogs with

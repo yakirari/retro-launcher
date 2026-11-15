@@ -10,7 +10,7 @@ platform galleries, nostalgic cartridge/case templates, ROM scanning, and Androi
 
 ## Install the latest release
 
-[Download the latest release (v0.1.5 experimental preview)](https://github.com/yakirari/retro-launcher/releases/tag/v0.1.5)
+[Download the latest release (v0.1.6 experimental preview)](https://github.com/yakirari/retro-launcher/releases/tag/v0.1.6)
 and install its APK on Android 13 or newer. If Android asks, allow installs from the app or browser
 you used to download it. This preview is debug-signed, not production-signed. Emulators, ROMs,
 BIOS/firmware and games are not included.
@@ -68,6 +68,7 @@ compatibility with every build/game**. Modified packages may need a manual launc
 | PPSSPP | PSP |
 | DuckStation | PlayStation 1 |
 | NetherSX2 / compatible AetherSX2 package | PlayStation 2 |
+| X1 BOX | Original Microsoft Xbox; ISO/XISO scan |
 | Vita3K | PS Vita preset; no automatic bulk folder scanner |
 | NES.emu | NES |
 | Snes9x EX+ | Super Nintendo |

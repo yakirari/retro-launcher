@@ -15,6 +15,10 @@
         <package android:name="org.dolphinemu.dolphinemu" />
         <package android:name="com.magneticchen.daijishou" />
         <package android:name="app.gamenative" />
+        <package android:name="dev.eden.eden_emulator" />
+        <package android:name="dev.eden.eden_emulator.nightly" />
+        <package android:name="com.miHoYo.Yuanshen" />
+        <package android:name="com.izzy2lost.x1box" />
     </queries>
 
     <application
@@ -51,7 +55,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />

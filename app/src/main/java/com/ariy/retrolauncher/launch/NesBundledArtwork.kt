@@ -7,7 +7,7 @@ import com.ariy.retrolauncher.model.GamePlatforms
 import org.json.JSONObject
 
 internal object NesBundledArtwork {
-    const val MANIFEST = "nes_covers/index.json"
+    const val MANIFEST = "artwork/nes/covers/index.json"
     data class Cover(val title: String, val path: String, val sha256: String)
     @Volatile private var cached: List<Cover>? = null
 
@@ -50,7 +50,7 @@ internal object NesBundledArtwork {
         val cover = cover(context, game) ?: return null
         val name = "${game.id}-nes-bundled-v1-${cover.sha256}"
         store.existingBitmapUri(name)?.let { return it }
-        val bitmap = context.assets.open("nes_covers/${cover.path}").use { BitmapFactory.decodeStream(it) } ?: return null
+        val bitmap = context.assets.open("artwork/nes/covers/${cover.path}").use { BitmapFactory.decodeStream(it) } ?: return null
         return try { store.saveBitmap(name, bitmap) } finally { bitmap.recycle() }
     }
 }

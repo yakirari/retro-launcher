@@ -10,19 +10,19 @@ Per-file contributor assignments are not supplied by the source page.
 84 reviewed box fronts are resized to a maximum 768px long edge without cropping
 or upscaling; converted to sRGB JPEG quality 85 with 4:4:4 chroma; metadata stripped.
 Source URLs, original hashes and normalized hashes/dimensions are recorded in
-nes_covers/index.json. These are box scans, not cartridge-label scans.
+artwork/nes/covers/index.json. These are box scans, not cartridge-label scans.
 
 Published FAQ: https://www.vgmuseum.com/faq/faq.htm (checked 2026-10-28).
 It permits credited website reuse and prohibits off-site image hotlinking;
 app redistribution is not expressly addressed. Bundled at the project owner's
 direction, not represented as an additional license grant. Original game artwork
 and trademarks remain their owners' property and are not licensed under MIT.
-Source URLs and normalized file hashes: nes_covers/index.json.
+Source URLs and normalized file hashes: artwork/nes/covers/index.json.
 Additional rights notes: CARTRIDGE-LABEL-SOURCES.txt in this asset bundle.
 
 Bundled SNES cartridge labels
 ----------------------------
-All 109 SNES labels are JPEGs listed in the unified snes_labels/index.json catalog.
+All 109 SNES labels are JPEGs listed in the unified artwork/snes/labels/index.json catalog.
 The earlier 48 comprise 42 user-supplied AI recreations and six composite-image
 extracts. A newer batch replaces 58 PNGs with 43 AI recreations and 15 supplied
 originals retained after the image tool rejected recreation, and adds three
@@ -39,8 +39,22 @@ redistribution of media based on those sources is not expressly addressed. Bundl
 at the project owner's direction, not represented as an additional license grant.
 Original game artwork and trademarks remain their owners' property and are not
 licensed under MIT.
-Per-label source and matching notes: snes_labels/index.json and
+Per-label source and matching notes: artwork/snes/labels/index.json and
 CARTRIDGE-LABEL-SOURCES.txt in this asset bundle.
+
+Bundled GB / GBC / GBA cartridge labels
+---------------------------------------
+347 user-supplied labels are bundled in artwork/gb/, artwork/gbc/ and artwork/gba/.
+The supplied
+artwork review identifies two AI-recreated regional GB labels (Pocket Bomberman
+Europe and Parodius Europe); 345 other images are byte-for-byte copies of the
+previously downloaded set. Their source is attributed by Slot Cart Studio to
+ScreenScraper under CC BY-NC-SA 4.0. The game-title/CRC metadata is from the
+libretro-database No-Intro DATs under CC BY-SA 4.0. Five title identities remain
+unresolved and are intentionally not inferred. The media are not relicensed
+under MIT; preserve their attribution and applicable license terms. Commercial
+distribution/use requires separate permission review. See
+CARTRIDGE-LABEL-SOURCES.txt and each platform's artwork/<platform>/index.json.
 
 Original launcher code and author-created artwork (SVGs, backgrounds and templates)
 are covered by the project's MIT license. Third-party cabinet images are not relicensed under MIT.
@@ -87,7 +101,7 @@ Modifications and generated artwork
 Retro Launcher processes some reference images into transparent, resized and
 aligned cabinet illustrations; some conversion illustrations use donor images.
 The project author also identifies their cabinet artwork as AI-generated.
-The current packaged cabinet-to-ROM mappings are in arcade-metadata/cabinet-art.json.
+The current packaged cabinet-to-ROM mappings are in artwork/arcade/cabinet-art.json.
 The former source/review manifests are not retained in the current tree. Attribution
 to an external source does not imply that every cabinet came from that source.
 Generated/conversion illustrations are not certified photographs of authentic
@@ -104,7 +118,7 @@ filenames; they were losslessly encoded as PNG with decoded pixel equality verif
 Creator, generation method and redistribution permissions were not supplied.
 They are not certified historical photographs or established MIT-licensed media.
 Per-file source-pack name, dimensions and hashes are in
-arcade_presentations/index.json.
+artwork/arcade/presentations/index.json.
 
 The superseded generated fronts combined illustrated upright cabinet bodies
 with third-party gameplay stills, marquees and control panels. The following

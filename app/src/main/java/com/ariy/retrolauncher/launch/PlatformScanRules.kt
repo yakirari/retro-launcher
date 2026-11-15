@@ -2,6 +2,7 @@ package com.ariy.retrolauncher.launch
 
 /** Deliberately excludes PS3 firmware, install packages, and arbitrary BIN/ELF files. */
 internal val ps3ScanExtensions = setOf("iso")
+internal val xboxScanExtensions = setOf("iso", "xiso")
 
 private val discTrackNamePattern = Regex("""(?i)(?:^|[\s._()\[\]-])track[\s._-]*0*\d+(?:$|[\s._()\[\]-])""")
 private val switchAddonNamePattern = Regex(

@@ -64,6 +64,27 @@ class ScummVmGamesTest {
         pairs.forEach { (id, title) -> assertEquals(id, LibretroArtworkCatalog.scummVmArtworkMatchKey(id), LibretroArtworkCatalog.scummVmArtworkMatchKey(title)) }
         assertNotEquals(LibretroArtworkCatalog.scummVmArtworkMatchKey("monkey"), LibretroArtworkCatalog.scummVmArtworkMatchKey("monkey2"))
     }
+    @Test fun curatedArtworkMatchesShortcutEditionsAndCanonicalTitles() {
+        val available = setOf("monkey", "monkey2", "grim", "tlj")
+        assertEquals("monkey", ScummVmBundledArtwork.resolveAssetId(available, listOf("monkey-ega-demo")))
+        assertEquals("monkey2", ScummVmBundledArtwork.resolveAssetId(available, listOf("monkey2-fr")))
+        assertEquals("grim", ScummVmBundledArtwork.resolveAssetId(available, listOf("grim-win")))
+        assertEquals("tlj", ScummVmGames.artworkGameId("The Longest Journey (Steam/Windows/English)"))
+        assertEquals("grim", ScummVmGames.artworkGameId("Grim Fandango (Windows/English)"))
+        assertNull(ScummVmBundledArtwork.resolveAssetId(available, listOf("monkeyupdate")))
+    }
+    @Test fun blackPixelsConnectedToTheImageEdgeBecomeTransparent() {
+        val pixels = IntArray(25) { 0xff000000.toInt() }
+        for (y in 1..3) for (x in 1..3) pixels[y * 5 + x] = 0xff888888.toInt()
+        pixels[12] = 0xff000000.toInt()
+        pixels[1] = 0xff141414.toInt()
+
+        assertEquals(15, ScummVmBundledArtwork.makeEdgeBlackTransparent(pixels, 5, 5))
+        assertEquals(0x00000000, pixels[0])
+        assertEquals(0xff141414.toInt(), pixels[1])
+        assertEquals(0xff000000.toInt(), pixels[12])
+        assertEquals(0xff888888.toInt(), pixels[6])
+    }
     @Test fun legacyRepairPreservesHistoryAndManualArtAndIsIdempotent() {
         val old = entry("DOT").copy(id = "test", imageUri = "file:///test-autofill.png", playCount = 4, lastPlayedAtEpochMillis = 99)
         val repaired = ScummVmGames.repairTitle(old)
@@ -73,6 +94,25 @@ class ScummVmGamesTest {
         assertEquals(99L, repaired.lastPlayedAtEpochMillis)
         assertEquals(repaired, ScummVmGames.repairTitle(repaired))
         assertEquals("file:///manual.png", ScummVmGames.repairTitle(old.copy(imageUri = "file:///manual.png")).imageUri)
+    }
+    @Test fun versionedCatalogArtworkIsRefreshedButManualArtworkIsPreserved() {
+        val catalog = entry("Day of the Tentacle").copy(
+            id = "game-id",
+            imageUri = "file:///data/user/0/app/files/shortcut-icons/game-id-scummvm-cover-v1.png#123"
+        )
+        assertTrue(ScummVmGames.usesLegacyCatalogArtwork(catalog))
+        assertTrue(ScummVmGames.usesCatalogArtwork(catalog))
+        assertTrue(ScummVmGames.usesCatalogArtwork(catalog.copy(
+            imageUri = "file:///data/user/0/app/files/shortcut-icons/game-id-scummvm-cover-v2.png#123"
+        )))
+        assertFalse(ScummVmGames.usesCatalogArtwork(catalog.copy(imageUri = "file:///manual-cover.png")))
+        val bundled = catalog.copy(imageUri =
+            "file:///data/user/0/app/files/shortcut-icons/game-id-scummvm-bundled-alpha-v2-monkey-${"a".repeat(64)}.png"
+        )
+        assertTrue(ScummVmGames.usesBundledArtwork(bundled))
+        assertFalse(ScummVmGames.usesBundledArtwork(catalog.copy(imageUri = "file:///manual-cover.png")))
+        assertFalse(ScummVmGames.usesLegacyCatalogArtwork(catalog.copy(imageUri = "file:///manual-cover.png")))
+        assertFalse(ScummVmGames.usesLegacyCatalogArtwork(catalog.copy(platform = "Nintendo DS")))
     }
     @Test fun registeringRepairsExistingTileButNeverCollapsesDifferentRegisteredEditions() {
         val old = entry("monkey2").copy(id = "retained", intentDataUri = "content://games/Monkey2", playCount = 5)

@@ -2,6 +2,7 @@ package com.ariy.retrolauncher
 
 import android.content.Context
 import com.ariy.retrolauncher.launch.CustomIntentTemplates
+import com.ariy.retrolauncher.launch.EdenPackages
 import com.ariy.retrolauncher.launch.GameRecommendations
 import com.ariy.retrolauncher.launch.ScummVmGames
 import com.ariy.retrolauncher.model.GameEntry
@@ -114,7 +115,7 @@ internal object LibraryScanner {
             onReadingGame(title)
             val extras = when {
                 scummTarget != null -> ScummVmGames.extrasForTarget(scummTarget, draft.extras)
-                draft.packageName == "dev.eden.eden_emulator" -> mergeEdenLaunchConfigIntoExtras(
+                EdenPackages.isEdenPackage(draft.packageName) -> mergeEdenLaunchConfigIntoExtras(
                     draft.extras, inferEdenTitleIdFromUriString(context, uri).orEmpty(), draft.edenResolutionSetup
                 )
                 else -> draft.extras

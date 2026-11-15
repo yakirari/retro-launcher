@@ -78,7 +78,7 @@ class ConsoleArtworkTest {
         assertTrue(rows.length() > 0)
         for (index in 0 until rows.length()) {
             val row = rows.getJSONObject(index)
-            val bytes = context.assets.open("snes_labels/${row.getString("path")}").use { it.readBytes() }
+            val bytes = context.assets.open("artwork/snes/labels/${row.getString("path")}").use { it.readBytes() }
             val hash = java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
             assertEquals(row.getString("sha256"), hash)
             val bitmap = requireNotNull(BitmapFactory.decodeByteArray(bytes, 0, bytes.size))
@@ -92,14 +92,14 @@ class ConsoleArtworkTest {
                 imageUri = "file:///private/snes-scan-test-autofill.png#revision",
                 intentDataUri = "file:///roms/${row.getString("romTitle")}.sfc")
             val originalCover = game.imageUri
-            assertEquals("snes_labels/${row.getString("path")}", com.ariy.retrolauncher.launch.SnesCartridgeScans.path(context, game))
+            assertEquals("artwork/snes/labels/${row.getString("path")}", com.ariy.retrolauncher.launch.SnesCartridgeScans.path(context, game))
             val regionlessName = row.getString("romTitle").substringBefore(" (")
                 .lowercase().replace(Regex("[^a-z0-9]"), "")
             val regionlessGame = game.copy(intentDataUri = "file:///roms/$regionlessName.zip")
             val fallbackPath = requireNotNull(com.ariy.retrolauncher.launch.SnesCartridgeScans.path(context, regionlessGame)) {
                 "Missing regionless fallback for ${row.getString("romTitle")}: $regionlessName"
             }
-            assertTrue(fallbackPath.startsWith("snes_labels/labels/"))
+            assertTrue(fallbackPath.startsWith("artwork/snes/labels/labels/"))
             assertEquals("file:///roms/$regionlessName.zip", regionlessGame.intentDataUri)
             assertEquals(originalCover, game.imageUri)
             assertNull(com.ariy.retrolauncher.launch.SnesCartridgeScans.path(context, game.copy(imageUri = "content://manual-cover")))
@@ -118,7 +118,7 @@ class ConsoleArtworkTest {
         var usaCount = 0
         var japanCount = 0
         for (row in rows) {
-            val path = "snes_labels/${row.getString("path")}"
+            val path = "artwork/snes/labels/${row.getString("path")}"
             val bytes = context.assets.open(path).use { it.readBytes() }
             assertEquals(row.getString("sha256"), java.security.MessageDigest.getInstance("SHA-256")
                 .digest(bytes).joinToString("") { "%02x".format(it) })
@@ -150,17 +150,17 @@ class ConsoleArtworkTest {
             imageUri = "file:///data/user/0/com.ariy.retrolauncher/files/mario-rpg-duplicate-test-autofill.png",
             intentDataUri = "content://com.android.externalstorage.documents/tree/roms/document/roms%2FSNES%2Fsupermariorpglegendofthesevenstars%20(2).sfc"
         )
-        assertEquals("snes_labels/labels/supermariorpglegendofthesevenstars-japan.jpg",
+        assertEquals("artwork/snes/labels/labels/supermariorpglegendofthesevenstars-japan.jpg",
             catalog.path(context, duplicateNamedMarioRpg))
         val chrono = GameEntry(id = "chrono-test", title = "chronotrigger", platform = "Super Nintendo",
             sourceType = com.ariy.retrolauncher.model.GameSourceType.CUSTOM_INTENT,
             intentDataUri = "file:///roms/chronotrigger.zip")
-        assertEquals("snes_labels/labels/chronotrigger-usa.jpg", catalog.path(context, chrono))
+        assertEquals("artwork/snes/labels/labels/chronotrigger-usa.jpg", catalog.path(context, chrono))
         for (title in listOf("megaman10", "megaman12", "megaman13")) {
             val game = GameEntry(id = "$title-test", title = "Ignored tile title", platform = "Super Nintendo",
                 sourceType = com.ariy.retrolauncher.model.GameSourceType.CUSTOM_INTENT,
                 intentDataUri = "file:///roms/$title.sfc")
-            assertEquals("snes_labels/labels/$title.jpg", catalog.path(context, game))
+            assertEquals("artwork/snes/labels/labels/$title.jpg", catalog.path(context, game))
         }
     }
 

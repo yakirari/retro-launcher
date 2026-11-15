@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import com.ariy.retrolauncher.launch.CartridgeRomChecksum
+import com.ariy.retrolauncher.launch.HandheldCartridgeArtwork
 import com.ariy.retrolauncher.model.GameEntry
 import com.ariy.retrolauncher.model.GamePlatforms
 import java.io.ByteArrayOutputStream
@@ -61,6 +62,9 @@ internal object CartridgeLabelStore {
                 CartridgeRomChecksum.read(it, extension == "zip", romExtensions)
             }?.also { checksumFile.writeText(it) }
         } ?: return@withPermit null
+        HandheldCartridgeArtwork.find(context, system, checksum)?.let {
+            return@withPermit HandheldCartridgeArtwork.load(context, it)
+        }
         val imageFile = File(root, "$system-$checksum.png")
         if (imageFile.exists()) BitmapFactory.decodeFile(imageFile.path)?.let { return@withPermit it }
         val miss = File(root, "$system-$checksum.missing")

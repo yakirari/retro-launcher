@@ -10,7 +10,7 @@ const sharp = require('sharp');
 const cheerio = require('cheerio');
 const sourcePage = 'https://www.vgmuseum.com/scans/snes.html';
 const staging = process.env.SNES_SCAN_CACHE || '/tmp/retro-vgmuseum-snes';
-const output = path.join(root, 'app/src/main/assets/snes_labels');
+const output = path.join(root, 'app/src/main/assets/artwork/snes/labels');
 const reviewPath = path.join(root, 'artwork/snes/cartridge-scans.json');
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const check = (condition, message) => { if (!condition) throw Error(message); };

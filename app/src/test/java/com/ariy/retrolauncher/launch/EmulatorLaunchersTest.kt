@@ -50,6 +50,21 @@ class EmulatorLaunchersTest {
         assertTrue(standalone.all { it.platform == GamePlatforms.EMULATORS && it.intentDataUri == null && it.extrasJson == null })
     }
 
+    @Test fun x1BoxIsRecognizedAsXboxAndHasAUriLaunchPreset() {
+        assertEquals("Microsoft Xbox", GamePlatforms.normalizeOrNull("Original Xbox"))
+        assertEquals("Microsoft Xbox", GamePlatforms.normalizeOrNull("xbox"))
+        assertEquals("Microsoft Xbox", GamePlatforms.inferFromPackageName("com.izzy2lost.x1box"))
+        assertEquals("Microsoft Xbox", GamePlatforms.inferFromUriString("content://roms/xbox/Halo.iso"))
+        assertEquals("xbox", com.ariy.retrolauncher.preferredRomFolderHintForPlatform("xbox"))
+
+        val template = CustomIntentTemplates.all.single { it.packageName == "com.izzy2lost.x1box" }
+        assertEquals("com.izzy2lost.x1box.LauncherActivity", template.activityName)
+        assertEquals("android.intent.action.VIEW", template.action)
+        assertEquals("xbox", template.romSubfolderHint)
+        assertEquals(GamePlatforms.EMULATORS, standaloneActivityPlatform(template.packageName))
+        assertEquals("Microsoft Xbox", template.emulatedPlatform)
+    }
+
     @Test fun gameHubsBecomeStandaloneLaunchersWithStableNamesAndNoGamePayload() {
         val apps = listOf(activity("com.xiaoji.egggame"), activity("gamehub.lite"))
         val entries = installedEmulatorLaunchers(apps, emptyList())

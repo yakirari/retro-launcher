@@ -1,4 +1,33 @@
-Optional downloaded GB / GBC / GBA cartridge labels
+Bundled GB / GBC / GBA cartridge labels
+
+Retro Launcher includes 347 user-supplied GB / GBC / GBA label images in
+artwork/gb/, artwork/gbc/ and artwork/gba/. Runtime matching uses the full ROM CRC32 and system
+from each platform's artwork/<platform>/index.json. The two revised GB images are
+GB-0FD1AE54.png (Pocket Bomberman, Europe) and GB-85748525.png (Parodius,
+Europe); the supplied README identifies them as AI-recreated regional labels.
+The other 345 images were retained byte-for-byte from the downloaded cache.
+
+Artwork source attribution: Slot Cart Studio / ScreenScraper:
+https://github.com/BrandonKowalski/slot-cart-studio
+https://www.screenscraper.fr/
+Slot Cart Studio attributes this artwork to ScreenScraper under CC BY-NC-SA 4.0:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Game-name and CRC metadata is from libretro-database No-Intro DATs, version
+2026.10.07, pinned revision 2fdd069d45883449cecf97deddd493492e77ff29:
+https://github.com/libretro/libretro-database/tree/2fdd069d45883449cecf97deddd493492e77ff29/metadat/no-intro
+Database license: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
+Five labels have unresolved DAT identities; their titles remain unset in the
+manifest. No title-based or regional substitution is used at runtime.
+
+These third-party images and derivatives are not relicensed under MIT.
+Attribution and the applicable noncommercial/share-alike terms must be
+preserved. Commercial distribution/use requires separate permission review.
+Original media authors and game rights holders retain their rights. No
+affiliation or endorsement is implied.
+
+For ROM CRCs not in the bundled manifest, the optional online fallback uses
+the source below. It performs exact-CRC matching only; images are cached locally.
 
 Art index and images: https://art.slot-cfw.fyi/
 Slot Cart Studio: https://github.com/BrandonKowalski/slot-cart-studio
@@ -9,13 +38,6 @@ Slot Cart Studio's README attributes game names/CRCs to libretro-database
 (CC BY-SA 4.0), and artwork to ScreenScraper (CC BY-NC-SA 4.0).
 https://creativecommons.org/licenses/by-sa/4.0/
 https://creativecommons.org/licenses/by-nc-sa/4.0/
-
-Retro Launcher downloads exact-CRC matching GB / GBC / GBA support-texture images on demand.
-Downloaded images are kept in app cache, fitted without extra text, and are not
-bundled with this app or relicensed under MIT. Original media authors retain their
-rights. Attribution and these source/license links apply to cached downloaded media.
-No affiliation or endorsement is implied. Commercial distribution/use requires
-separate review of the media terms; runtime fetching does not remove obligations.
 
 Optional downloaded Nintendo 64 cartridge labels
 
@@ -28,7 +50,7 @@ Reviewed higher-resolution original cartridge scans:
 https://archive.org/details/N64_Cartridge_Art_Collection
 Uploaded by Jason Scott (2016); source filenames, exact ROM-header signatures,
 SHA-256 digests and manually reviewed sticker crop coordinates are recorded in
-cartridge-artwork/n64-scans.json. Seven reviewed USA labels use 305-343 by 350-381 original pixels.
+artwork/n64/scans.json. Seven reviewed USA labels use 305-343 by 350-381 original pixels.
 Each scan is fetched separately and only the sticker rectangle is cached. Unknown
 or unreviewed variants retain the exact lower-resolution label, not another region.
 No AI reconstruction or invented lettering is used. These scans have no declared
@@ -49,7 +71,7 @@ Reviewed source: https://archive.org/details/TheLegendofZelda-NES-CartScans
 The Legend of Zelda, NES-ZL-USA, original USA release only. This is a label crop
 from an existing cartridge scan, not AI reconstruction or invented lettering.
 Source JPEG is described by the uploader as scaled and possibly retouched.
-Source SHA-256, dimensions and crop are recorded in cartridge-artwork/nes-scans.json.
+Source SHA-256, dimensions and crop are recorded in artwork/nes/scans.json.
 Only metadata ships; no game scan is bundled. Downloads are bounded, hash-verified,
 region-decoded and cached. Matching uses complete-ROM SHA-1 (including iNES header)
 from libretro-database, not filenames, fuzzy titles or guessed regional substitutes:

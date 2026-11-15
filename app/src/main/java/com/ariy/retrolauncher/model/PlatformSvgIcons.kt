@@ -41,6 +41,7 @@ object PlatformSvgIcons {
         "Sony PlayStation 3" to R.raw.platform_sony_playstation_3,
         "Sony PlayStation Portable" to R.raw.platform_sony_playstation_portable,
         "Sony PlayStation Vita" to R.raw.platform_sony_playstation_vita,
+        "Microsoft Xbox" to R.raw.platform_xbox,
         "Neo Geo" to R.raw.platform_neogeo,
         "Neo Geo Pocket" to R.raw.platform_neogeo,
         "Neo Geo Pocket Color" to R.raw.platform_neogeo,

@@ -13,13 +13,16 @@ and the per-catalog JSON indexes. Credits and public availability do not establi
 redistribution permission. See [third-party notices](../THIRD_PARTY_NOTICES.md) and
 the [release checklist](RELEASING.md) before publishing assets or APKs.
 
-Review current artwork and catalog contents:
+Platform-specific game artwork is organized under
+[`app/src/main/assets/artwork/`](../app/src/main/assets/artwork/):
 
-- Arcade fronts: [`arcade_presentations/index.json`](../app/src/main/assets/arcade_presentations/index.json)
-- NES covers: [`nes_covers/index.json`](../app/src/main/assets/nes_covers/index.json)
-- SNES labels: [`snes_labels/index.json`](../app/src/main/assets/snes_labels/index.json)
-- NES/SNES exact-ROM metadata: [`cartridge-artwork/nes-scans.json`](../app/src/main/assets/cartridge-artwork/nes-scans.json)
-- Cabinet attribution: [`arcade-metadata/cabinet-art.json`](../app/src/main/assets/arcade-metadata/cabinet-art.json)
+- Arcade fronts and cabinet attribution: [`arcade/`](../app/src/main/assets/artwork/arcade/)
+- NES box covers and cartridge-scan metadata: [`nes/`](../app/src/main/assets/artwork/nes/)
+- SNES labels: [`snes/labels/`](../app/src/main/assets/artwork/snes/labels/)
+- GB, GBC and GBA labels and CRC indexes: [`gb/`](../app/src/main/assets/artwork/gb/),
+  [`gbc/`](../app/src/main/assets/artwork/gbc/) and
+  [`gba/`](../app/src/main/assets/artwork/gba/)
+- N64 cartridge-scan metadata: [`n64/scans.json`](../app/src/main/assets/artwork/n64/scans.json)
 
 Artwork preparation scripts are maintainer tools, not part of the Android build. Some require
 original or review inputs that are not included in the cleaned project tree. The committed

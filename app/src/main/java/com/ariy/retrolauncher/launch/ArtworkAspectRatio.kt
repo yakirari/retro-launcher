@@ -10,7 +10,7 @@ internal fun preferredArtworkAspectRatio(platform: String?): Float {
         in com.ariy.retrolauncher.model.PcGameStores.platforms, "PC (Windows)" -> 2f / 3f
         "Nintendo Switch", "Nintendo 3DS", "Nintendo DS", "Sony PlayStation",
         "Sony PlayStation 2", "Sony PlayStation 3", "Sony PlayStation Portable",
-        "Sony PlayStation Vita", "Nintendo GameCube", "Nintendo Wii" -> 0.70f
+        "Sony PlayStation Vita", "Nintendo GameCube", "Nintendo Wii", "Microsoft Xbox" -> 0.70f
         "Nintendo 64" -> 1.4f // Western front box scans are landscape, not DVD-shaped portraits.
         "Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Entertainment System",
         "Super Nintendo", "Sega Master System", "Sega Genesis / Mega Drive",

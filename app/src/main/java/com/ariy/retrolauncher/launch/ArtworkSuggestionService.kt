@@ -76,12 +76,13 @@ object ArtworkSuggestionService {
     internal fun isRelevantArtworkTitle(query: String, resultTitle: String): Boolean {
         val contextTerms = setOf(
             "art", "artwork", "game", "illustration", "key", "nintendo", "official", "poster",
-            "promotional", "screenshot", "switch", "video", "wallpaper", "playstation", "portable", "psp"
+            "promotional", "screenshot", "switch", "video", "wallpaper", "playstation", "portable", "psp",
+            "xbox", "microsoft"
         )
         val ignoredTerms = setOf(
             "art", "artwork", "box", "case", "cover", "front", "game", "image", "illustration",
             "key", "nintendo", "official", "png", "poster", "promotional", "scan", "switch", "the",
-            "video", "wallpaper", "playstation", "portable", "psp"
+            "video", "wallpaper", "playstation", "portable", "psp", "xbox", "microsoft"
         )
         val positiveQuery = query.replace(Regex("""(?:^|\s)-(?:"[^"]*"|\S+)"""), " ")
         val queryTerms = positiveQuery.lowercase()

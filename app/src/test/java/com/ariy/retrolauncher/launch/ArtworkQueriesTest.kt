@@ -77,6 +77,21 @@ class ArtworkQueriesTest {
     }
 
     @Test
+    fun xboxArtworkQueriesUsePlatformAndStripXisoExtension() {
+        val entry = GameEntry(
+            title = "Halo - Combat Evolved.xiso",
+            platform = "Microsoft Xbox",
+            sourceType = GameSourceType.CUSTOM_INTENT,
+            intentDataUri = "content://example/xbox/Halo%20-%20Combat%20Evolved.xiso"
+        )
+
+        assertEquals("Halo - Combat Evolved", normalizedArtworkTitle(entry.title, stripFileExtension = true))
+        val queries = entry.artworkSearchQueries("Halo - Combat Evolved.xiso")
+        assertTrue(queries.first().contains("Xbox", ignoreCase = true))
+        assertTrue(queries.none { it.contains("xiso", ignoreCase = true) })
+    }
+
+    @Test
     fun uriLikeFallbackTitlesAreReducedToLeafNames() {
         assertEquals("198x", normalizedArtworkTitle("6ebd-3766:ROM/switch/198x.nsp", stripFileExtension = true))
         assertEquals("198x", normalizedArtworkTitle("/storage/emulated/0/ROM/switch/198x.nsp", stripFileExtension = true))

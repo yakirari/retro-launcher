@@ -32,7 +32,7 @@ if ((output === root || output.startsWith(root + path.sep)) && !(args.includes('
     throw Error('Use external output, or artwork/n64/local-prepared for local batch crops; never Android build inputs');
 if (args.includes('--batch-crop') && (args.includes('--prepare') || args.includes('--distribution')))
     throw Error('Batch crops are local prepared candidates, not reviewed/runtime or distribution approval');
-const manifest = JSON.parse(fs.readFileSync(option('--manifest') ?? path.join(appAssets, 'cartridge-artwork/n64-scans.json'), 'utf8'));
+const manifest = JSON.parse(fs.readFileSync(option('--manifest') ?? path.join(appAssets, 'artwork/n64/scans.json'), 'utf8'));
 if (manifest.schemaVersion !== 1 || manifest.platform !== 'Nintendo 64') throw Error('Unsupported manifest');
 const digest = crypto.createHash('sha1');
 for await (const chunk of fs.createReadStream(archive)) digest.update(chunk);
